@@ -1,0 +1,2781 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ملعب بادل | PADEL COURT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+  <style>
+    :root {
+      --bg-primary: #0B1120;
+      --bg-secondary: #0f172a;
+      --bg-card: #1e293b;
+      --bg-hover: #334155;
+      --neon-blue: #00D4FF;
+      --neon-blue-dim: rgba(0, 212, 255, 0.1);
+      --neon-blue-glow: rgba(0, 212, 255, 0.3);
+      --emerald: #10B981;
+      --emerald-dim: rgba(16, 185, 129, 0.1);
+      --emerald-glow: rgba(16, 185, 129, 0.3);
+      --text-primary: #F8FAFC;
+      --text-secondary: #94A3B8;
+      --text-muted: #64748B;
+      --danger: #EF4444;
+      --danger-dim: rgba(239, 68, 68, 0.1);
+      --warning: #F59E0B;
+      --warning-dim: rgba(245, 158, 11, 0.1);
+      --border: rgba(148, 163, 184, 0.1);
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      --shadow-neon: 0 0 30px rgba(0, 212, 255, 0.15);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* ===== شريط التنبيه ===== */
+    .maintenance-banner {
+      background: linear-gradient(90deg, var(--warning-dim), rgba(245, 158, 11, 0.2));
+      border-bottom: 1px solid var(--warning);
+      color: var(--warning);
+      padding: 14px 20px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 0.95rem;
+      display: none;
+      animation: slideDown 0.5s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .maintenance-banner::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.2), transparent);
+      animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* ===== الهيدر ===== */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(11, 17, 32, 0.85);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      z-index: 1000;
+      height: 70px;
+      transition: var(--transition);
+    }
+
+    .header.scrolled {
+      background: rgba(11, 17, 32, 0.95);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      font-size: 2.2rem;
+      filter: drop-shadow(0 0 10px var(--neon-blue-glow));
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    .logo-text {
+      font-size: 1.6rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--text-primary) 0%, var(--neon-blue) 50%, var(--emerald) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
+
+    .nav {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-link::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 0;
+      height: 2px;
+      background: var(--neon-blue);
+      transition: var(--transition);
+      transform: translateX(-50%);
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      color: var(--neon-blue);
+      background: var(--neon-blue-dim);
+    }
+
+    .nav-link:hover::before,
+    .nav-link.active::before {
+      width: 60%;
+    }
+
+    .nav-link.admin-link {
+      background: linear-gradient(135deg, var(--emerald-dim), rgba(16, 185, 129, 0.2));
+      border: 1px solid var(--emerald);
+      color: var(--emerald);
+      margin-right: 10px;
+    }
+
+    .nav-link.admin-link:hover {
+      background: var(--emerald);
+      color: var(--bg-primary);
+    }
+
+    /* ===== Hero Section ===== */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      padding: 120px 4rem 60px;
+      max-width: 1400px;
+      margin: 0 auto;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, var(--neon-blue-glow) 0%, transparent 70%);
+      pointer-events: none;
+      animation: pulse-glow 4s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.1); }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--neon-blue-dim);
+      border: 1px solid var(--neon-blue);
+      color: var(--neon-blue);
+      padding: 8px 16px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      animation: fadeInUp 0.6s ease;
+    }
+
+    .hero-title {
+      font-size: 4rem;
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      animation: fadeInUp 0.6s ease 0.1s both;
+    }
+
+    .hero-title .highlight {
+      background: linear-gradient(135deg, var(--neon-blue), var(--emerald));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+    }
+
+    .hero-subtitle {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      margin-bottom: 2.5rem;
+      max-width: 500px;
+      line-height: 1.8;
+      animation: fadeInUp 0.6s ease 0.2s both;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 2.5rem;
+      animation: fadeInUp 0.6s ease 0.3s both;
+    }
+
+    .stat-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align: center;
+      min-width: 130px;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--neon-blue), var(--emerald));
+    }
+
+    .stat-box:hover {
+      transform: translateY(-5px);
+      border-color: var(--neon-blue);
+      box-shadow: var(--shadow-neon);
+    }
+
+    .stat-number {
+      display: block;
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: var(--neon-blue);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      animation: fadeInUp 0.6s ease 0.4s both;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ===== الأزرار ===== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 32px;
+      border-radius: 12px;
+      border: none;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--neon-blue), #0099CC);
+      color: var(--bg-primary);
+      box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(0, 212, 255, 0.4);
+    }
+
+    .btn-primary:active {
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-primary);
+      border: 2px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--neon-blue);
+      color: var(--neon-blue);
+      background: var(--neon-blue-dim);
+    }
+
+    .btn-large {
+      padding: 18px 40px;
+      font-size: 1.1rem;
+    }
+
+    .btn-full {
+      width: 100%;
+    }
+
+    .btn-small {
+      padding: 10px 20px;
+      font-size: 0.875rem;
+    }
+
+    .btn-icon {
+      transition: transform 0.3s;
+    }
+
+    .btn:hover .btn-icon {
+      transform: translateX(-5px);
+    }
+
+    .btn-whatsapp {
+      background: linear-gradient(135deg, #25D366, #128C7E);
+      color: white;
+    }
+
+    .btn-whatsapp:hover {
+      box-shadow: 0 8px 30px rgba(37, 211, 102, 0.4);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, var(--danger), #DC2626);
+      color: white;
+    }
+
+    .btn-warning {
+      background: linear-gradient(135deg, var(--warning), #D97706);
+      color: white;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--emerald), #059669);
+      color: white;
+    }
+
+    /* ===== معاينة الملعب ===== */
+    .hero-visual {
+      position: relative;
+      z-index: 1;
+      animation: fadeInUp 0.8s ease 0.3s both;
+    }
+
+    .courts-preview {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .court-card {
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 24px;
+      padding: 2rem;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .court-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      transition: var(--transition);
+    }
+
+    .court-card.available::before {
+      background: linear-gradient(90deg, var(--emerald), #34D399);
+    }
+
+    .court-card.busy::before {
+      background: linear-gradient(90deg, var(--danger), #F87171);
+    }
+
+    .court-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--neon-blue);
+      box-shadow: var(--shadow-neon);
+    }
+
+    .court-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .court-name {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .court-icon {
+      width: 50px;
+      height: 50px;
+      background: var(--neon-blue-dim);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .court-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+    }
+
+    .court-status-badge {
+      padding: 6px 14px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .court-status-badge.available {
+      background: var(--emerald-dim);
+      color: var(--emerald);
+      border: 1px solid var(--emerald);
+    }
+
+    .court-status-badge.busy {
+      background: var(--danger-dim);
+      color: var(--danger);
+      border: 1px solid var(--danger);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      animation: pulse-dot 2s infinite;
+    }
+
+    .status-dot.available {
+      background: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald);
+    }
+
+    .status-dot.busy {
+      background: var(--danger);
+      box-shadow: 0 0 8px var(--danger);
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.2); }
+    }
+
+    .court-info {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .court-info-item {
+      text-align: center;
+      padding: 0.8rem;
+      background: var(--bg-primary);
+      border-radius: 12px;
+    }
+
+    .court-info-value {
+      display: block;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--neon-blue);
+    }
+
+    .court-info-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ===== الأقسام العامة ===== */
+    .section {
+      padding: 100px 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .section-label {
+      display: inline-block;
+      background: var(--neon-blue-dim);
+      border: 1px solid var(--neon-blue);
+      color: var(--neon-blue);
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-size: 2.8rem;
+      font-weight: 900;
+      margin-bottom: 1rem;
+      position: relative;
+      display: inline-block;
+    }
+
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--neon-blue), var(--emerald));
+      border-radius: 2px;
+    }
+
+    .section-subtitle {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 1.5rem auto 0;
+      line-height: 1.8;
+    }
+
+    /* ===== قسم الحجز ===== */
+    .booking-section {
+      background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+      position: relative;
+    }
+
+    .booking-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+    }
+
+    .booking-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 2.5rem;
+      box-shadow: var(--shadow);
+    }
+
+    .booking-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .court-selector {
+      display: flex;
+      gap: 1rem;
+      background: var(--bg-primary);
+      padding: 6px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+    }
+
+    .court-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 28px;
+      background: transparent;
+      border: none;
+      border-radius: 12px;
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .court-btn.active {
+      background: linear-gradient(135deg, var(--neon-blue), #0099CC);
+      color: var(--bg-primary);
+      box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+    }
+
+    .court-btn:hover:not(.active) {
+      color: var(--text-primary);
+      background: var(--bg-hover);
+    }
+
+    .date-selector {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--bg-primary);
+      padding: 6px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+    }
+
+    .date-nav {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: transparent;
+      border: none;
+      color: var(--neon-blue);
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .date-nav:hover {
+      background: var(--neon-blue-dim);
+    }
+
+    .date-display {
+      font-size: 1.1rem;
+      font-weight: 700;
+      min-width: 220px;
+      text-align: center;
+      padding: 10px 20px;
+      color: var(--text-primary);
+    }
+
+    /* ===== جدول الأوقات ===== */
+    .time-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
+    }
+
+    .time-slot {
+      padding: 1.2rem;
+      background: var(--bg-primary);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .time-slot::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: transparent;
+      transition: var(--transition);
+    }
+
+    .time-slot:hover:not(.booked):not(.maintenance) {
+      border-color: var(--neon-blue);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-neon);
+    }
+
+    .time-slot:hover:not(.booked):not(.maintenance)::before {
+      background: var(--neon-blue);
+    }
+
+    .time-slot.available::before {
+      background: var(--emerald);
+    }
+
+    .time-slot.booked {
+      background: var(--danger-dim);
+      border-color: var(--danger);
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .time-slot.booked::before {
+      background: var(--danger);
+    }
+
+    .time-slot.maintenance {
+      background: var(--warning-dim);
+      border-color: var(--warning);
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .time-slot.maintenance::before {
+      background: var(--warning);
+    }
+
+    .time-slot .time {
+      font-size: 1.3rem;
+      font-weight: 800;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .time-slot .time-period {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .time-slot .status {
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 50px;
+      display: inline-block;
+    }
+
+    .time-slot.available .status {
+      background: var(--emerald-dim);
+      color: var(--emerald);
+    }
+
+    .time-slot.booked .status {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--danger);
+    }
+
+    .time-slot.maintenance .status {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--warning);
+    }
+
+    .slot-price {
+      font-size: 0.85rem;
+      color: var(--neon-blue);
+      margin-top: 0.5rem;
+      font-weight: 600;
+    }
+
+    /* ===== النافذة المنبثقة ===== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 1rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-content {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 2.5rem;
+      max-width: 520px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: var(--shadow);
+      transform: scale(0.9);
+      transition: transform 0.3s;
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1.5rem;
+      left: 1.5rem;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-close:hover {
+      background: var(--danger);
+      color: white;
+      border-color: var(--danger);
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      padding-left: 3rem;
+    }
+
+    .booking-summary {
+      background: var(--bg-primary);
+      border: 1px solid var(--neon-blue);
+      border-radius: 16px;
+      padding: 1.2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .booking-summary-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .booking-summary-item:last-child {
+      border-bottom: none;
+    }
+
+    .booking-summary-label {
+      color: var(--text-secondary);
+    }
+
+    .booking-summary-value {
+      font-weight: 700;
+      color: var(--neon-blue);
+    }
+
+    /* ===== النماذج ===== */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.6rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      padding: 14px 18px;
+      background: var(--bg-primary);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--neon-blue);
+      box-shadow: 0 0 0 4px var(--neon-blue-dim);
+    }
+
+    .form-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .form-textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .loyalty-check {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .loyalty-check .form-input {
+      flex: 1;
+    }
+
+    .loyalty-info {
+      margin-top: 0.8rem;
+      padding: 1rem;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .loyalty-info.success {
+      background: var(--emerald-dim);
+      border: 1px solid var(--emerald);
+      color: var(--emerald);
+    }
+
+    .loyalty-info.error {
+      background: var(--danger-dim);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+
+    /* ===== قسم الأسعار ===== */
+    .price-section {
+      background: var(--bg-primary);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+    }
+
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.8rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .price-row:last-child {
+      border-bottom: none;
+    }
+
+    .price-row.discount .price-value {
+      color: var(--emerald);
+    }
+
+    .price-row.total {
+      font-size: 1.2rem;
+      font-weight: 800;
+      padding-top: 1rem;
+      margin-top: 0.5rem;
+      border-top: 2px solid var(--border);
+    }
+
+    .price-row.total .price-value {
+      color: var(--neon-blue);
+      font-size: 1.4rem;
+    }
+
+    .price-label {
+      color: var(--text-secondary);
+    }
+
+    .price-value {
+      font-weight: 700;
+    }
+
+    /* ===== ملاحظات الحجز ===== */
+    .booking-notes {
+      background: var(--warning-dim);
+      border: 1px solid var(--warning);
+      color: var(--warning);
+      padding: 1rem 1.2rem;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ===== قسم البطولات ===== */
+    .tournaments-section {
+      background: var(--bg-secondary);
+    }
+
+    .tournaments-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 2rem;
+    }
+
+    .tournament-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+      transition: var(--transition);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .tournament-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--neon-blue);
+      box-shadow: var(--shadow-neon);
+    }
+
+    .tournament-image {
+      width: 100%;
+      height: 220px;
+      background: linear-gradient(135deg, #1e3a5f 0%, #0d2137 50%, #1e293b 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tournament-image::before {
+      content: '';
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, var(--neon-blue-glow) 0%, transparent 70%);
+      animation: pulse-glow 3s infinite;
+    }
+
+    .tournament-image-icon {
+      font-size: 5rem;
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 0 20px var(--neon-blue-glow));
+    }
+
+    .tournament-content {
+      padding: 2rem;
+    }
+
+    .tournament-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .tournament-status.upcoming {
+      background: var(--neon-blue-dim);
+      color: var(--neon-blue);
+      border: 1px solid var(--neon-blue);
+    }
+
+    .tournament-status.active {
+      background: var(--emerald-dim);
+      color: var(--emerald);
+      border: 1px solid var(--emerald);
+    }
+
+    .tournament-status.completed {
+      background: var(--bg-hover);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    .tournament-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 0.8rem;
+      line-height: 1.3;
+    }
+
+    .tournament-date {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tournament-desc {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    /* ===== نافذة تفاصيل البطولة ===== */
+    .bracket-container {
+      margin-top: 2rem;
+      overflow-x: auto;
+    }
+
+    .bracket {
+      display: flex;
+      gap: 3rem;
+      min-width: 600px;
+      padding: 1rem;
+    }
+
+    .bracket-round {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      gap: 1.5rem;
+    }
+
+    .bracket-round-title {
+      text-align: center;
+      font-weight: 700;
+      color: var(--neon-blue);
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .bracket-match {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      min-width: 180px;
+    }
+
+    .bracket-player {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem;
+      border-radius: 8px;
+      transition: var(--transition);
+    }
+
+    .bracket-player:hover {
+      background: var(--bg-hover);
+    }
+
+    .bracket-player.winner {
+      color: var(--emerald);
+      font-weight: 700;
+    }
+
+    /* ===== قسم التقييم ===== */
+    .feedback-section {
+      background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+    }
+
+    .feedback-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 3rem;
+      box-shadow: var(--shadow);
+    }
+
+    .rating-stars {
+      display: flex;
+      flex-direction: row-reverse;
+      justify-content: center;
+      gap: 0.8rem;
+      margin-bottom: 2rem;
+    }
+
+    .rating-stars input {
+      display: none;
+    }
+
+    .rating-stars label {
+      font-size: 2.5rem;
+      cursor: pointer;
+      filter: grayscale(1);
+      opacity: 0.4;
+      transition: var(--transition);
+    }
+
+    .rating-stars input:checked ~ label,
+    .rating-stars label:hover,
+    .rating-stars label:hover ~ label {
+      filter: grayscale(0);
+      opacity: 1;
+      transform: scale(1.2);
+    }
+
+    /* ===== قسم التواصل ===== */
+    .contact-section {
+      text-align: center;
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .contact-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      padding: 2.5rem 2rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text-primary);
+      text-decoration: none;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .contact-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: transparent;
+      transition: var(--transition);
+    }
+
+    .contact-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--neon-blue);
+    }
+
+    .contact-card:hover::before {
+      background: var(--neon-blue);
+    }
+
+    .contact-card.whatsapp {
+      background: linear-gradient(135deg, rgba(37, 211, 102, 0.1), rgba(18, 140, 126, 0.1));
+      border-color: rgba(37, 211, 102, 0.3);
+    }
+
+    .contact-card.whatsapp:hover {
+      border-color: #25D366;
+      box-shadow: 0 8px 30px rgba(37, 211, 102, 0.2);
+    }
+
+    .contact-card.whatsapp::before {
+      background: #25D366;
+    }
+
+    .contact-icon {
+      font-size: 2.5rem;
+      transition: transform 0.3s;
+    }
+
+    .contact-card:hover .contact-icon {
+      transform: scale(1.1);
+    }
+
+    .contact-label {
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .social-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .social-link:hover {
+      border-color: var(--neon-blue);
+      color: var(--neon-blue);
+      background: var(--neon-blue-dim);
+      transform: translateY(-2px);
+    }
+
+    /* ===== الفوتر ===== */
+    .footer {
+      text-align: center;
+      padding: 3rem 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      background: var(--bg-secondary);
+    }
+
+    .footer-logo {
+      font-size: 1.5rem;
+      font-weight: 900;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--neon-blue), var(--emerald));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* ===== التحميل ===== */
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-secondary);
+    }
+
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid var(--border);
+      border-top-color: var(--neon-blue);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ===== الإشعارات ===== */
+    .toast {
+      position: fixed;
+      top: 90px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      font-weight: 700;
+      z-index: 3000;
+      opacity: 0;
+      transition: all 0.4s;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .toast.success {
+      background: var(--emerald-dim);
+      border: 1px solid var(--emerald);
+      color: var(--emerald);
+    }
+
+    .toast.error {
+      background: var(--danger-dim);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 1024px) {
+      .hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 3rem;
+      }
+
+      .hero-stats {
+        justify-content: center;
+      }
+
+      .hero-actions {
+        justify-content: center;
+      }
+
+      .hero-visual {
+        order: -1;
+      }
+
+      .courts-preview {
+        max-width: 500px;
+        margin: 0 auto;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        padding: 0 1rem;
+      }
+
+      .nav {
+        display: none;
+      }
+
+      .hero {
+        padding: 100px 1.5rem 40px;
+      }
+
+      .hero-title {
+        font-size: 2.5rem;
+      }
+
+      .section {
+        padding: 60px 1rem;
+      }
+
+      .section-title {
+        font-size: 2rem;
+      }
+
+      .booking-container {
+        padding: 1.5rem;
+      }
+
+      .time-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .tournaments-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .contact-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ===== تأثيرات إضافية ===== */
+    .glow-text {
+      text-shadow: 0 0 20px var(--neon-blue-glow);
+    }
+
+    .gradient-border {
+      position: relative;
+    }
+
+    .gradient-border::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 2px;
+      background: linear-gradient(135deg, var(--neon-blue), var(--emerald));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Toast Notification -->
+  <div class="toast" id="toast"></div>
+
+  <!-- شريط التنبيه -->
+  <div class="maintenance-banner" id="maintenance-banner">
+    <span>⚠️</span>
+    <span id="maintenance-text"></span>
+  </div>
+
+  <!-- الهيدر -->
+  <header class="header" id="header">
+    <a href="#" class="logo">
+      <span class="logo-icon">🎾</span>
+      <span class="logo-text">PADEL COURT</span>
+    </a>
+    <nav class="nav">
+      <a href="#booking" class="nav-link active">الحجز</a>
+      <a href="#tournaments" class="nav-link">البطولات</a>
+      <a href="#feedback" class="nav-link">التقييم</a>
+      <a href="#contact" class="nav-link">التواصل</a>
+      <a href="admin.html" class="nav-link admin-link">لوحة التحكم</a>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span>🌟</span>
+        <span>أفضل ملاعب البادل في المدينة</span>
+      </div>
+
+      <h1 class="hero-title">
+        احجز ملعبك<br>
+        <span class="highlight">الآن</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        ملاعب بادل احترافية بأحدث التجهيزات. احجز موعدك بسهولة واستمتع بأفضل تجربة لعب.
+      </p>
+
+      <div class="hero-stats">
+        <div class="stat-box">
+          <span class="stat-number" id="today-bookings">0</span>
+          <span class="stat-label">حجز اليوم</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-number">2</span>
+          <span class="stat-label">ملعب متاح</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-number">40K</span>
+          <span class="stat-label">السعر/ساعة</span>
+        </div>
+      </div>
+
+      <div class="hero-actions">
+        <a href="#booking" class="btn btn-primary btn-large">
+          احجز الآن
+          <i class="fas fa-arrow-left btn-icon"></i>
+        </a>
+        <a href="#contact" class="btn btn-secondary btn-large">
+          <i class="fab fa-whatsapp"></i>
+          تواصل معنا
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="courts-preview">
+        <div class="court-card available" id="court-1-card">
+          <div class="court-header">
+            <div class="court-name">
+              <div class="court-icon">🎾</div>
+              <span class="court-title">ملعب 1</span>
+            </div>
+            <div class="court-status-badge available">
+              <span class="status-dot available"></span>
+              <span>متاح</span>
+            </div>
+          </div>
+          <div class="court-info">
+            <div class="court-info-item">
+              <span class="court-info-value" id="court-1-next">--:--</span>
+              <span class="court-info-label">الحجز القادم</span>
+            </div>
+            <div class="court-info-item">
+              <span class="court-info-value" id="court-1-today">0</span>
+              <span class="court-info-label">حجوزات اليوم</span>
+            </div>
+            <div class="court-info-item">
+              <span class="court-info-value">40K</span>
+              <span class="court-info-label">السعر</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="court-card available" id="court-2-card">
+          <div class="court-header">
+            <div class="court-name">
+              <div class="court-icon">🎾</div>
+              <span class="court-title">ملعب 2</span>
+            </div>
+            <div class="court-status-badge available">
+              <span class="status-dot available"></span>
+              <span>متاح</span>
+            </div>
+          </div>
+          <div class="court-info">
+            <div class="court-info-item">
+              <span class="court-info-value" id="court-2-next">--:--</span>
+              <span class="court-info-label">الحجز القادم</span>
+            </div>
+            <div class="court-info-item">
+              <span class="court-info-value" id="court-2-today">0</span>
+              <span class="court-info-label">حجوزات اليوم</span>
+            </div>
+            <div class="court-info-item">
+              <span class="court-info-value">40K</span>
+              <span class="court-info-label">السعر</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- قسم الحجز -->
+  <section id="booking" class="section booking-section">
+    <div class="section-header">
+      <span class="section-label">📅 نظام الحجوزات</span>
+      <h2 class="section-title">احجز موعدك</h2>
+      <p class="section-subtitle">
+        اختر الملعب والتاريخ والوقت المناسب لك. الأوقات المحجوزة تظهر باللون الأحمر.
+      </p>
+    </div>
+
+    <div class="booking-container">
+      <div class="booking-controls">
+        <div class="court-selector">
+          <button class="court-btn active" data-court="1">
+            <span>🎾</span>
+            <span>ملعب 1</span>
+          </button>
+          <button class="court-btn" data-court="2">
+            <span>🎾</span>
+            <span>ملعب 2</span>
+          </button>
+        </div>
+
+        <div class="date-selector">
+          <button class="date-nav" id="prev-date">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+          <div class="date-display" id="current-date"></div>
+          <button class="date-nav" id="next-date">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="time-grid" id="time-grid">
+        <div class="loading">
+          <div class="loading-spinner"></div>
+          <p>جاري تحميل الأوقات...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- نافذة الحجز -->
+  <div class="modal-overlay" id="booking-modal">
+    <div class="modal-content">
+      <button class="modal-close" id="close-modal">×</button>
+      <h3 class="modal-title">✨ تأكيد الحجز</h3>
+
+      <div class="booking-summary">
+        <div class="booking-summary-item">
+          <span class="booking-summary-label">الملعب</span>
+          <span class="booking-summary-value" id="modal-court">ملعب 1</span>
+        </div>
+        <div class="booking-summary-item">
+          <span class="booking-summary-label">التاريخ</span>
+          <span class="booking-summary-value" id="modal-date">--</span>
+        </div>
+        <div class="booking-summary-item">
+          <span class="booking-summary-label">الوقت</span>
+          <span class="booking-summary-value" id="modal-time">--</span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>المدة *</label>
+          <select id="duration" class="form-select">
+            <option value="1">ساعة واحدة</option>
+            <option value="2">ساعتان</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>رقم الهاتف *</label>
+          <input type="tel" id="customer-phone" class="form-input" placeholder="07XX XXX XXXX" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>الاسم الثلاثي *</label>
+        <input type="text" id="customer-name" class="form-input" placeholder="محمد أحمد علي" required>
+      </div>
+
+      <div class="form-group">
+        <label>رقم بطاقة الولاء (اختياري)</label>
+        <div class="loyalty-check">
+          <input type="text" id="loyalty-card" class="form-input" placeholder="PADEL-XXX">
+          <button type="button" class="btn btn-small btn-secondary" id="check-loyalty">
+            فحص
+          </button>
+        </div>
+        <div id="loyalty-info" class="loyalty-info" style="display: none;"></div>
+      </div>
+
+      <div class="price-section">
+        <div class="price-row">
+          <span class="price-label">السعر الأساسي</span>
+          <span class="price-value" id="base-price">40,000 د.ع</span>
+        </div>
+        <div class="price-row discount" id="discount-row" style="display: none;">
+          <span class="price-label">الخصم</span>
+          <span class="price-value" id="discount-amount">-0 د.ع</span>
+        </div>
+        <div class="price-row total">
+          <span class="price-label">السعر النهائي</span>
+          <span class="price-value" id="final-price">40,000 د.ع</span>
+        </div>
+      </div>
+
+      <div class="booking-notes" id="booking-notes">
+        <i class="fas fa-info-circle"></i>
+        <span>يرجى الإلغاء قبل 6 ساعات من موعد الحجز</span>
+      </div>
+
+      <button class="btn btn-primary btn-full" id="confirm-booking">
+        <i class="fas fa-check"></i>
+        تأكيد الحجز
+      </button>
+    </div>
+  </div>
+
+  <!-- قسم البطولات -->
+  <section id="tournaments" class="section tournaments-section">
+    <div class="section-header">
+      <span class="section-label">🏆 البطولات</span>
+      <h2 class="section-title">البطولات والتحديات</h2>
+      <p class="section-subtitle">
+        شارك في بطولاتنا المثيرة ونافس أفضل اللاعبين. تابع جدول التصفيات مباشرة.
+      </p>
+    </div>
+
+    <div class="tournaments-grid" id="tournaments-grid">
+      <div class="loading">
+        <div class="loading-spinner"></div>
+        <p>جاري تحميل البطولات...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- نافذة تفاصيل البطولة -->
+  <div class="modal-overlay" id="tournament-modal">
+    <div class="modal-content" style="max-width: 800px;">
+      <button class="modal-close" id="close-tournament-modal">×</button>
+      <h3 class="modal-title" id="tournament-modal-title">تفاصيل البطولة</h3>
+      <div id="tournament-modal-content"></div>
+    </div>
+  </div>
+
+  <!-- قسم التقييم -->
+  <section id="feedback" class="section feedback-section">
+    <div class="section-header">
+      <span class="section-label">💬 تقييمك يهمنا</span>
+      <h2 class="section-title">شاركنا رأيك</h2>
+      <p class="section-subtitle">
+        نقدر ملاحظاتك ومقترحاتك. ساعدنا في تقديم تجربة أفضل.
+      </p>
+    </div>
+
+    <div class="feedback-container">
+      <form id="feedback-form">
+        <div class="rating-stars">
+          <input type="radio" name="rating" value="5" id="star5">
+          <label for="star5">⭐</label>
+          <input type="radio" name="rating" value="4" id="star4">
+          <label for="star4">⭐</label>
+          <input type="radio" name="rating" value="3" id="star3">
+          <label for="star3">⭐</label>
+          <input type="radio" name="rating" value="2" id="star2">
+          <label for="star2">⭐</label>
+          <input type="radio" name="rating" value="1" id="star1">
+          <label for="star1">⭐</label>
+        </div>
+
+        <div class="form-group">
+          <textarea id="feedback-message" class="form-textarea" placeholder="اكتب ملاحظتك أو مقترحك هنا..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">
+          <i class="fas fa-paper-plane"></i>
+          إرسال التقييم
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- قسم التواصل -->
+  <section id="contact" class="section contact-section">
+    <div class="section-header">
+      <span class="section-label">📞 تواصل معنا</span>
+      <h2 class="section-title">نحن هنا لمساعدتك</h2>
+      <p class="section-subtitle">
+        تواصل معنا عبر أي قناة تفضلها. نحن متواجدون يومياً من 2 ظهراً حتى 12 منتصف الليل.
+      </p>
+    </div>
+
+    <div class="contact-grid">
+      <a href="tel:+9647700000000" class="contact-card" id="phone-card">
+        <span class="contact-icon">📞</span>
+        <span class="contact-label">اتصل بنا</span>
+        <span style="color: var(--text-muted); font-size: 0.9rem;">0770 XXX XXXX</span>
+      </a>
+
+      <a href="https://wa.me/9647700000000" target="_blank" class="contact-card whatsapp" id="whatsapp-card">
+        <span class="contact-icon">
+          <i class="fab fa-whatsapp" style="font-size: 2.5rem; color: #25D366;"></i>
+        </span>
+        <span class="contact-label">واتساب</span>
+        <span style="color: var(--text-muted); font-size: 0.9rem;">تواصل مباشر</span>
+      </a>
+
+      <a href="#" class="contact-card" id="location-card">
+        <span class="contact-icon">📍</span>
+        <span class="contact-label">الموقع</span>
+        <span style="color: var(--text-muted); font-size: 0.9rem;">افتح الخريطة</span>
+      </a>
+    </div>
+
+    <div class="social-links" id="social-links">
+      <a href="#" class="social-link" id="social-instagram">
+        <i class="fab fa-instagram"></i>
+        إنستغرام
+      </a>
+      <a href="#" class="social-link" id="social-facebook">
+        <i class="fab fa-facebook"></i>
+        فيسبوك
+      </a>
+      <a href="#" class="social-link" id="social-tiktok">
+        <i class="fab fa-tiktok"></i>
+        تيك توك
+      </a>
+    </div>
+  </section>
+
+  <!-- الفوتر -->
+  <footer class="footer">
+    <div class="footer-logo">PADEL COURT</div>
+    <p>ملعب بادل © 2026 - جميع الحقوق محفوظة</p>
+    <p style="margin-top: 0.5rem; font-size: 0.85rem;">صُنع بـ ❤️ في العراق</p>
+  </footer>
+
+  <script>
+
+    // ===== إعدادات Supabase =====
+    const SUPABASE_URL = 'https://hrfentlnqxquhlaywlzv.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhyZmVudGxucXhxdWhsYXl3bHp2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NjY4NDMsImV4cCI6MjA5NTE0Mjg0M30.mseVeL5hqNXs5U-Vj_OddqCWzt-6lEm0E4Dftk08EfY';
+
+    // UMD syntax - createClient from global supabase object
+    const { createClient } = supabase;
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // ===== المتغيرات العامة =====
+    let currentCourt = 1;
+    let currentDate = new Date();
+    let selectedSlot = null;
+    let settings = {};
+    let loyaltyDiscount = 0;
+
+    // ===== التهيئة =====
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadSettings();
+      setupEventListeners();
+      updateDateDisplay();
+      await loadTimeSlots();
+      await loadTournaments();
+      await loadMaintenanceStatus();
+      await updateTodayBookings();
+      await updateCourtStatus();
+      setupRealtime();
+    });
+
+    // ===== تحميل الإعدادات =====
+    async function loadSettings() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('settings')
+          .select('*')
+          .single();
+
+        if (data) {
+          settings = data;
+          updateSettingsUI();
+        }
+      } catch (err) {
+        console.error('Error loading settings:', err);
+        // استخدام الإعدادات الافتراضية
+        settings = {
+          base_price: 40000,
+          worker_discount: 10,
+          manager_discount: 0,
+          manager_phone: '0770 XXX XXXX',
+          whatsapp_number: '0770 XXX XXXX',
+          booking_notes: 'يرجى الإلغاء قبل 6 ساعات من موعد الحجز',
+          location_url: 'https://maps.google.com'
+        };
+        updateSettingsUI();
+      }
+    }
+
+    function updateSettingsUI() {
+      // تحديث رقم الهاتف
+      const phoneCard = document.getElementById('phone-card');
+      if (phoneCard && settings.manager_phone) {
+        phoneCard.href = `tel:${settings.manager_phone}`;
+        phoneCard.querySelector('span:last-child').textContent = settings.manager_phone;
+      }
+
+      // تحديث واتساب
+      const whatsappCard = document.getElementById('whatsapp-card');
+      if (whatsappCard && settings.whatsapp_number) {
+        const cleanNumber = settings.whatsapp_number.replace(/\D/g, '');
+        whatsappCard.href = `https://wa.me/964${cleanNumber}`;
+      }
+
+      // تحديث الموقع
+      const locationCard = document.getElementById('location-card');
+      if (locationCard && settings.location_url) {
+        locationCard.href = settings.location_url;
+      }
+
+      // تحديث روابط التواصل
+      if (settings.social_links) {
+        const social = typeof settings.social_links === 'string' 
+          ? JSON.parse(settings.social_links) 
+          : settings.social_links;
+
+        if (social.instagram) {
+          document.getElementById('social-instagram').href = social.instagram;
+        }
+        if (social.facebook) {
+          document.getElementById('social-facebook').href = social.facebook;
+        }
+        if (social.tiktok) {
+          document.getElementById('social-tiktok').href = social.tiktok;
+        }
+      }
+
+      // تحديث ملاحظات الحجز
+      const notesEl = document.getElementById('booking-notes');
+      if (notesEl && settings.booking_notes) {
+        notesEl.innerHTML = `<i class="fas fa-info-circle"></i><span>${settings.booking_notes}</span>`;
+      }
+    }
+
+    // ===== إعداد المستمعين =====
+    function setupEventListeners() {
+      // تغيير الملعب
+      document.querySelectorAll('.court-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.court-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentCourt = parseInt(btn.dataset.court);
+          loadTimeSlots();
+        });
+      });
+
+      // التنقل بين التواريخ
+      document.getElementById('prev-date').addEventListener('click', () => {
+        currentDate.setDate(currentDate.getDate() - 1);
+        updateDateDisplay();
+        loadTimeSlots();
+      });
+
+      document.getElementById('next-date').addEventListener('click', () => {
+        currentDate.setDate(currentDate.getDate() + 1);
+        updateDateDisplay();
+        loadTimeSlots();
+      });
+
+      // إغلاق النوافذ المنبثقة
+      document.getElementById('close-modal').addEventListener('click', closeModal);
+      document.getElementById('booking-modal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeModal();
+      });
+
+      document.getElementById('close-tournament-modal').addEventListener('click', () => {
+        document.getElementById('tournament-modal').classList.remove('active');
+      });
+      document.getElementById('tournament-modal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) {
+          document.getElementById('tournament-modal').classList.remove('active');
+        }
+      });
+
+      // فحص بطاقة الولاء
+      document.getElementById('check-loyalty').addEventListener('click', checkLoyaltyCard);
+
+      // تأكيد الحجز
+      document.getElementById('confirm-booking').addEventListener('click', confirmBooking);
+
+      // تغيير المدة
+      document.getElementById('duration').addEventListener('change', updatePrice);
+
+      // نموذج التقييم
+      document.getElementById('feedback-form').addEventListener('submit', submitFeedback);
+
+      // تأثير scroll على الهيدر
+      window.addEventListener('scroll', () => {
+        const header = document.getElementById('header');
+        if (window.scrollY > 50) {
+          header.classList.add('scrolled');
+        } else {
+          header.classList.remove('scrolled');
+        }
+      });
+
+      // smooth scroll للروابط
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      });
+    }
+
+    // ===== تحديث عرض التاريخ =====
+    function updateDateDisplay() {
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('current-date').textContent = 
+        currentDate.toLocaleDateString('ar-IQ', options);
+    }
+
+    // ===== تحميل الأوقات =====
+    async function loadTimeSlots() {
+      const grid = document.getElementById('time-grid');
+      grid.innerHTML = `
+        <div class="loading" style="grid-column: 1 / -1;">
+          <div class="loading-spinner"></div>
+          <p>جاري تحميل الأوقات...</p>
+        </div>
+      `;
+
+      const dateStr = currentDate.toISOString().split('T')[0];
+
+      try {
+        // جلب الحجوزات
+        const { data: bookings, error: bookingsError } = await supabaseClient
+          .from('bookings')
+          .select('*')
+          .eq('court_id', currentCourt)
+          .eq('booking_date', dateStr)
+          .not('status', 'eq', 'cancelled');
+
+        if (bookingsError) throw bookingsError;
+
+        // جلب الصيانة
+        const { data: maintenance, error: maintError } = await supabaseClient
+          .from('maintenance')
+          .select('*')
+          .eq('is_active', true)
+          .or(`court_id.eq.${currentCourt},court_id.eq.3`)
+          .lte('start_time', `${dateStr}T23:59:59`)
+          .gte('end_time', `${dateStr}T00:00:00`);
+
+        if (maintError) throw maintError;
+
+        grid.innerHTML = '';
+
+        // إنشاء الأوقات من 2 مساءً إلى 12 منتصف الليل
+        for (let hour = 14; hour < 24; hour++) {
+          const timeStr = `${hour.toString().padStart(2, '0')}:00`;
+          const nextHour = hour + 1;
+          const endTimeStr = `${nextHour.toString().padStart(2, '0')}:00`;
+          const period = getTimePeriod(hour);
+
+          const slot = document.createElement('div');
+          slot.className = 'time-slot';
+
+          // التحقق من الحجز
+          const isBooked = bookings?.some(b => {
+            const start = b.start_time.substring(0, 5);
+            return start === timeStr;
+          });
+
+          // التحقق من الصيانة
+          const isMaintenance = maintenance?.some(m => {
+            const mStart = new Date(m.start_time);
+            const mEnd = new Date(m.end_time);
+            const slotTime = new Date(`${dateStr}T${timeStr}:00`);
+            return slotTime >= mStart && slotTime < mEnd;
+          });
+
+          if (isMaintenance) {
+            slot.classList.add('maintenance');
+            slot.innerHTML = `
+              <span class="time">${timeStr}</span>
+              <span class="time-period">${period}</span>
+              <span class="status">🔧 صيانة</span>
+            `;
+          } else if (isBooked) {
+            slot.classList.add('booked');
+            const booking = bookings.find(b => b.start_time.substring(0, 5) === timeStr);
+            slot.innerHTML = `
+              <span class="time">${timeStr}</span>
+              <span class="time-period">${period}</span>
+              <span class="status">❌ محجوز</span>
+              ${booking ? `<span class="slot-price">${booking.customer_name.split(' ')[0]}</span>` : ''}
+            `;
+          } else {
+            slot.classList.add('available');
+            const price = settings.base_price || 40000;
+            slot.innerHTML = `
+              <span class="time">${timeStr}</span>
+              <span class="time-period">${period}</span>
+              <span class="status">✅ متاح</span>
+              <span class="slot-price">${price.toLocaleString()} د.ع</span>
+            `;
+            slot.addEventListener('click', () => openBookingModal(timeStr, endTimeStr));
+          }
+
+          grid.appendChild(slot);
+        }
+      } catch (err) {
+        console.error('Error loading time slots:', err);
+        grid.innerHTML = `
+          <div class="loading" style="grid-column: 1 / -1; color: var(--danger);">
+            <p>⚠️ حدث خطأ في تحميل الأوقات. يرجى تحديث الصفحة.</p>
+          </div>
+        `;
+      }
+    }
+
+    function getTimePeriod(hour) {
+      if (hour >= 14 && hour < 17) return '☀️ عصراً';
+      if (hour >= 17 && hour < 20) return '🌅 مساءً';
+      return '🌙 ليلاً';
+    }
+
+    // ===== فتح نموذج الحجز =====
+    function openBookingModal(startTime, endTime) {
+      selectedSlot = { start: startTime, end: endTime };
+
+      const dateStr = currentDate.toLocaleDateString('ar-IQ', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+
+      document.getElementById('modal-court').textContent = `ملعب ${currentCourt}`;
+      document.getElementById('modal-date').textContent = dateStr;
+      document.getElementById('modal-time').textContent = `من ${startTime} إلى ${endTime}`;
+
+      document.getElementById('booking-modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+      updatePrice();
+    }
+
+    // ===== إغلاق النافذة =====
+    function closeModal() {
+      document.getElementById('booking-modal').classList.remove('active');
+      document.body.style.overflow = '';
+
+      // إعادة تعيين النموذج
+      document.getElementById('customer-name').value = '';
+      document.getElementById('customer-phone').value = '';
+      document.getElementById('loyalty-card').value = '';
+      document.getElementById('loyalty-info').style.display = 'none';
+      document.getElementById('discount-row').style.display = 'none';
+      document.getElementById('duration').value = '1';
+      loyaltyDiscount = 0;
+      selectedSlot = null;
+    }
+
+    // ===== فحص بطاقة الولاء =====
+    async function checkLoyaltyCard() {
+      const cardNumber = document.getElementById('loyalty-card').value.trim();
+      const infoDiv = document.getElementById('loyalty-info');
+
+      if (!cardNumber) {
+        infoDiv.style.display = 'none';
+        return;
+      }
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('loyalty_cards')
+          .select('*')
+          .eq('card_number', cardNumber)
+          .single();
+
+        if (error || !data) {
+          infoDiv.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span>❌</span>
+              <span>رقم البطاقة غير موجود</span>
+            </div>
+          `;
+          infoDiv.className = 'loyalty-info error';
+          infoDiv.style.display = 'block';
+          loyaltyDiscount = 0;
+          updatePrice();
+          return;
+        }
+
+        const remaining = 10 - data.stamps;
+        let html = `
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span>✅</span>
+              <span><strong>${data.customer_name}</strong></span>
+            </div>
+            <div>📌 الختمات: ${data.stamps}/10</div>
+        `;
+
+        if (data.stamps >= 10) {
+          html += `<div>🎉 <strong>مبروك! لديك خصم 10%</strong></div>`;
+          loyaltyDiscount = 10;
+        } else {
+          html += `<div>متبقي ${remaining} ختمات للخصم</div>`;
+          loyaltyDiscount = 0;
+        }
+
+        html += `</div>`;
+
+        infoDiv.innerHTML = html;
+        infoDiv.className = 'loyalty-info success';
+        infoDiv.style.display = 'block';
+        updatePrice();
+      } catch (err) {
+        console.error('Error checking loyalty card:', err);
+        showToast('حدث خطأ في فحص البطاقة', 'error');
+      }
+    }
+
+    // ===== تحديث السعر =====
+    function updatePrice() {
+      const duration = parseInt(document.getElementById('duration').value);
+      const basePrice = (settings.base_price || 40000) * duration;
+
+      let discountAmount = 0;
+      if (loyaltyDiscount > 0) {
+        discountAmount = basePrice * (loyaltyDiscount / 100);
+      }
+
+      const finalPrice = basePrice - discountAmount;
+
+      document.getElementById('base-price').textContent = `${basePrice.toLocaleString()} د.ع`;
+
+      if (discountAmount > 0) {
+        document.getElementById('discount-row').style.display = 'flex';
+        document.getElementById('discount-amount').textContent = `-${discountAmount.toLocaleString()} د.ع (${loyaltyDiscount}%)`;
+      } else {
+        document.getElementById('discount-row').style.display = 'none';
+      }
+
+      document.getElementById('final-price').textContent = `${finalPrice.toLocaleString()} د.ع`;
+    }
+
+    // ===== تأكيد الحجز =====
+    async function confirmBooking() {
+      const name = document.getElementById('customer-name').value.trim();
+      const phone = document.getElementById('customer-phone').value.trim();
+      const loyaltyCard = document.getElementById('loyalty-card').value.trim();
+      const duration = parseInt(document.getElementById('duration').value);
+
+      // التحقق من البيانات
+      if (!name) {
+        showToast('الرجاء إدخال الاسم الثلاثي', 'error');
+        return;
+      }
+
+      if (!phone || phone.length < 10) {
+        showToast('الرجاء إدخال رقم هاتف صحيح', 'error');
+        return;
+      }
+
+      if (!selectedSlot) {
+        showToast('الرجاء اختيار وقت الحجز', 'error');
+        return;
+      }
+
+      const dateStr = currentDate.toISOString().split('T')[0];
+      const startHour = parseInt(selectedSlot.start.split(':')[0]);
+      const endHour = startHour + duration;
+
+      // التحقق من عدم تجاوز منتصف الليل
+      if (endHour > 24) {
+        showToast('لا يمكن الحجز بعد منتصف الليل', 'error');
+        return;
+      }
+
+      const startTime = selectedSlot.start;
+      const endTime = `${endHour.toString().padStart(2, '0')}:00`;
+
+      // حساب السعر
+      const basePrice = (settings.base_price || 40000) * duration;
+      const discountPercent = loyaltyDiscount;
+      const finalPrice = basePrice - (basePrice * (discountPercent / 100));
+
+      // إنشاء الحجز
+      const booking = {
+        court_id: currentCourt,
+        customer_name: name,
+        phone: phone,
+        booking_date: dateStr,
+        start_time: startTime,
+        end_time: endTime,
+        duration_hours: duration,
+        price: basePrice,
+        discount_percent: discountPercent,
+        final_price: finalPrice,
+        loyalty_card_number: loyaltyCard || null,
+        status: 'confirmed',
+        created_by: 'customer'
+      };
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('bookings')
+          .insert([booking])
+          .select();
+
+        if (error) {
+          if (error.message.includes('overlap')) {
+            showToast('هذا الوقت محجوز مؤخراً، يرجى اختيار وقت آخر', 'error');
+          } else {
+            showToast('حدث خطأ: ' + error.message, 'error');
+          }
+          return;
+        }
+
+        // تحديث ختمات الولاء
+        if (loyaltyCard && loyaltyDiscount === 0) {
+          await supabaseClient.rpc('increment_loyalty_stamp', {
+            card_num: loyaltyCard
+          });
+        }
+
+        // إذا استخدم الخصم، إعادة تعيين
+        if (loyaltyCard && loyaltyDiscount > 0) {
+          await supabaseClient
+            .from('loyalty_cards')
+            .update({ stamps: 0, is_completed: true, completed_at: new Date().toISOString() })
+            .eq('card_number', loyaltyCard);
+        }
+
+        showToast('✅ تم الحجز بنجاح!', 'success');
+        closeModal();
+        await loadTimeSlots();
+        await updateTodayBookings();
+        await updateCourtStatus();
+      } catch (err) {
+        console.error('Error confirming booking:', err);
+        showToast('حدث خطأ في إنشاء الحجز', 'error');
+      }
+    }
+
+    // ===== تحميل البطولات =====
+    async function loadTournaments() {
+      const grid = document.getElementById('tournaments-grid');
+
+      try {
+        const { data: tournaments, error } = await supabaseClient
+          .from('tournaments')
+          .select('*')
+          .order('start_date', { ascending: true });
+
+        if (error) throw error;
+
+        if (!tournaments || tournaments.length === 0) {
+          grid.innerHTML = `
+            <div class="loading" style="grid-column: 1 / -1;">
+              <p>🏆 لا توجد بطولات حالياً</p>
+              <p style="font-size: 0.9rem; margin-top: 0.5rem;">تابعنا لمعرفة البطولات القادمة</p>
+            </div>
+          `;
+          return;
+        }
+
+        grid.innerHTML = '';
+        tournaments.forEach(t => {
+          const card = document.createElement('div');
+          card.className = 'tournament-card';
+          card.innerHTML = `
+            <div class="tournament-image">
+              <span class="tournament-image-icon">🏆</span>
+            </div>
+            <div class="tournament-content">
+              <span class="tournament-status ${t.status}">${getStatusText(t.status)}</span>
+              <h3 class="tournament-title">${t.title}</h3>
+              <div class="tournament-date">
+                <i class="far fa-calendar-alt"></i>
+                ${formatDate(t.start_date)} - ${formatDate(t.end_date)}
+              </div>
+              <p class="tournament-desc">${t.description || 'بطولة بادل مثيرة بمشاركة أفضل اللاعبين'}</p>
+            </div>
+          `;
+
+          card.addEventListener('click', () => showTournamentDetails(t));
+          grid.appendChild(card);
+        });
+      } catch (err) {
+        console.error('Error loading tournaments:', err);
+        grid.innerHTML = `
+          <div class="loading" style="grid-column: 1 / -1; color: var(--danger);">
+            <p>⚠️ حدث خطأ في تحميل البطولات</p>
+          </div>
+        `;
+      }
+    }
+
+    function getStatusText(status) {
+      const statuses = {
+        'upcoming': '🔜 قريباً',
+        'active': '🔥 جارية الآن',
+        'completed': '✅ منتهية'
+      };
+      return statuses[status] || status;
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      return new Date(dateStr).toLocaleDateString('ar-IQ', {
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+
+    // ===== عرض تفاصيل البطولة =====
+    function showTournamentDetails(tournament) {
+      const modal = document.getElementById('tournament-modal');
+      const title = document.getElementById('tournament-modal-title');
+      const content = document.getElementById('tournament-modal-content');
+
+      title.textContent = tournament.title;
+
+      let bracketHTML = '';
+      if (tournament.bracket_data && tournament.bracket_data.rounds) {
+        bracketHTML = '<div class="bracket-container"><div class="bracket">';
+        tournament.bracket_data.rounds.forEach(round => {
+          bracketHTML += `
+            <div class="bracket-round">
+              <div class="bracket-round-title">${round.name}</div>
+              ${(round.matches || []).map(match => `
+                <div class="bracket-match">
+                  <div class="bracket-player ${match.winner === match.player1 ? 'winner' : ''}">
+                    <span>${match.player1 || '؟'}</span>
+                    <span>${match.score1 || '-'}</span>
+                  </div>
+                  <div class="bracket-player ${match.winner === match.player2 ? 'winner' : ''}">
+                    <span>${match.player2 || '؟'}</span>
+                    <span>${match.score2 || '-'}</span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        });
+        bracketHTML += '</div></div>';
+      }
+
+      content.innerHTML = `
+        <div style="margin-bottom: 2rem;">
+          <p style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 1.5rem;">
+            ${tournament.description || 'لا يوجد وصف'}
+          </p>
+          <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+            <div>
+              <span style="color: var(--text-muted); font-size: 0.9rem;">📅 تاريخ البدء:</span>
+              <span style="font-weight: 700;">${formatDate(tournament.start_date)}</span>
+            </div>
+            <div>
+              <span style="color: var(--text-muted); font-size: 0.9rem;">🏁 تاريخ الانتهاء:</span>
+              <span style="font-weight: 700;">${formatDate(tournament.end_date)}</span>
+            </div>
+            <div>
+              <span style="color: var(--text-muted); font-size: 0.9rem;">📊 الحالة:</span>
+              <span style="font-weight: 700;">${getStatusText(tournament.status)}</span>
+            </div>
+          </div>
+        </div>
+        ${bracketHTML}
+      `;
+
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    // ===== حالة الصيانة =====
+    async function loadMaintenanceStatus() {
+      try {
+        const { data: maintenance, error } = await supabaseClient
+          .from('maintenance')
+          .select('*')
+          .eq('is_active', true);
+
+        if (error) throw error;
+
+        const banner = document.getElementById('maintenance-banner');
+        const text = document.getElementById('maintenance-text');
+
+        if (maintenance && maintenance.length > 0) {
+          const courts = [...new Set(maintenance.map(m => 
+            m.court_id === 3 ? 'الملعبين' : `ملعب ${m.court_id}`
+          ))].join(' و');
+
+          const endTime = maintenance[0].end_time 
+            ? new Date(maintenance[0].end_time).toLocaleTimeString('ar-IQ', {
+                hour: '2-digit',
+                minute: '2-digit'
+              })
+            : 'غير محدد';
+
+          text.textContent = `${courts} تحت الصيانة حتى الساعة ${endTime} - ${maintenance[0].reason}`;
+          banner.style.display = 'block';
+        } else {
+          banner.style.display = 'none';
+        }
+      } catch (err) {
+        console.error('Error loading maintenance:', err);
+      }
+    }
+
+    // ===== تحديث حجوزات اليوم =====
+    async function updateTodayBookings() {
+      try {
+        const today = new Date().toISOString().split('T')[0];
+
+        const { count, error } = await supabaseClient
+          .from('bookings')
+          .select('*', { count: 'exact', head: true })
+          .eq('booking_date', today)
+          .not('status', 'eq', 'cancelled');
+
+        if (!error) {
+          document.getElementById('today-bookings').textContent = count || 0;
+        }
+      } catch (err) {
+        console.error('Error updating today bookings:', err);
+      }
+    }
+
+    // ===== تحديث حالة الملاعب =====
+    async function updateCourtStatus() {
+      try {
+        const today = new Date().toISOString().split('T')[0);
+        const now = new Date();
+        const currentHour = now.getHours();
+        const currentTime = `${currentHour.toString().padStart(2, '0')}:00`;
+
+        for (let courtId = 1; courtId <= 2; courtId++) {
+          // عدد حجوزات اليوم
+          const { count: bookingCount } = await supabaseClient
+            .from('bookings')
+            .select('*', { count: 'exact', head: true })
+            .eq('court_id', courtId)
+            .eq('booking_date', today)
+            .not('status', 'eq', 'cancelled');
+
+          document.getElementById(`court-${courtId}-today`).textContent = bookingCount || 0;
+
+          // الحجز القادم
+          const { data: nextBooking } = await supabaseClient
+            .from('bookings')
+            .select('start_time')
+            .eq('court_id', courtId)
+            .eq('booking_date', today)
+            .gte('start_time', currentTime)
+            .not('status', 'eq', 'cancelled')
+            .order('start_time', { ascending: true })
+            .limit(1);
+
+          const nextTimeEl = document.getElementById(`court-${courtId}-next`);
+          if (nextBooking && nextBooking.length > 0) {
+            nextTimeEl.textContent = nextBooking[0].start_time.substring(0, 5);
+          } else {
+            nextTimeEl.textContent = 'لا يوجد';
+          }
+
+          // تحديث حالة البطاقة
+          const card = document.getElementById(`court-${courtId}-card`);
+          const isCurrentlyBooked = nextBooking && nextBooking.length > 0 && 
+            nextBooking[0].start_time.substring(0, 2) === currentHour.toString().padStart(2, '0');
+
+          if (isCurrentlyBooked) {
+            card.classList.remove('available');
+            card.classList.add('busy');
+            card.querySelector('.court-status-badge').className = 'court-status-badge busy';
+            card.querySelector('.court-status-badge').innerHTML = `
+              <span class="status-dot busy"></span>
+              <span>مشغول</span>
+            `;
+          } else {
+            card.classList.remove('busy');
+            card.classList.add('available');
+            card.querySelector('.court-status-badge').className = 'court-status-badge available';
+            card.querySelector('.court-status-badge').innerHTML = `
+              <span class="status-dot available"></span>
+              <span>متاح</span>
+            `;
+          }
+        }
+      } catch (err) {
+        console.error('Error updating court status:', err);
+      }
+    }
+
+    // ===== إرسال التقييم =====
+    async function submitFeedback(e) {
+      e.preventDefault();
+
+      const rating = document.querySelector('input[name="rating"]:checked')?.value;
+      const message = document.getElementById('feedback-message').value.trim();
+
+      if (!message) {
+        showToast('الرجاء كتابة رسالتك', 'error');
+        return;
+      }
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('feedback')
+          .insert([{
+            rating: rating ? parseInt(rating) : null,
+            message: message
+          }]);
+
+        if (error) throw error;
+
+        showToast('✅ شكراً لتقييمك! سنعمل على تحسين خدماتنا', 'success');
+        document.getElementById('feedback-form').reset();
+      } catch (err) {
+        console.error('Error submitting feedback:', err);
+        showToast('حدث خطأ في إرسال التقييم', 'error');
+      }
+    }
+
+    // ===== إشعار Toast =====
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast ${type}`;
+
+      requestAnimationFrame(() => {
+        toast.classList.add('show');
+      });
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 4000);
+    }
+
+    // ===== Realtime Subscriptions =====
+    function setupRealtime() {
+      // الاشتراك في تغييرات الحجوزات
+      const bookingsChannel = supabaseClient
+        .channel('bookings-changes')
+        .on('postgres_changes', 
+          { event: '*', schema: 'public', table: 'bookings' },
+          (payload) => {
+            console.log('Booking change:', payload);
+            loadTimeSlots();
+            updateTodayBookings();
+            updateCourtStatus();
+          }
+        )
+        .subscribe();
+
+      // الاشتراك في تغييرات الصيانة
+      const maintenanceChannel = supabaseClient
+        .channel('maintenance-changes')
+        .on('postgres_changes',
+          { event: '*', schema: 'public', table: 'maintenance' },
+          (payload) => {
+            console.log('Maintenance change:', payload);
+            loadMaintenanceStatus();
+            loadTimeSlots();
+          }
+        )
+        .subscribe();
+
+      // الاشتراك في تغييرات البطولات
+      const tournamentsChannel = supabaseClient
+        .channel('tournaments-changes')
+        .on('postgres_changes',
+          { event: '*', schema: 'public', table: 'tournaments' },
+          (payload) => {
+            console.log('Tournament change:', payload);
+            loadTournaments();
+          }
+        )
+        .subscribe();
+    }
+  </script>
+</body>
+</html>
