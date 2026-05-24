@@ -2640,7 +2640,7 @@
     // ===== تحديث حالة الملاعب =====
     async function updateCourtStatus() {
       try {
-        const today = new Date().toISOString().split('T')[0);
+        const today = new Date().toISOString().split('T')[0];
         const now = new Date();
         const currentHour = now.getHours();
         const currentTime = `${currentHour.toString().padStart(2, '0')}:00`;
