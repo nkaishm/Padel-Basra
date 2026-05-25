@@ -1561,6 +1561,7 @@
       pointer-events: none;
     }
   </style>
+<base target="_blank">
 </head>
 <body>
   <!-- Toast Notification -->
@@ -1881,7 +1882,7 @@
       <span class="section-label">📞 تواصل معنا</span>
       <h2 class="section-title">نحن هنا لمساعدتك</h2>
       <p class="section-subtitle">
-        تواصل معنا عبر أي قناة تفضلها. نحن متواجدون يومياً من 2 ظهراً حتى 12 منتصف الليل.
+        تواصل معنا عبر أي قناة تفضلها. نحن متواجدون يومياً من 9 صباحاً حتى 2 صباحاً.
       </p>
     </div>
 
@@ -2150,11 +2151,13 @@
 
         grid.innerHTML = '';
 
-        // إنشاء الأوقات من 2 مساءً إلى 12 منتصف الليل
-        for (let hour = 14; hour < 24; hour++) {
-          const timeStr = `${hour.toString().padStart(2, '0')}:00`;
+        // إنشاء الأوقات من 9 صباحاً إلى 2 صباحاً
+        for (let hour = 9; hour < 26; hour++) {
+          const displayHour = hour >= 24 ? hour - 24 : hour;
+          const timeStr = `${displayHour.toString().padStart(2, '0')}:00`;
           const nextHour = hour + 1;
-          const endTimeStr = `${nextHour.toString().padStart(2, '0')}:00`;
+          const nextDisplayHour = nextHour >= 24 ? nextHour - 24 : nextHour;
+          const endTimeStr = `${nextDisplayHour.toString().padStart(2, '0')}:00`;
           const period = getTimePeriod(hour);
 
           const slot = document.createElement('div');
@@ -2227,9 +2230,12 @@
     }
 
     function getTimePeriod(hour) {
+      if (hour >= 9 && hour < 12) return '☀️ صباحاً';
+      if (hour >= 12 && hour < 14) return '☀️ ظهراً';
       if (hour >= 14 && hour < 17) return '☀️ عصراً';
       if (hour >= 17 && hour < 20) return '🌅 مساءً';
-      return '🌙 ليلاً';
+      if (hour >= 20 && hour < 24) return '🌙 ليلاً';
+      return '🌙 بعد منتصف الليل';
     }
 
     // ===== فتح نموذج الحجز =====
