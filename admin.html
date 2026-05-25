@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+  <script src="auth.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     :root {
@@ -411,6 +412,139 @@
       .stats-grid { grid-template-columns: 1fr; }
       .charts-grid { grid-template-columns: 1fr; }
       .form-row { grid-template-columns: 1fr; }
+      /* ========== Modal Styles ========== */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    direction: rtl;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 18px;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.close-btn:hover {
+    background: #f0f0f0;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+    font-size: 14px;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-primary {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-edit {
+    background: #ffc107;
+    color: #000;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 5px;
+    font-size: 12px;
+}
+
+.btn-delete {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
     }
   </style>
 </head>
@@ -455,6 +589,10 @@
         <i class="fas fa-cog"></i>
         <span>الإعدادات</span>
       </a>
+      <a class="sidebar-link" onclick="logout()">
+  <i class="fas fa-sign-out-alt"></i>
+  <span>تسجيل الخروج</span>
+</a>
     </nav>
     <div class="sidebar-footer" style="padding: 1.5rem; border-top: 1px solid var(--border);">
       <a href="index.html" class="btn btn-secondary btn-full" style="text-decoration: none;">
@@ -719,6 +857,64 @@
         </div>
       </div>
     </section>
+    <!-- إدارة المستخدمين -->
+<section id="users" class="section">
+  <div class="page-header">
+    <h1 class="page-title">👥 إدارة المستخدمين</h1>
+    <button class="btn btn-primary" onclick="openUserModal()">
+      <i class="fas fa-plus"></i> مستخدم جديد
+    </button>
+  </div>
+  <div class="table-container">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>اسم المستخدم</th>
+          <th>الدور</th>
+          <th>الحالة</th>
+          <th>آخر دخول</th>
+          <th>الإجراءات</th>
+        </tr>
+      </thead>
+      <tbody id="users-table"></tbody>
+    </table>
+  </div>
+</section>
+    <!-- User Modal -->
+<div id="userModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">إضافة مستخدم</h3>
+            <button class="close-btn" onclick="closeUserModal()">&times;</button>
+        </div>
+        <form id="userForm" onsubmit="saveUser(event)">
+            <input type="hidden" id="userId">
+            <div class="form-group">
+                <label>الاسم</label>
+                <input type="text" id="userName" required placeholder="اسم المستخدم">
+            </div>
+            <div class="form-group">
+                <label>رمز PIN</label>
+                <input type="password" id="userPin" required placeholder="رمز الدخول" minlength="4" maxlength="6">
+            </div>
+            <div class="form-group">
+                <label>الدور</label>
+                <select id="userRole" required>
+                    <option value="manager">مدير</option>
+                    <option value="worker">موظف</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>رقم الهاتف (اختياري)</label>
+                <input type="tel" id="userPhone" placeholder="0770xxxxxxx">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeUserModal()">إلغاء</button>
+                <button type="submit" class="btn-primary">حفظ</button>
+            </div>
+        </form>
+    </div>
+</div>
   </main>
 
   <!-- نافذة إضافة بطولة -->
@@ -778,6 +974,10 @@
   </div>
 
   <script>
+    // حماية الصفحة - فقط المدير يستطيع الدخول
+if (!initAuthProtection('manager')) {
+    throw new Error('Unauthorized access');
+}
     const SUPABASE_URL = 'https://hrfentlnqxquhlaywlzv.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhyZmVudGxucXhxdWhsYXl3bHp2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NjY4NDMsImV4cCI6MjA5NTE0Mjg0M30.mseVeL5hqNXs5U-Vj_OddqCWzt-6lEm0E4Dftk08EfY';
     const { createClient } = supabase;
@@ -790,6 +990,7 @@
       await loadDashboard();
       await loadSettings();
       setupRealtime();
+      await loadUsers();
     });
 
     function showSection(sectionId) {
@@ -808,6 +1009,7 @@
         case 'feedback': loadFeedback(); break;
         case 'reports': generateReport(); break;
         case 'settings': loadSettings(); break;
+          case 'users': loadUsers(); break;
       }
     }
 
@@ -1305,7 +1507,236 @@
         { event: '*', schema: 'public', table: 'feedback' },
         () => { if (currentSection === 'feedback') loadFeedback(); }
       ).subscribe();
+      // ========== إدارة المستخدمين ==========
+async function loadUsers() {
+    try {
+        const { data: users, error } = await supabaseClient
+            .from('users')
+            .select('*')
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+        const tbody = document.querySelector('#usersTable tbody');
+        if (!tbody) return;
+        tbody.innerHTML = users.map(user => `
+            <tr>
+                <td>${user.name}</td>
+                <td>${user.role === 'manager' ? 'مدير' : 'موظف'}</td>
+                <td>${user.phone || '-'}</td>
+                <td>${new Date(user.created_at).toLocaleDateString('ar-IQ')}</td>
+                <td>
+                    <button class="btn-edit" onclick="editUser('${user.id}')">تعديل</button>
+                    <button class="btn-delete" onclick="deleteUser('${user.id}')">حذف</button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (err) {
+        console.error('Error loading users:', err);
     }
+}
+
+function openUserModal() {
+    document.getElementById('modalTitle').textContent = 'إضافة مستخدم';
+    document.getElementById('userForm').reset();
+    document.getElementById('userId').value = '';
+    document.getElementById('userModal').style.display = 'flex';
+}
+
+function closeUserModal() {
+    document.getElementById('userModal').style.display = 'none';
+}
+
+async function editUser(userId) {
+    try {
+        const { data: user, error } = await supabaseClient
+            .from('users')
+            .select('*')
+            .eq('id', userId)
+            .single();
+        if (error) throw error;
+        document.getElementById('modalTitle').textContent = 'تعديل مستخدم';
+        document.getElementById('userId').value = user.id;
+        document.getElementById('userName').value = user.name;
+        document.getElementById('userPin').value = '';
+        document.getElementById('userRole').value = user.role;
+        document.getElementById('userPhone').value = user.phone || '';
+        document.getElementById('userModal').style.display = 'flex';
+    } catch (err) {
+        console.error('Error:', err);
+    }
+}
+
+async function saveUser(event) {
+    event.preventDefault();
+    const userId = document.getElementById('userId').value;
+    const name = document.getElementById('userName').value.trim();
+    const pin = document.getElementById('userPin').value;
+    const role = document.getElementById('userRole').value;
+    const phone = document.getElementById('userPhone').value.trim();
+    try {
+        const userData = { name, role, phone: phone || null };
+        if (pin) userData.pin_code = pin;
+        let result;
+        if (userId) {
+            result = await supabaseClient.from('users').update(userData).eq('id', userId);
+        } else {
+            if (!pin) { alert('PIN مطلوب'); return; }
+            userData.pin_code = pin;
+            result = await supabaseClient.from('users').insert([userData]);
+        }
+        if (result.error) throw result.error;
+        closeUserModal();
+        await loadUsers();
+        showToast(userId ? 'تم التحديث' : 'تمت الإضافة');
+    } catch (err) {
+        console.error('Error:', err);
+        alert('خطأ: ' + err.message);
+    }
+}
+
+async function deleteUser(userId) {
+    if (!confirm('هل أنت متأكد من الحذف؟')) return;
+    try {
+        const { error } = await supabaseClient.from('users').delete().eq('id', userId);
+        if (error) throw error;
+        await loadUsers();
+        showToast('تم الحذف');
+    } catch (err) {
+        alert('خطأ في الحذف');
+    }
+}
+    }
+    // ========== إدارة المستخدمين ==========
+async function loadUsers() {
+    try {
+        const { data: users, error } = await supabaseClient
+            .from('users')
+            .select('*')
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+        const tbody = document.querySelector('#usersTable tbody');
+        if (!tbody) return;
+        tbody.innerHTML = users.map(user => `
+            <tr>
+                <td>${user.name}</td>
+                <td>${user.role === 'manager' ? 'مدير' : 'موظف'}</td>
+                <td>${user.phone || '-'}</td>
+                <td>${new Date(user.created_at).toLocaleDateString('ar-IQ')}</td>
+                <td>
+                    <button class="btn-edit" onclick="editUser('${user.id}')">تعديل</button>
+                    <button class="btn-delete" onclick="deleteUser('${user.id}')">حذف</button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (err) {
+        console.error('Error loading users:', err);
+    }
+}
+
+function openUserModal() {
+    document.getElementById('modalTitle').textContent = 'إضافة مستخدم';
+    document.getElementById('userForm').reset();
+    document.getElementById('userId').value = '';
+    document.getElementById('userModal').style.display = 'flex';
+}
+
+function closeUserModal() {
+    document.getElementById('userModal').style.display = 'none';
+}
+
+async function editUser(userId) {
+    try {
+        const { data: user, error } = await supabaseClient
+            .from('users')
+            .select('*')
+            .eq('id', userId)
+            .single();
+        if (error) throw error;
+        document.getElementById('modalTitle').textContent = 'تعديل مستخدم';
+        document.getElementById('userId').value = user.id;
+        document.getElementById('userName').value = user.name;
+        document.getElementById('userPin').value = '';
+        document.getElementById('userRole').value = user.role;
+        document.getElementById('userPhone').value = user.phone || '';
+        document.getElementById('userModal').style.display = 'flex';
+    } catch (err) {
+        console.error('Error:', err);
+    }
+}
+
+async function saveUser(event) {
+    event.preventDefault();
+    const userId = document.getElementById('userId').value;
+    const name = document.getElementById('userName').value.trim();
+    const pin = document.getElementById('userPin').value;
+    const role = document.getElementById('userRole').value;
+    const phone = document.getElementById('userPhone').value.trim();
+    try {
+        const userData = { name, role, phone: phone || null };
+        if (pin) userData.pin_code = pin;
+        let result;
+        if (userId) {
+            result = await supabaseClient.from('users').update(userData).eq('id', userId);
+        } else {
+            if (!pin) { alert('PIN مطلوب'); return; }
+            userData.pin_code = pin;
+            result = await supabaseClient.from('users').insert([userData]);
+        }
+        if (result.error) throw result.error;
+        closeUserModal();
+        await loadUsers();
+        showToast(userId ? 'تم التحديث' : 'تمت الإضافة');
+    } catch (err) {
+        console.error('Error:', err);
+        alert('خطأ: ' + err.message);
+    }
+}
+
+async function deleteUser(userId) {
+    if (!confirm('هل أنت متأكد من الحذف؟')) return;
+    try {
+        const { error } = await supabaseClient.from('users').delete().eq('id', userId);
+        if (error) throw error;
+        await loadUsers();
+        showToast('تم الحذف');
+    } catch (err) {
+        alert('خطأ في الحذف');
+    }
+}
   </script>
+  <!-- User Modal -->
+<div id="userModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">إضافة مستخدم</h3>
+            <button class="close-btn" onclick="closeUserModal()">&times;</button>
+        </div>
+        <form id="userForm" onsubmit="saveUser(event)">
+            <input type="hidden" id="userId">
+            <div class="form-group">
+                <label>الاسم</label>
+                <input type="text" id="userName" required placeholder="اسم المستخدم">
+            </div>
+            <div class="form-group">
+                <label>رمز PIN</label>
+                <input type="password" id="userPin" required placeholder="رمز الدخول" minlength="4" maxlength="6">
+            </div>
+            <div class="form-group">
+                <label>الدور</label>
+                <select id="userRole" required>
+                    <option value="manager">مدير</option>
+                    <option value="worker">موظف</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>رقم الهاتف (اختياري)</label>
+                <input type="tel" id="userPhone" placeholder="0770xxxxxxx">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeUserModal()">إلغاء</button>
+                <button type="submit" class="btn-primary">حفظ</button>
+            </div>
+        </form>
+    </div>
+</div>
 </body>
 </html>
