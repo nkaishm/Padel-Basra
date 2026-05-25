@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+  <script src="auth.js"></script>
   <style>
     :root {
       --bg-primary: #0B1120;
@@ -227,15 +228,21 @@
       .booking-item { flex-direction: column; align-items: flex-start; }
     }
   </style>
+<base target="_blank">
 </head>
 <body>
   <div class="toast" id="toast"></div>
 
   <header class="header">
     <div class="logo"><span>🎾</span> PADEL COURT - بوابة العمال</div>
-    <a href="index.html" class="btn btn-secondary" style="text-decoration: none; background: var(--bg-hover); color: var(--text-primary); border: 1px solid var(--border);">
-      <i class="fas fa-arrow-right"></i> العودة
-    </a>
+    <div style="display: flex; gap: 0.5rem;">
+      <a href="index.html" class="btn btn-secondary" style="text-decoration: none; background: var(--bg-hover); color: var(--text-primary); border: 1px solid var(--border);">
+        <i class="fas fa-arrow-right"></i> العودة
+      </a>
+      <button class="btn btn-danger" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i> خروج
+      </button>
+    </div>
   </header>
 
   <div class="container">
@@ -323,6 +330,11 @@
   </div>
 
   <script>
+    // حماية الصفحة - فقط الموظفين
+    if (!initAuthProtection('worker')) {
+      throw new Error('Unauthorized access');
+    }
+
     const SUPABASE_URL = 'https://hrfentlnqxquhlaywlzv.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhyZmVudGxucXhxdWhsYXl3bHp2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NjY4NDMsImV4cCI6MjA5NTE0Mjg0M30.mseVeL5hqNXs5U-Vj_OddqCWzt-6lEm0E4Dftk08EfY';
     const { createClient } = supabase;
