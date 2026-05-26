@@ -306,33 +306,9 @@ class SpinWheelPicker {
     }
 
   hide() {
-    // إزالة active class
-    if (this.overlay) this.overlay.classList.remove('active');
-    if (this.modal) this.modal.classList.remove('active');
+    this.overlay.classList.remove('active');
+    this.modal.classList.remove('active');
     document.body.style.overflow = '';
-    
-    // انتظار انتهاء animation ثم إزالة من DOM
-    setTimeout(() => {
-        if (this.overlay && this.overlay.parentNode) {
-            this.overlay.parentNode.removeChild(this.overlay);
-        }
-        if (this.modal && this.modal.parentNode) {
-            this.modal.parentNode.removeChild(this.modal);
-        }
-        // إعادة تهيئة للاستخدام القادم
-        this.isDragging = false;
-    }, 350);
-}
-    
-    // إزالة العناصر من DOM بعد الانتهاء
-    setTimeout(() => {
-        if (this.overlay && this.overlay.parentNode) {
-            this.overlay.parentNode.removeChild(this.overlay);
-        }
-        if (this.modal && this.modal.parentNode) {
-            this.modal.parentNode.removeChild(this.modal);
-        }
-    }, 300);
 }
 }
 
