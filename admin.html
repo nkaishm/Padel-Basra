@@ -1475,37 +1475,38 @@ document.getElementById('setting-night-price').value = data.night_price || 50000
       }
     }
 
-    async function saveSettings() {
-      const settings = {
-        id: 1,
-        base_price: parseInt(document.getElementById('setting-price').value) || 40000,
-        worker_discount: parseInt(document.getElementById('setting-worker-discount').value) || 10,
-        morning_price: parseInt(document.getElementById('setting-morning-price').value) || 30000,
-        evening_price: parseInt(document.getElementById('setting-evening-price').value) || 40000,
-        night_price: parseInt(document.getElementById('setting-night-price').value) || 50000,
-        manager_phone: document.getElementById('setting-phone').value,
-        whatsapp_number: document.getElementById('setting-whatsapp').value,
-        location_url: document.getElementById('setting-location').value,
-        booking_notes: document.getElementById('setting-notes').value,
-        social_links: JSON.stringify({
-          instagram: document.getElementById('setting-instagram').value,
-          facebook: document.getElementById('setting-facebook').value,
-          tiktok: document.getElementById('setting-tiktok').value
-        })
-      };
+   async function saveSettings() {
+  const settings = {
+    id: 1,
+    base_price: parseInt(document.getElementById('setting-price').value) || 40000,
+    worker_discount: parseInt(document.getElementById('setting-worker-discount').value) || 10,
+    morning_price: parseInt(document.getElementById('setting-morning-price').value) || 30000,
+    evening_price: parseInt(document.getElementById('setting-evening-price').value) || 40000,
+    night_price: parseInt(document.getElementById('setting-night-price').value) || 50000,
+    manager_phone: document.getElementById('setting-phone').value,
+    whatsapp_number: document.getElementById('setting-whatsapp').value,
+    location_url: document.getElementById('setting-location').value,
+    booking_notes: document.getElementById('setting-notes').value,
+    social_links: JSON.stringify({
+      instagram: document.getElementById('setting-instagram').value,
+      facebook: document.getElementById('setting-facebook').value,
+      tiktok: document.getElementById('setting-tiktok').value
+    })
+  };
 
-      // Use UPSERT - update if exists, insert if not
-      const { error } = await supabaseClient
-        .from('settings')
-        .upsert([settings], { onConflict: 'id' });
-            if (error) {
-        showToast('حدث خطأ: ' + error.message, 'error');
-        console.error('Settings save error:', error);
-        return;
-      }
+  // Use UPSERT - update if exists, insert if not
+  const { error } = await supabaseClient
+    .from('settings')
+    .upsert([settings], { onConflict: 'id' });
 
-      showToast('تم حفظ الإعدادات بنجاح', 'success');
-    }
+  if (error) {
+    showToast('حدث خطأ: ' + error.message, 'error');
+    console.error('Settings save error:', error);
+    return;
+  }
+
+  showToast('تم حفظ الإعدادات بنجاح', 'success');
+}
 
     // Realtime
     function setupRealtime() {
