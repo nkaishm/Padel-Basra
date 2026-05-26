@@ -306,10 +306,20 @@ class SpinWheelPicker {
     }
 
     hide() {
-        this.overlay.classList.remove('active');
-        this.modal.classList.remove('active');
-        document.body.style.overflow = '';
-    }
+    this.overlay.classList.remove('active');
+    this.modal.classList.remove('active');
+    document.body.style.overflow = '';
+    
+    // إزالة العناصر من DOM بعد الانتهاء
+    setTimeout(() => {
+        if (this.overlay && this.overlay.parentNode) {
+            this.overlay.parentNode.removeChild(this.overlay);
+        }
+        if (this.modal && this.modal.parentNode) {
+            this.modal.parentNode.removeChild(this.modal);
+        }
+    }, 300);
+}
 }
 
 // ============================================
