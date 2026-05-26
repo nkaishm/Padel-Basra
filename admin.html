@@ -423,9 +423,9 @@
   
   <!-- أضف هذا الحقل الجديد -->
   <div class="form-group">
-    <label>💰 السعر الرئيسي (للعرض في الواجهة)</label>
-    <input type="number" id="setting-display-price" class="form-input" placeholder="25000">
-  </div>
+  <label>💰 السعر الرئيسي (للعرض في الواجهة)</label>
+  <input type="number" id="setting-display-price" class="form-input" placeholder="300">
+</div>
   
   <div class="form-group">
     <label>💰 سعر الصباح (9ص - 2م)</label>
@@ -679,65 +679,90 @@
 
     // ===== SETTINGS =====
     async function loadSettings() {
-  const { data } = await supabaseClient.from('settings').select('*').single();
+  const { data, error } = await supabaseClient.from('settings').select('*').single();
+  if (error) {
+    console.log('Settings error:', error);
+    return;
+  }
   if (data) {
+    // الأسعار
+    document.getElementById('setting-display-price').value = data.morning_price || '';
     document.getElementById('setting-morning').value = data.morning_price || '';
     document.getElementById('setting-evening').value = data.evening_price || '';
     document.getElementById('setting-night').value = data.night_price || '';
-    document.getElementById('setting-phone').value = data.phone || '';
-    document.getElementById('setting-whatsapp').value = data.whatsapp || '';
-    document.getElementById('setting-maps').value = data.maps_url || '';
+    
+    // التواصل
+    document.getElementById('setting-phone').value = data.manager_phone || '';
+    document.getElementById('setting-whatsapp').value = data.whatsapp_number || '';
+    document.getElementById('setting-maps').value = data.location_url || '';
     document.getElementById('setting-notes').value = data.booking_notes || '';
-    document.getElementById('setting-instagram').value = data.instagram || '';
-    document.getElementById('setting-facebook').value = data.facebook || '';
-    document.getElementById('setting-tiktok').value = data.tiktok || '';
-    document.getElementById('setting-display-price').value = data.display_price || '';
+    
+    // Social links (من jsonb)
+    let social = {};
+    try {
+      if (data.social_links) {
+        // إذا كان نص json
+        if (typeof data.social_links === 'string') {
+          social = JSON.parse(data.social_links.replace(/\\/g, ''));
+        } else {
+          social = data.social_links;
+        }
+      }
+    } catch(e) { console.log('Social parse error', e); }
+    
+    document.getElementById('setting-instagram').value = social.instagram || '';
+    document.getElementById('setting-facebook').value = social.facebook || '';
+    document.getElementById('setting-tiktok').value = social.tiktok || '';
   }
 }
 
     async function saveSettings() {
-      const data = {
-       display_price: parseInt(document.getElementById('setting-display-price').value) || 25000,
-        morning_price: parseInt(document.getElementById('setting-morning').value) || 25000,
-        evening_price: parseInt(document.getElementById('setting-evening').value) || 40000,
-        night_price: parseInt(document.getElementById('setting-night').value) || 50000
-      };
-
-      const { error } = await supabaseClient.from('settings').upsert(data);
-      if (error) showToast('خطأ: ' + error.message, 'error');
-      else showToast('تم حفظ الإعدادات', 'success');
-    }
+    async function saveSettings() {
+  const data = {
+    morning_price: parseInt(document.getElementById('setting-morning').value) || 300,
+    evening_price: parseInt(document.getElementById('setting-evening').value) || 3000,
+    night_price: parseInt(document.getElementById('setting-night').value) || 3500
+  };
+  
+  const { error } = await supabaseClient.from('settings').upsert(data, { onConflict: 'id' });
+  if (error) showToast('خطأ: ' + error.message, 'error');
+  else showToast('تم حفظ الإعدادات', 'success');
+}
 
     async function saveContact() {
-      const data = {
-        phone: document.getElementById('setting-phone').value,
-        whatsapp: document.getElementById('setting-whatsapp').value,
-        maps_url: document.getElementById('setting-maps').value
-      };
+  const data = {
+    manager_phone: document.getElementById('setting-phone').value,
+    whatsapp_number: document.getElementById('setting-whatsapp').value,
+    location_url: document.getElementById('setting-maps').value
+  };
+  
+  const { error } = await supabaseClient.from('settings').upsert(data, { onConflict: 'id' });
+  if (error) showToast('خطأ: ' + error.message, 'error');
+  else showToast('تم الحفظ', 'success');
+}
 
-      const { error } = await supabaseClient.from('settings').upsert(data);
-      if (error) showToast('خطأ: ' + error.message, 'error');
-      else showToast('تم الحفظ', 'success');
-    }
-
-    async function saveBookingNotes() {
-      const data = { booking_notes: document.getElementById('setting-notes').value };
-      const { error } = await supabaseClient.from('settings').upsert(data);
-      if (error) showToast('خطأ: ' + error.message, 'error');
-      else showToast('تم الحفظ', 'success');
-    }
+   async function saveBookingNotes() {
+  const data = { booking_notes: document.getElementById('setting-notes').value };
+  const { error } = await supabaseClient.from('settings').upsert(data, { onConflict: 'id' });
+  if (error) showToast('خطأ: ' + error.message, 'error');
+  else showToast('تم الحفظ', 'success');
+}
 
     async function saveSocial() {
-      const data = {
-        instagram: document.getElementById('setting-instagram').value,
-        facebook: document.getElementById('setting-facebook').value,
-        tiktok: document.getElementById('setting-tiktok').value
-      };
-
-      const { error } = await supabaseClient.from('settings').upsert(data);
-      if (error) showToast('خطأ: ' + error.message, 'error');
-      else showToast('تم الحفظ', 'success');
-    }
+  const social = {
+    instagram: document.getElementById('setting-instagram').value,
+    facebook: document.getElementById('setting-facebook').value,
+    tiktok: document.getElementById('setting-tiktok').value
+  };
+  
+  const data = {
+    social_links: JSON.stringify(social)
+  };
+  
+  const { error } = await supabaseClient.from('settings').upsert(data, { onConflict: 'id' });
+  if (error) showToast('خطأ: ' + error.message, 'error');
+  else showToast('تم الحفظ', 'success');
+}
 
     // ===== PROMOTIONS =====
     async function loadPromotions() {
