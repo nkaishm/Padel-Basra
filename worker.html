@@ -147,6 +147,153 @@
     .btn-full { width: 100%; }
     .btn-small { padding: 8px 16px; font-size: 0.875rem; }
 
+    /* ===== BOOKING GRID (like index.html) ===== */
+    .booking-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .time-slot {
+      background: var(--bg-primary);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .time-slot:hover {
+      border-color: var(--neon-blue);
+      transform: translateY(-2px);
+    }
+
+    .time-slot.selected {
+      border-color: var(--neon-blue);
+      background: var(--neon-blue-dim);
+    }
+
+    .time-slot.booked {
+      border-color: var(--danger);
+      background: rgba(239, 68, 68, 0.1);
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    .time-slot.booked::after {
+      content: "محجوز";
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      background: var(--danger);
+      color: white;
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .slot-time {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--neon-blue);
+      margin-bottom: 0.3rem;
+    }
+
+    .slot-period {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .slot-price {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--emerald);
+    }
+
+    .slot-status {
+      font-size: 0.75rem;
+      margin-top: 0.5rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+      display: inline-block;
+    }
+
+    .slot-status.available {
+      background: var(--emerald-dim);
+      color: var(--emerald);
+    }
+
+    .slot-status.booked {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+    }
+
+    /* ===== DATE PICKER SIMPLE ===== */
+    .date-picker-simple {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .date-picker-simple select {
+      flex: 1;
+      padding: 12px;
+      background: var(--bg-primary);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 1rem;
+    }
+
+    .date-picker-simple select:focus {
+      outline: none;
+      border-color: var(--neon-blue);
+    }
+
+    /* ===== COURT SELECTOR ===== */
+    .court-selector {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .court-option {
+      flex: 1;
+      padding: 1rem;
+      background: var(--bg-primary);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .court-option:hover {
+      border-color: var(--neon-blue);
+    }
+
+    .court-option.active {
+      border-color: var(--neon-blue);
+      background: var(--neon-blue-dim);
+    }
+
+    .court-option h4 {
+      color: var(--neon-blue);
+      margin-bottom: 0.3rem;
+    }
+
+    .court-option p {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
     .booking-item {
       background: var(--bg-primary);
       border: 1px solid var(--border);
@@ -223,182 +370,24 @@
     .toast.success { background: var(--emerald-dim); border: 1px solid var(--emerald); color: var(--emerald); }
     .toast.error { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); }
 
-    /* ===== SPIN WHEEL DATE PICKER ===== */
-    .spin-wheel-container {
-      position: relative;
-      width: 100%;
-      height: 180px;
-      background: var(--bg-primary);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-      cursor: grab;
-      user-select: none;
-      touch-action: none;
-    }
-
-    .spin-wheel-container:active { cursor: grabbing; }
-
-    .spin-wheel-label {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 0.75rem;
-      color: var(--neon-blue);
-      font-weight: 700;
-      z-index: 10;
-      pointer-events: none;
-      background: var(--bg-primary);
-      padding: 2px 8px;
-      border-radius: 4px;
-    }
-
-    .spin-wheel-highlight {
-      position: absolute;
-      top: 50%;
-      left: 0;
-      right: 0;
-      height: 40px;
-      transform: translateY(-50%);
-      background: var(--neon-blue-dim);
-      border-top: 2px solid var(--neon-blue);
-      border-bottom: 2px solid var(--neon-blue);
-      pointer-events: none;
-      z-index: 5;
-    }
-
-    .spin-wheel-column {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      overflow: hidden;
-    }
-
-    .spin-wheel-track {
-      position: absolute;
-      left: 0;
-      right: 0;
-      will-change: transform;
-    }
-
-    .spin-wheel-item {
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-      transition: color 0.2s;
-    }
-
-    .spin-wheel-item.active {
-      color: var(--neon-blue);
-      font-weight: 700;
-      font-size: 1.1rem;
-    }
-
-    .spin-wheel-date-display {
+    .selected-time-display {
       text-align: center;
-      padding: 10px;
+      padding: 1rem;
       background: var(--neon-blue-dim);
-      border: 1px solid var(--neon-blue);
-      border-radius: 8px;
-      margin-bottom: 10px;
-      font-weight: 700;
-      color: var(--neon-blue);
-      font-size: 1.1rem;
-    }
-
-    /* ===== SPIN WHEEL TIME PICKER ===== */
-    .spin-time-container {
-      position: relative;
-      width: 100%;
-      height: 180px;
-      background: var(--bg-primary);
-      border: 2px solid var(--border);
+      border: 2px solid var(--neon-blue);
       border-radius: 12px;
-      overflow: hidden;
-      cursor: grab;
-      user-select: none;
-      touch-action: none;
-    }
-
-    .spin-time-container:active { cursor: grabbing; }
-
-    .spin-time-highlight {
-      position: absolute;
-      top: 50%;
-      left: 0;
-      right: 0;
-      height: 40px;
-      transform: translateY(-50%);
-      background: var(--neon-blue-dim);
-      border-top: 2px solid var(--neon-blue);
-      border-bottom: 2px solid var(--neon-blue);
-      pointer-events: none;
-      z-index: 5;
-    }
-
-    .spin-time-column {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      overflow: hidden;
-    }
-
-    .spin-time-track {
-      position: absolute;
-      left: 0;
-      right: 0;
-      will-change: transform;
-    }
-
-    .spin-time-item {
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-      transition: color 0.2s;
-    }
-
-    .spin-time-item.active {
-      color: var(--neon-blue);
-      font-weight: 700;
-      font-size: 1.1rem;
-    }
-
-    .spin-time-display {
-      text-align: center;
-      padding: 10px;
-      background: var(--neon-blue-dim);
-      border: 1px solid var(--neon-blue);
-      border-radius: 8px;
-      margin-bottom: 10px;
-      font-weight: 700;
-      color: var(--neon-blue);
-      font-size: 1.1rem;
-    }
-
-    .spin-time-separator {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      margin-bottom: 1rem;
       font-size: 1.2rem;
       font-weight: 700;
       color: var(--neon-blue);
-      z-index: 10;
-      pointer-events: none;
     }
 
     @media (max-width: 768px) {
       .form-row { grid-template-columns: 1fr; }
       .booking-item { flex-direction: column; align-items: flex-start; }
+      .booking-grid { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+      .time-slot { padding: 0.7rem; }
+      .slot-time { font-size: 1rem; }
     }
   </style>
 <base target="_blank">
@@ -429,61 +418,48 @@
     <div id="bookings-tab" class="tab-content active">
       <div class="card">
         <div class="card-title">⚡ حجز سريع</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>الملعب</label>
-            <select id="quick-court" class="form-select">
-              <option value="1">ملعب 1</option>
-              <option value="2">ملعب 2</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>التاريخ</label>
-            <div class="spin-wheel-date-display" id="date-display">اختر التاريخ</div>
-            <div class="spin-wheel-container" id="date-picker">
-              <div class="spin-wheel-highlight"></div>
-              <div class="spin-wheel-column" style="right: 0; width: 33%;" data-type="day">
-                <div class="spin-wheel-label">يوم</div>
-                <div class="spin-wheel-track" id="day-track"></div>
-              </div>
-              <div class="spin-wheel-column" style="right: 33%; width: 33%;" data-type="month">
-                <div class="spin-wheel-label">شهر</div>
-                <div class="spin-wheel-track" id="month-track"></div>
-              </div>
-              <div class="spin-wheel-column" style="right: 66%; width: 34%;" data-type="year">
-                <div class="spin-wheel-label">سنة</div>
-                <div class="spin-wheel-track" id="year-track"></div>
-              </div>
+
+        <!-- اختيار الملعب -->
+        <div class="form-group">
+          <label>اختر الملعب</label>
+          <div class="court-selector">
+            <div class="court-option active" data-court="1" onclick="selectCourt(1)">
+              <h4>🎾 ملعب 1</h4>
+              <p>اختر للحجز</p>
             </div>
-            <input type="hidden" id="quick-date" value="">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>الوقت</label>
-            <div class="spin-time-display" id="time-display">اختر الوقت</div>
-            <div class="spin-time-container" id="time-picker">
-              <div class="spin-time-highlight"></div>
-              <div class="spin-time-column" style="right: 0; width: 45%;" data-type="hour">
-                <div class="spin-wheel-label">ساعة</div>
-                <div class="spin-time-track" id="hour-track"></div>
-              </div>
-              <div class="spin-time-separator">:</div>
-              <div class="spin-time-column" style="right: 55%; width: 45%;" data-type="minute">
-                <div class="spin-wheel-label">دقيقة</div>
-                <div class="spin-time-track" id="minute-track"></div>
-              </div>
+            <div class="court-option" data-court="2" onclick="selectCourt(2)">
+              <h4>🎾 ملعب 2</h4>
+              <p>اختر للحجز</p>
             </div>
-            <input type="hidden" id="quick-time" value="">
           </div>
-          <div class="form-group">
-            <label>المدة</label>
-            <select id="quick-duration" class="form-select">
-              <option value="1">ساعة</option>
-              <option value="2">ساعتان</option>
-            </select>
-          </div>
+          <input type="hidden" id="quick-court" value="1">
         </div>
+
+        <!-- اختيار التاريخ -->
+        <div class="form-group">
+          <label>التاريخ</label>
+          <div class="date-picker-simple">
+            <select id="date-day"></select>
+            <select id="date-month"></select>
+            <select id="date-year"></select>
+          </div>
+          <input type="hidden" id="quick-date" value="">
+        </div>
+
+        <!-- عرض الوقت المختار -->
+        <div class="selected-time-display" id="selected-time-display" style="display: none;">
+          ⏰ لم يتم اختيار وقت
+        </div>
+
+        <!-- شبكة الأوقات -->
+        <div class="form-group">
+          <label>اختر الوقت المتاح</label>
+          <div class="booking-grid" id="time-grid"></div>
+          <input type="hidden" id="quick-time" value="">
+          <input type="hidden" id="quick-duration" value="1">
+        </div>
+
+        <!-- بيانات الزبون -->
         <div class="form-row">
           <div class="form-group">
             <label>اسم الزبون</label>
@@ -542,277 +518,207 @@
     const { createClient } = supabase;
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    // Time slots configuration (same as index.html)
+    const TIME_SLOTS = [
+      { hour: 9,  period: 'صباحاً', icon: '🌅', price: 25000 },
+      { hour: 10, period: 'صباحاً', icon: '🌅', price: 25000 },
+      { hour: 11, period: 'صباحاً', icon: '🌅', price: 25000 },
+      { hour: 12, period: 'ظهراً',  icon: '☀️', price: 25000 },
+      { hour: 13, period: 'ظهراً',  icon: '☀️', price: 25000 },
+      { hour: 14, period: 'عصراً',  icon: '🌤️', price: 40000 },
+      { hour: 15, period: 'عصراً',  icon: '🌤️', price: 40000 },
+      { hour: 16, period: 'عصراً',  icon: '🌤️', price: 40000 },
+      { hour: 17, period: 'مساءً',  icon: '🌇', price: 40000 },
+      { hour: 18, period: 'مساءً',  icon: '🌇', price: 40000 },
+      { hour: 19, period: 'مساءً',  icon: '🌇', price: 40000 },
+      { hour: 20, period: 'ليلاً',  icon: '🌙', price: 50000 },
+      { hour: 21, period: 'ليلاً',  icon: '🌙', price: 50000 },
+      { hour: 22, period: 'ليلاً',  icon: '🌙', price: 50000 },
+      { hour: 23, period: 'ليلاً',  icon: '🌙', price: 50000 },
+      { hour: 0,  period: 'بعد منتصف الليل', icon: '🌙', price: 50000 },
+      { hour: 1,  period: 'بعد منتصف الليل', icon: '🌙', price: 50000 },
+    ];
+
+    let selectedCourt = 1;
+    let selectedDate = '';
+    let selectedTimeSlot = null;
+    let bookedSlots = [];
+
     document.addEventListener('DOMContentLoaded', async () => {
       await setSupabaseUser(supabaseClient);
       initDatePicker();
-      initTimePicker();
+      await loadTimeGrid();
       await loadDashboard();
     });
 
-    function showToast(message, type = 'success') {
+    function showToast(message, type) {
       const toast = document.getElementById('toast');
       toast.textContent = message;
-      toast.className = `toast ${type}`;
-      requestAnimationFrame(() => toast.classList.add('show'));
-      setTimeout(() => toast.classList.remove('show'), 4000);
+      toast.className = 'toast ' + type;
+      requestAnimationFrame(function() { toast.classList.add('show'); });
+      setTimeout(function() { toast.classList.remove('show'); }, 4000);
     }
 
     function showTab(tabId) {
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
       document.getElementById(tabId + '-tab').classList.add('active');
       event.target.classList.add('active');
       if (tabId === 'bookings') loadTodayBookings();
       if (tabId === 'check-in') loadCheckInList();
     }
 
-    // ===== SPIN WHEEL DATE PICKER =====
+    // ===== DATE PICKER =====
     function initDatePicker() {
       const today = new Date();
       const currentYear = today.getFullYear();
+      const currentMonth = today.getMonth() + 1;
+      const currentDay = today.getDate();
 
-      // Generate days (1-31)
-      const dayTrack = document.getElementById('day-track');
+      const monthNames = ['يناير','فبراير','مارس','ابريل','مايو','يونيو','يوليو','اغسطس','سبتمبر','اكتوبر','نوفمبر','ديسمبر'];
+
+      // Days
+      const daySelect = document.getElementById('date-day');
       for (let i = 1; i <= 31; i++) {
-        const div = document.createElement('div');
-        div.className = 'spin-wheel-item';
-        div.textContent = i;
-        div.dataset.value = i;
-        dayTrack.appendChild(div);
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = i;
+        if (i === currentDay) opt.selected = true;
+        daySelect.appendChild(opt);
       }
 
-      // Generate months (1-12)
-      const monthTrack = document.getElementById('month-track');
-      const monthNames = ['يناير','فبراير','مارس','ابريل','مايو','يونيو','يوليو','اغسطس','سبتمبر','اكتوبر','نوفمبر','ديسمبر'];
+      // Months
+      const monthSelect = document.getElementById('date-month');
       for (let i = 1; i <= 12; i++) {
-        const div = document.createElement('div');
-        div.className = 'spin-wheel-item';
-        div.textContent = monthNames[i-1];
-        div.dataset.value = i;
-        monthTrack.appendChild(div);
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = monthNames[i-1];
+        if (i === currentMonth) opt.selected = true;
+        monthSelect.appendChild(opt);
       }
 
-      // Generate years (current-1 to current+2)
-      const yearTrack = document.getElementById('year-track');
+      // Years
+      const yearSelect = document.getElementById('date-year');
       for (let i = currentYear - 1; i <= currentYear + 2; i++) {
-        const div = document.createElement('div');
-        div.className = 'spin-wheel-item';
-        div.textContent = i;
-        div.dataset.value = i;
-        yearTrack.appendChild(div);
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = i;
+        if (i === currentYear) opt.selected = true;
+        yearSelect.appendChild(opt);
       }
 
-      // Initialize with today's date
-      const selectedDay = today.getDate();
-      const selectedMonth = today.getMonth() + 1;
-      const selectedYear = today.getFullYear();
+      updateDateValue();
 
-      setupSpinWheel('date-picker', 'day-track', selectedDay - 1, 31, (val) => updateDate('day', val + 1));
-      setupSpinWheel('date-picker', 'month-track', selectedMonth - 1, 12, (val) => updateDate('month', val + 1));
-      setupSpinWheel('date-picker', 'year-track', 1, 4, (val) => updateDate('year', currentYear - 1 + val));
-
-      updateDateDisplay();
+      daySelect.addEventListener('change', updateDateValue);
+      monthSelect.addEventListener('change', updateDateValue);
+      yearSelect.addEventListener('change', updateDateValue);
     }
 
-    let dateValues = { day: new Date().getDate(), month: new Date().getMonth() + 1, year: new Date().getFullYear() };
-
-    function updateDate(type, value) {
-      dateValues[type] = value;
-      updateDateDisplay();
+    function updateDateValue() {
+      const day = document.getElementById('date-day').value;
+      const month = document.getElementById('date-month').value;
+      const year = document.getElementById('date-year').value;
+      selectedDate = year + '-' + month.padStart(2, '0') + '-' + day.padStart(2, '0');
+      document.getElementById('quick-date').value = selectedDate;
+      loadTimeGrid();
     }
 
-    function updateDateDisplay() {
-      const display = document.getElementById('date-display');
-      const hidden = document.getElementById('quick-date');
-      const monthNames = ['يناير','فبراير','مارس','ابريل','مايو','يونيو','يوليو','اغسطس','سبتمبر','اكتوبر','نوفمبر','ديسمبر'];
-
-      const day = dateValues.day.toString().padStart(2, '0');
-      const month = dateValues.month.toString().padStart(2, '0');
-      const year = dateValues.year;
-
-      display.textContent = `${day} ${monthNames[dateValues.month - 1]} ${year}`;
-      hidden.value = `${year}-${month}-${day}`;
-    }
-
-    // ===== SPIN WHEEL TIME PICKER =====
-    function initTimePicker() {
-      // Generate hours (9-23, 0-1)
-      const hourTrack = document.getElementById('hour-track');
-      const hours = [];
-      for (let h = 9; h < 24; h++) hours.push(h);
-      for (let h = 0; h < 2; h++) hours.push(h);
-
-      hours.forEach(h => {
-        const div = document.createElement('div');
-        div.className = 'spin-time-item';
-        div.textContent = h.toString().padStart(2, '0');
-        div.dataset.value = h;
-        hourTrack.appendChild(div);
+    // ===== COURT SELECTOR =====
+    function selectCourt(court) {
+      selectedCourt = court;
+      document.getElementById('quick-court').value = court;
+      document.querySelectorAll('.court-option').forEach(function(el) {
+        el.classList.remove('active');
       });
-
-      // Generate minutes (00, 30)
-      const minuteTrack = document.getElementById('minute-track');
-      const minutes = ['00', '30'];
-      minutes.forEach(m => {
-        const div = document.createElement('div');
-        div.className = 'spin-time-item';
-        div.textContent = m;
-        div.dataset.value = m;
-        minuteTrack.appendChild(div);
-      });
-
-      // Initialize with current time or 9:00
-      const now = new Date();
-      const currentHour = now.getHours();
-      let hourIndex = hours.indexOf(currentHour);
-      if (hourIndex === -1) hourIndex = 0;
-
-      setupSpinWheel('time-picker', 'hour-track', hourIndex, hours.length, (val) => updateTime('hour', hours[val]));
-      setupSpinWheel('time-picker', 'minute-track', 0, 2, (val) => updateTime('minute', minutes[val]));
-
-      updateTimeDisplay();
+      document.querySelector('.court-option[data-court="' + court + '"]').classList.add('active');
+      loadTimeGrid();
     }
 
-    let timeValues = { hour: 9, minute: '00' };
+    // ===== TIME GRID =====
+    async function loadTimeGrid() {
+      const grid = document.getElementById('time-grid');
+      grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">جاري التحميل...</p>';
 
-    function updateTime(type, value) {
-      timeValues[type] = value;
-      updateTimeDisplay();
+      // Get bookings for selected date and court
+      const { data: bookings, error } = await supabaseClient
+        .from('bookings')
+        .select('*')
+        .eq('booking_date', selectedDate)
+        .eq('court_id', selectedCourt)
+        .not('status', 'eq', 'cancelled');
+
+      if (error) {
+        showToast('خطأ في تحميل الأوقات', 'error');
+        return;
+      }
+
+      bookedSlots = bookings || [];
+      renderTimeGrid();
     }
 
-    function updateTimeDisplay() {
-      const display = document.getElementById('time-display');
-      const hidden = document.getElementById('quick-time');
-      const hour = timeValues.hour.toString().padStart(2, '0');
-      const minute = timeValues.minute;
+    function renderTimeGrid() {
+      const grid = document.getElementById('time-grid');
+      grid.innerHTML = '';
 
-      display.textContent = `${hour}:${minute}`;
-      hidden.value = `${hour}:${minute}`;
-    }
-
-    // ===== SPIN WHEEL CORE FUNCTION =====
-    function setupSpinWheel(containerId, trackId, initialIndex, totalItems, onChange) {
-      const container = document.getElementById(containerId);
-      const track = document.getElementById(trackId);
-      const itemHeight = 40;
-      const visibleItems = 4; // items visible above/below center
-      const centerOffset = (container.offsetHeight / 2) - (itemHeight / 2);
-
-      let currentIndex = initialIndex;
-      let isDragging = false;
-      let startY = 0;
-      let currentY = 0;
-      let velocity = 0;
-      let lastY = 0;
-      let lastTime = 0;
-
-      function updatePosition(animate = true) {
-        const y = centerOffset - (currentIndex * itemHeight);
-        track.style.transition = animate ? 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none';
-        track.style.transform = `translateY(${y}px)`;
-
-        // Update active states
-        const items = track.querySelectorAll('.spin-wheel-item, .spin-time-item');
-        items.forEach((item, i) => {
-          item.classList.toggle('active', i === currentIndex);
+      TIME_SLOTS.forEach(function(slot) {
+        const hourStr = slot.hour.toString().padStart(2, '0') + ':00';
+        const isBooked = bookedSlots.some(function(b) {
+          return b.start_time.substring(0, 2) === slot.hour.toString().padStart(2, '0');
         });
 
-        onChange(currentIndex);
-      }
-
-      function handleStart(y) {
-        isDragging = true;
-        startY = y;
-        currentY = y;
-        lastY = y;
-        lastTime = Date.now();
-        velocity = 0;
-        track.style.transition = 'none';
-      }
-
-      function handleMove(y) {
-        if (!isDragging) return;
-
-        const delta = y - startY;
-        const y = centerOffset - (currentIndex * itemHeight) + delta;
-        track.style.transform = `translateY(${y}px)`;
-
-        const now = Date.now();
-        const dt = now - lastTime;
-        if (dt > 0) {
-          velocity = (y - lastY) / dt;
+        const div = document.createElement('div');
+        div.className = 'time-slot' + (isBooked ? ' booked' : '');
+        if (!isBooked) {
+          div.onclick = function() { selectTimeSlot(slot); };
         }
-        lastY = y;
-        lastTime = now;
-        currentY = y;
-      }
 
-      function handleEnd() {
-        if (!isDragging) return;
-        isDragging = false;
+        div.innerHTML = 
+          '<div class="slot-time">' + hourStr + '</div>' +
+          '<div class="slot-period">' + slot.icon + ' ' + slot.period + '</div>' +
+          '<div class="slot-price">' + slot.price.toLocaleString() + ' د.ع</div>' +
+          '<div class="slot-status ' + (isBooked ? 'booked' : 'available') + '">' +
+          (isBooked ? '❌ محجوز' : '✅ متاح') +
+          '</div>';
 
-        // Snap to nearest item
-        const delta = currentY - startY;
-        const itemDelta = Math.round(delta / itemHeight);
-        currentIndex = Math.max(0, Math.min(totalItems - 1, currentIndex - itemDelta));
-
-        updatePosition(true);
-      }
-
-      // Mouse events
-      container.addEventListener('mousedown', (e) => {
-        if (e.target.closest(`#${trackId}`)) handleStart(e.clientY);
+        grid.appendChild(div);
       });
-
-      document.addEventListener('mousemove', (e) => {
-        handleMove(e.clientY);
-      });
-
-      document.addEventListener('mouseup', handleEnd);
-
-      // Touch events
-      container.addEventListener('touchstart', (e) => {
-        if (e.target.closest(`#${trackId}`)) {
-          e.preventDefault();
-          handleStart(e.touches[0].clientY);
-        }
-      }, { passive: false });
-
-      document.addEventListener('touchmove', (e) => {
-        handleMove(e.touches[0].clientY);
-      }, { passive: true });
-
-      document.addEventListener('touchend', handleEnd);
-
-      // Wheel event
-      container.addEventListener('wheel', (e) => {
-        e.preventDefault();
-        const delta = e.deltaY > 0 ? 1 : -1;
-        currentIndex = Math.max(0, Math.min(totalItems - 1, currentIndex + delta));
-        updatePosition(true);
-      }, { passive: false });
-
-      // Initial position
-      updatePosition(true);
     }
 
+    function selectTimeSlot(slot) {
+      selectedTimeSlot = slot;
+      const hourStr = slot.hour.toString().padStart(2, '0') + ':00';
+      document.getElementById('quick-time').value = hourStr;
+      document.getElementById('quick-duration').value = '1';
+
+      document.getElementById('selected-time-display').style.display = 'block';
+      document.getElementById('selected-time-display').innerHTML = 
+        '🎾 ملعب ' + selectedCourt + ' | 📅 ' + selectedDate + ' | ⏰ ' + hourStr + 
+        '<br>💰 ' + slot.price.toLocaleString() + ' د.ع';
+
+      // Update visual selection
+      document.querySelectorAll('.time-slot').forEach(function(el) {
+        el.classList.remove('selected');
+      });
+      event.currentTarget.classList.add('selected');
+    }
+
+    // ===== QUICK BOOK =====
     async function quickBook() {
-      const courtId = parseInt(document.getElementById('quick-court').value);
+      const courtId = selectedCourt;
       const date = document.getElementById('quick-date').value;
       const time = document.getElementById('quick-time').value;
-      const duration = parseInt(document.getElementById('quick-duration').value);
       const name = document.getElementById('quick-name').value.trim();
       const phone = document.getElementById('quick-phone').value.trim();
 
       if (!name || !phone || !date || !time) {
-        showToast('الرجاء ملء جميع الحقول', 'error');
+        showToast('الرجاء ملء جميع الحقول واختيار وقت', 'error');
         return;
       }
 
       const startHour = parseInt(time.split(':')[0]);
-      const endHour = startHour + duration;
-      const endTime = `${(endHour % 24).toString().padStart(2, '0')}:00`;
-      const basePrice = 40000 * duration;
+      const endHour = (startHour + 1) % 24;
+      const endTime = endHour.toString().padStart(2, '0') + ':00';
+      const price = selectedTimeSlot ? selectedTimeSlot.price : 40000;
 
       const { error } = await supabaseClient.from('bookings').insert([{
         court_id: courtId,
@@ -821,9 +727,9 @@
         booking_date: date,
         start_time: time,
         end_time: endTime,
-        duration_hours: duration,
-        price: basePrice,
-        final_price: basePrice,
+        duration_hours: 1,
+        price: price,
+        final_price: price,
         status: 'confirmed',
         created_by: 'worker'
       }]);
@@ -834,10 +740,18 @@
         showToast('تم إنشاء الحجز بنجاح', 'success');
         document.getElementById('quick-name').value = '';
         document.getElementById('quick-phone').value = '';
+        document.getElementById('quick-time').value = '';
+        document.getElementById('selected-time-display').style.display = 'none';
+        document.querySelectorAll('.time-slot').forEach(function(el) {
+          el.classList.remove('selected');
+        });
+        selectedTimeSlot = null;
+        loadTimeGrid();
         loadTodayBookings();
       }
     }
 
+    // ===== TODAY BOOKINGS =====
     async function loadTodayBookings() {
       const today = new Date().toISOString().split('T')[0];
       const { data: bookings, error } = await supabaseClient
@@ -853,22 +767,22 @@
         return;
       }
 
-      container.innerHTML = bookings.map(b => `
-        <div class="booking-item">
-          <div class="booking-info">
-            <h4>${b.customer_name}</h4>
-            <p>📞 ${b.phone} | 🎾 ملعب ${b.court_id} | ⏰ ${b.start_time.substring(0, 5)} - ${b.end_time.substring(0, 5)}</p>
-          </div>
-          <div class="booking-actions">
-            <button class="btn btn-success btn-small" onclick="completeBooking('${b.id}')">
-              <i class="fas fa-check"></i> تم
-            </button>
-            <button class="btn btn-danger btn-small" onclick="cancelBooking('${b.id}')">
-              <i class="fas fa-times"></i> إلغاء
-            </button>
-          </div>
-        </div>
-      `).join('');
+      container.innerHTML = bookings.map(function(b) {
+        return '<div class="booking-item">' +
+          '<div class="booking-info">' +
+            '<h4>' + b.customer_name + '</h4>' +
+            '<p>📞 ' + b.phone + ' | 🎾 ملعب ' + b.court_id + ' | ⏰ ' + b.start_time.substring(0, 5) + ' - ' + b.end_time.substring(0, 5) + '</p>' +
+          '</div>' +
+          '<div class="booking-actions">' +
+            '<button class="btn btn-success btn-small" onclick="completeBooking(' + "'" + b.id + "'" + ')">' +
+              '<i class="fas fa-check"></i> تم' +
+            '</button>' +
+            '<button class="btn btn-danger btn-small" onclick="cancelBooking(' + "'" + b.id + "'" + ')">' +
+              '<i class="fas fa-times"></i> إلغاء' +
+            '</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
     }
 
     async function completeBooking(id) {
@@ -884,6 +798,7 @@
       showToast('تم إلغاء الحجز', 'success');
     }
 
+    // ===== CHECK IN =====
     async function loadCheckInList() {
       const today = new Date().toISOString().split('T')[0];
       const now = new Date();
@@ -902,11 +817,10 @@
         return;
       }
 
-      container.innerHTML = bookings.map(b => {
+      container.innerHTML = bookings.map(function(b) {
         const bookingHour = parseInt(b.start_time.split(':')[0]);
         const isNow = bookingHour === currentHour;
         const isUpcoming = bookingHour > currentHour;
-        const isPast = bookingHour < currentHour;
 
         let statusBadge = '';
         if (isNow) statusBadge = '<span style="color: var(--emerald); font-weight: 700;">🟢 الآن</span>';
@@ -914,38 +828,32 @@
         else statusBadge = '<span style="color: var(--text-muted);">⏰ انتهى</span>';
 
         const cleanPhone = b.phone.replace(/\D/g, '');
-        const whatsappMessage = encodeURIComponent(`مرحباً ${b.customer_name}،
+        const msg = encodeURIComponent('مرحباً ' + b.customer_name + '،\n\nتذكير بحجزك في ملعب بادل 🎾\n📅 اليوم الساعة ' + b.start_time.substring(0, 5) + '\n\nنتمنى لك وقت ممتع! 😊');
 
-تذكير بحجزك في ملعب بادل 🎾
-📅 اليوم الساعة ${b.start_time.substring(0, 5)}
-
-نتمنى لك وقت ممتع! 😊`);
-
-        return `
-          <div class="check-in-item">
-            <div class="check-in-header">
-              <div>
-                <span class="check-in-time">${b.start_time.substring(0, 5)}</span>
-                ${statusBadge}
-              </div>
-              <span style="color: var(--text-muted);">ملعب ${b.court_id}</span>
-            </div>
-            <div style="margin-bottom: 0.8rem;">
-              <strong>${b.customer_name}</strong> | 📞 ${b.phone}
-            </div>
-            <div style="display: flex; gap: 0.5rem;">
-              <a href="https://wa.me/964${cleanPhone}?text=${whatsappMessage}" target="_blank" class="whatsapp-btn">
-                <i class="fab fa-whatsapp"></i> إرسال تذكير
-              </a>
-              <button class="btn btn-success btn-small" onclick="completeBooking('${b.id}')">
-                <i class="fas fa-check"></i> تسجيل وصول
-              </button>
-            </div>
-          </div>
-        `;
+        return '<div class="check-in-item">' +
+          '<div class="check-in-header">' +
+            '<div>' +
+              '<span class="check-in-time">' + b.start_time.substring(0, 5) + '</span>' +
+              statusBadge +
+            '</div>' +
+            '<span style="color: var(--text-muted);">ملعب ' + b.court_id + '</span>' +
+          '</div>' +
+          '<div style="margin-bottom: 0.8rem;">' +
+            '<strong>' + b.customer_name + '</strong> | 📞 ' + b.phone +
+          '</div>' +
+          '<div style="display: flex; gap: 0.5rem;">' +
+            '<a href="https://wa.me/964' + cleanPhone + '?text=' + msg + '" target="_blank" class="whatsapp-btn">' +
+              '<i class="fab fa-whatsapp"></i> إرسال تذكير' +
+            '</a>' +
+            '<button class="btn btn-success btn-small" onclick="completeBooking(' + "'" + b.id + "'" + ')">' +
+              '<i class="fas fa-check"></i> تسجيل وصول' +
+            '</button>' +
+          '</div>' +
+        '</div>';
       }).join('');
     }
 
+    // ===== LOYALTY =====
     async function checkAndStamp() {
       const cardNumber = document.getElementById('check-card').value.trim();
       const resultDiv = document.getElementById('loyalty-result');
@@ -962,40 +870,29 @@
         .single();
 
       if (error || !data) {
-        resultDiv.innerHTML = `
-          <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); padding: 1rem; border-radius: 10px; margin-top: 1rem;">
-            ❌ رقم البطاقة غير موجود
-          </div>
-        `;
+        resultDiv.innerHTML = '<div style="background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); padding: 1rem; border-radius: 10px; margin-top: 1rem;">❌ رقم البطاقة غير موجود</div>';
         return;
       }
 
       const remaining = 10 - data.stamps;
-      resultDiv.innerHTML = `
-        <div style="background: var(--bg-primary); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; margin-top: 1rem;">
-          <h4 style="margin-bottom: 1rem; color: var(--neon-blue);">${data.customer_name}</h4>
-          <p style="color: var(--text-secondary); margin-bottom: 1rem;">📞 ${data.phone}</p>
-          <div style="display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap;">
-            ${Array.from({length: 10}, (_, i) => `
-              <div style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid ${i < data.stamps ? 'var(--emerald)' : 'var(--border)'}; 
-                background: ${i < data.stamps ? 'var(--emerald)' : 'transparent'}; color: ${i < data.stamps ? 'white' : 'var(--text-muted)'};
-                display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;">
-                ${i < data.stamps ? '✓' : i + 1}
-              </div>
-            `).join('')}
-          </div>
-          <p style="margin-bottom: 1rem;">
-            ${data.stamps >= 10 
-              ? '🎉 <strong style="color: var(--emerald);">مبروك! البطاقة مكتملة - خصم 10%</strong>' 
-              : `متبقي <strong>${remaining}</strong> ختمات للخصم`}
-          </p>
-          ${data.stamps < 10 ? `
-            <button class="btn btn-primary btn-full" onclick="addStamp('${data.card_number}')">
-              <i class="fas fa-plus"></i> إضافة ختم
-            </button>
-          ` : ''}
-        </div>
-      `;
+      let stampsHtml = '';
+      for (let i = 0; i < 10; i++) {
+        stampsHtml += '<div style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid ' + 
+          (i < data.stamps ? 'var(--emerald)' : 'var(--border)') + '; background: ' + 
+          (i < data.stamps ? 'var(--emerald)' : 'transparent') + '; color: ' + 
+          (i < data.stamps ? 'white' : 'var(--text-muted)') + '; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;">' +
+          (i < data.stamps ? '✓' : (i + 1)) + '</div>';
+      }
+
+      resultDiv.innerHTML = '<div style="background: var(--bg-primary); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; margin-top: 1rem;">' +
+        '<h4 style="margin-bottom: 1rem; color: var(--neon-blue);">' + data.customer_name + '</h4>' +
+        '<p style="color: var(--text-secondary); margin-bottom: 1rem;">📞 ' + data.phone + '</p>' +
+        '<div style="display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap;">' + stampsHtml + '</div>' +
+        '<p style="margin-bottom: 1rem;">' +
+          (data.stamps >= 10 ? '🎉 <strong style="color: var(--emerald);">مبروك! البطاقة مكتملة - خصم 10%</strong>' : 'متبقي <strong>' + remaining + '</strong> ختمات للخصم') +
+        '</p>' +
+        (data.stamps < 10 ? '<button class="btn btn-primary btn-full" onclick="addStamp(' + "'" + data.card_number + "'" + ')"><i class="fas fa-plus"></i> إضافة ختم</button>' : '') +
+      '</div>';
     }
 
     async function addStamp(cardNumber) {
