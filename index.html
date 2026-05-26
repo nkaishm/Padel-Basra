@@ -973,8 +973,8 @@
       try {
         const { data: tournaments, error } = await supabaseClient
           .from('tournaments')
-          .select('*')
-          .order('date', { ascending: true });
+          .select('*, winner:tournament_teams!winner_team_id(*)')
+          .order('tournament_date', { ascending: true });
 
         const container = document.getElementById('tournaments-list');
         if (error || !tournaments || tournaments.length === 0) {
@@ -982,12 +982,38 @@
           return;
         }
         container.innerHTML = tournaments.map(function(t) {
+          let statusBadge = '';
+          let winnerHtml = '';
+
+          if (t.status === 'upcoming') {
+            statusBadge = '<span style="background: var(--neon-blue-dim); color: var(--neon-blue); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;">🔜 قادمة</span>';
+          } else if (t.status === 'ongoing') {
+            statusBadge = '<span style="background: rgba(245, 158, 11, 0.1); color: var(--warning); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;">▶️ جارية</span>';
+          } else {
+            statusBadge = '<span style="background: var(--emerald-dim); color: var(--emerald); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;">✅ منتهية</span>';
+            if (t.winner) {
+              winnerHtml = '<div style="margin-top: 0.8rem; padding: 0.8rem; background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.05)); border: 1px solid var(--warning); border-radius: 10px; text-align: center;">' +
+                '<span style="font-size: 1.5rem;">🏆</span>' +
+                '<h4 style="color: var(--warning); margin-top: 0.3rem;">الفائز: ' + t.winner.team_name + '</h4>' +
+                '<p style="color: var(--text-secondary); font-size: 0.85rem;">' + t.winner.player1_name + ' & ' + t.winner.player2_name + '</p>' +
+              '</div>';
+            }
+          }
+
           return '<div class="tournament-card">' +
-            '<h3 style="color: var(--neon-blue); margin-bottom: 0.5rem;">' + (t.name || 'بطولة') + '</h3>' +
-            '<p style="color: var(--text-secondary); font-size: 0.9rem;">' +
-              '📅 ' + (t.date || '') + ' | ⏰ ' + (t.time || '') + ' | 🎾 ' + (t.court || '') +
+            '<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">' +
+              '<h3 style="color: var(--neon-blue); margin: 0;">' + (t.name || 'بطولة') + '</h3>' +
+              statusBadge +
+            '</div>' +
+            '<p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem;">' +
+              '📅 ' + (t.tournament_date || '') + ' | ⏰ ' + (t.start_time ? t.start_time.substring(0, 5) : '') + ' | 🎾 ملعب ' + t.court_id +
             '</p>' +
-            '<p style="margin-top: 0.5rem;">' + (t.description || '') + '</p>' +
+            '<p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.5rem;">' +
+              '👥 ' + t.team_count + ' فرق | 💰 ' + (t.entry_fee || 0).toLocaleString() + ' د.ع' +
+              (t.prize ? ' | 🏆 ' + t.prize : '') +
+            '</p>' +
+            '<p style="margin-bottom: 0.5rem;">' + (t.description || '') + '</p>' +
+            winnerHtml +
           '</div>';
         }).join('');
       } catch(e) {
@@ -1009,7 +1035,7 @@
           let social = {};
           try {
             if (typeof settings.social_links === 'string') {
-              social = JSON.parse(settings.social_links.replace(/\\/g, ''));
+              social = JSON.parse(settings.social_links.replace(/\/g, ''));
             } else {
               social = settings.social_links;
             }
