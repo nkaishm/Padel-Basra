@@ -229,6 +229,7 @@
     }
   </style>
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
   <div class="toast" id="toast"></div>
@@ -342,9 +343,9 @@
 
     
 document.addEventListener('DOMContentLoaded', async () => {
-      await setSupabaseUser(supabaseClient);  // ← هذا السطر الجديد
-      await loadDashboard();
-      // ... إلخ
+      await setSupabaseUser(supabaseClient);
+      loadTimeOptions();
+      await loadTodayBookings();
     });
 
     function showToast(message, type = 'success') {
