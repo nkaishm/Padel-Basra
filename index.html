@@ -452,6 +452,7 @@
     }
   </style>
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
   <div class="toast" id="toast"></div>
@@ -1008,7 +1009,7 @@
           let social = {};
           try {
             if (typeof settings.social_links === 'string') {
-              social = JSON.parse(settings.social_links.replace(/\/g, ''));
+              social = JSON.parse(settings.social_links.replace(/\\/g, ''));
             } else {
               social = settings.social_links;
             }
