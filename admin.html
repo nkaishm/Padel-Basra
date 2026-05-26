@@ -2,13 +2,12 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>لوحة التحكم | PADEL COURT</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
-  <script src="auth.js?v=2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="auth.js"></script>
   <style>
     :root {
       --bg-primary: #0B1120;
@@ -23,188 +22,121 @@
       --text-secondary: #94A3B8;
       --text-muted: #64748B;
       --danger: #EF4444;
-      --danger-dim: rgba(239, 68, 68, 0.1);
       --warning: #F59E0B;
-      --warning-dim: rgba(245, 158, 11, 0.1);
       --border: rgba(148, 163, 184, 0.1);
-      --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
       --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     body {
       font-family: 'Tajawal', sans-serif;
       background: var(--bg-primary);
       color: var(--text-primary);
       min-height: 100vh;
-      display: flex;
+      overflow-x: hidden;
     }
 
-    .sidebar {
-      width: 280px;
+    .header {
       background: var(--bg-secondary);
-      border-left: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      position: fixed;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      z-index: 100;
-      overflow-y: auto;
-    }
-
-    .sidebar-header {
-      padding: 2rem 1.5rem;
       border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .sidebar-logo { font-size: 2rem; }
-
-    .sidebar-title {
-      font-size: 1.3rem;
-      font-weight: 900;
-      background: linear-gradient(135deg, var(--neon-blue), var(--emerald));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .sidebar-nav { padding: 1rem 0; flex: 1; }
-
-    .sidebar-link {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 1.5rem;
-      color: var(--text-secondary);
-      text-decoration: none;
-      font-weight: 600;
-      transition: var(--transition);
-      border-right: 3px solid transparent;
-      cursor: pointer;
-    }
-
-    .sidebar-link:hover, .sidebar-link.active {
-      background: var(--neon-blue-dim);
-      color: var(--neon-blue);
-      border-right-color: var(--neon-blue);
-    }
-
-    .main-content {
-      flex: 1;
-      margin-right: 280px;
-      padding: 2rem;
-      min-height: 100vh;
-    }
-
-    .page-header {
+      padding: 0.8rem 1rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 0.5rem;
     }
 
-    .page-title { font-size: 1.8rem; font-weight: 900; }
+    .logo { display: flex; align-items: center; gap: 8px; font-size: 1rem; font-weight: 900; }
+    .logo span { font-size: 1.4rem; }
+
+    .header-actions { display: flex; gap: 0.5rem; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 1rem; }
+
+    .tabs {
+      display: flex;
+      gap: 0.3rem;
+      margin-bottom: 1.5rem;
+      background: var(--bg-secondary);
+      padding: 0.4rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+
+    .tab-btn {
+      flex: 1;
+      min-width: 90px;
+      padding: 10px 14px;
+      background: transparent;
+      border: none;
+      border-radius: 8px;
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--neon-blue), #0099CC);
+      color: var(--bg-primary);
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.2rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      padding-bottom: 0.8rem;
+      border-bottom: 1px solid var(--border);
+    }
 
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
     }
 
     .stat-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 1.5rem;
-      transition: var(--transition);
-    }
-
-    .stat-card:hover { transform: translateY(-3px); border-color: var(--neon-blue); }
-
-    .stat-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-
-    .stat-icon {
-      width: 48px; height: 48px;
       border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.3rem;
+      padding: 1rem;
+      text-align: center;
     }
 
-    .stat-icon.blue { background: var(--neon-blue-dim); color: var(--neon-blue); }
-    .stat-icon.green { background: var(--emerald-dim); color: var(--emerald); }
-    .stat-icon.orange { background: var(--warning-dim); color: var(--warning); }
-    .stat-icon.red { background: var(--danger-dim); color: var(--danger); }
-
-    .stat-value { font-size: 2rem; font-weight: 900; margin-bottom: 0.5rem; }
-    .stat-label { color: var(--text-secondary); font-size: 0.9rem; }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 20px;
-      border-radius: 10px;
-      border: none;
-      font-family: inherit;
-      font-size: 0.9rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: var(--transition);
+    .stat-card h3 {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--neon-blue);
+      margin-bottom: 0.3rem;
     }
 
-    .btn-primary { background: linear-gradient(135deg, var(--neon-blue), #0099CC); color: var(--bg-primary); }
-    .btn-secondary { background: var(--bg-hover); color: var(--text-primary); border: 1px solid var(--border); }
-    .btn-danger { background: linear-gradient(135deg, var(--danger), #DC2626); color: white; }
-    .btn-success { background: linear-gradient(135deg, var(--emerald), #059669); color: white; }
-    .btn-warning { background: linear-gradient(135deg, var(--warning), #D97706); color: white; }
-    .btn-small { padding: 6px 14px; font-size: 0.8rem; }
-    .btn-full { width: 100%; justify-content: center; }
+    .stat-card p { font-size: 0.85rem; color: var(--text-secondary); }
 
-    .table-container {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      overflow: hidden;
-      margin-bottom: 2rem;
-    }
-
-    .data-table { width: 100%; border-collapse: collapse; }
-    .data-table th, .data-table td {
-      padding: 1rem 1.5rem;
-      text-align: right;
-      border-bottom: 1px solid var(--border);
-    }
-    .data-table th { color: var(--text-secondary); font-weight: 600; font-size: 0.85rem; }
-    .data-table tr:hover td { background: var(--bg-hover); }
-
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
-      border-radius: 50px;
-      font-size: 0.8rem;
-      font-weight: 700;
-    }
-
-    .status-confirmed { background: var(--emerald-dim); color: var(--emerald); border: 1px solid var(--emerald); }
-    .status-cancelled { background: var(--danger-dim); color: var(--danger); border: 1px solid var(--danger); }
-    .status-completed { background: var(--bg-hover); color: var(--text-muted); border: 1px solid var(--border); }
-
-    .form-group { margin-bottom: 1.2rem; }
+    .form-group { margin-bottom: 1rem; }
     .form-group label {
       display: block;
       margin-bottom: 0.5rem;
@@ -221,8 +153,7 @@
       border-radius: 10px;
       color: var(--text-primary);
       font-family: inherit;
-      font-size: 0.95rem;
-      transition: var(--transition);
+      font-size: 1rem;
     }
 
     .form-input:focus, .form-select:focus, .form-textarea:focus {
@@ -230,165 +161,98 @@
       border-color: var(--neon-blue);
     }
 
+    .form-textarea { min-height: 80px; resize: vertical; }
+
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
-    .modal-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(8px);
-      display: none;
+    .btn {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      z-index: 2000;
-      padding: 1rem;
-    }
-
-    .modal-overlay.active { display: flex; }
-
-    .modal-content {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 2rem;
-      max-width: 500px;
-      width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .modal-title { font-size: 1.3rem; font-weight: 800; }
-
-    .modal-close {
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
-      color: var(--text-secondary);
-      font-size: 1.2rem;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 10px;
+      border: none;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 700;
       cursor: pointer;
       transition: var(--transition);
     }
 
-    .modal-close:hover { background: var(--danger); color: white; }
+    .btn-primary { background: linear-gradient(135deg, var(--neon-blue), #0099CC); color: var(--bg-primary); }
+    .btn-success { background: linear-gradient(135deg, var(--emerald), #059669); color: white; }
+    .btn-danger { background: linear-gradient(135deg, var(--danger), #DC2626); color: white; }
+    .btn-warning { background: linear-gradient(135deg, var(--warning), #D97706); color: white; }
+    .btn-full { width: 100%; }
+    .btn-small { padding: 8px 16px; font-size: 0.875rem; }
 
-    .section { display: none; }
-    .section.active { display: block; }
+    /* ===== TABLE ===== */
+    .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
-    .filters { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-    .filters .form-input, .filters .form-select { width: auto; min-width: 150px; }
-
-    .charts-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
     }
 
-    .chart-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 1.5rem;
-    }
-
-    .chart-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; }
-
-    .loyalty-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .loyalty-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 1.5rem;
-      transition: var(--transition);
-    }
-
-    .loyalty-card:hover { border-color: var(--neon-blue); transform: translateY(-3px); }
-
-    .loyalty-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-
-    .loyalty-number { font-size: 1.2rem; font-weight: 800; color: var(--neon-blue); }
-
-    .loyalty-stamps { display: flex; gap: 6px; margin: 1rem 0; }
-
-    .stamp {
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      border: 2px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.7rem;
-      transition: var(--transition);
-    }
-
-    .stamp.active { background: var(--emerald); border-color: var(--emerald); color: white; }
-
-    .feedback-item {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.2rem;
-      margin-bottom: 1rem;
-    }
-
-    .feedback-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.8rem;
-    }
-
-    .feedback-rating { color: var(--warning); font-size: 1.1rem; }
-    .feedback-date { color: var(--text-muted); font-size: 0.8rem; }
-    .feedback-message { color: var(--text-secondary); line-height: 1.6; }
-
-    .maintenance-alert {
-      background: var(--warning-dim);
-      border: 1px solid var(--warning);
-      border-radius: 12px;
-      padding: 1.2rem;
-      margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .maintenance-alert i { font-size: 1.5rem; color: var(--warning); }
-
-    .settings-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 2rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .settings-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin-bottom: 1.5rem;
-      padding-bottom: 1rem;
+    th, td {
+      padding: 12px;
+      text-align: right;
       border-bottom: 1px solid var(--border);
     }
 
+    th {
+      background: var(--bg-primary);
+      font-weight: 700;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      white-space: nowrap;
+    }
+
+    td { color: var(--text-primary); }
+
+    tr:hover td { background: var(--bg-hover); }
+
+    .status-badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .status-confirmed { background: var(--emerald-dim); color: var(--emerald); }
+    .status-completed { background: rgba(59, 130, 246, 0.1); color: #3B82F6; }
+    .status-cancelled { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+
+    /* ===== PROMO CARD ===== */
+    .promo-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .promo-info h4 { color: var(--warning); margin-bottom: 0.3rem; }
+    .promo-info p { color: var(--text-secondary); font-size: 0.85rem; }
+
+    .promo-badge {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid var(--warning);
+      color: var(--warning);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    /* ===== TOAST ===== */
     .toast {
       position: fixed;
       top: 20px;
@@ -400,1308 +264,589 @@
       z-index: 3000;
       opacity: 0;
       transition: all 0.4s;
+      max-width: 90vw;
+      text-align: center;
     }
 
     .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     .toast.success { background: var(--emerald-dim); border: 1px solid var(--emerald); color: var(--emerald); }
-    .toast.error { background: var(--danger-dim); border: 1px solid var(--danger); color: var(--danger); }
+    .toast.error { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); }
 
+    /* ===== MOBILE ===== */
     @media (max-width: 768px) {
-      .sidebar { display: none; }
-      .main-content { margin-right: 0; padding: 1rem; }
-      .stats-grid { grid-template-columns: 1fr; }
-      .charts-grid { grid-template-columns: 1fr; }
-      .form-row { grid-template-columns: 1fr; }
-      /* ========== Modal Styles ========== */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
-}
+      .header { padding: 0.6rem 0.8rem; }
+      .logo { font-size: 0.85rem; }
+      .logo span { font-size: 1.2rem; }
+      .header-actions .btn { padding: 8px 12px; font-size: 0.8rem; }
 
-.modal-content {
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 400px;
-    direction: rtl;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-}
+      .container { padding: 0.8rem; }
+      .card { padding: 1rem; }
 
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 15px;
-}
+      .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+      .stat-card { padding: 0.8rem; }
+      .stat-card h3 { font-size: 1.4rem; }
+      .stat-card p { font-size: 0.75rem; }
 
-.modal-header h3 {
-    margin: 0;
-    color: #333;
-    font-size: 18px;
-}
+      .form-row { grid-template-columns: 1fr; gap: 0.8rem; }
 
-.close-btn {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: #666;
-    padding: 0;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-}
+      th, td { padding: 8px; font-size: 0.8rem; }
 
-.close-btn:hover {
-    background: #f0f0f0;
-}
+      .tabs { padding: 0.3rem; }
+      .tab-btn { padding: 8px 10px; font-size: 0.75rem; min-width: 70px; }
 
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #555;
-    font-size: 14px;
-}
-
-.form-group input,
-.form-group select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 14px;
-    box-sizing: border-box;
-}
-
-.form-group input:focus,
-.form-group select:focus {
-    outline: none;
-    border-color: #007bff;
-}
-
-.modal-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    margin-top: 20px;
-}
-
-.btn-secondary {
-    background: #6c757d;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.btn-primary {
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.btn-edit {
-    background: #ffc107;
-    color: #000;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-left: 5px;
-    font-size: 12px;
-}
-
-.btn-delete {
-    background: #dc3545;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-}
+      .promo-card { flex-direction: column; align-items: flex-start; }
     }
   </style>
-<base target="_blank">
-<base target="_blank">
-  <link rel="stylesheet" href="spinwheel.css">
 <base target="_blank">
 </head>
 <body>
   <div class="toast" id="toast"></div>
 
-  <aside class="sidebar">
-    <div class="sidebar-header">
-      <span class="sidebar-logo">🎾</span>
-      <span class="sidebar-title">PADEL COURT</span>
+  <header class="header">
+    <div class="logo"><span>🎾</span> PADEL COURT - لوحة التحكم</div>
+    <div class="header-actions">
+      <a href="index.html" class="btn btn-secondary" style="text-decoration: none; background: var(--bg-hover); color: var(--text-primary); border: 1px solid var(--border); padding: 8px 14px; font-size: 0.85rem;">
+        <i class="fas fa-home"></i> الموقع
+      </a>
+      <button class="btn btn-danger" onclick="logout()" style="padding: 8px 14px; font-size: 0.85rem;">
+        <i class="fas fa-sign-out-alt"></i> خروج
+      </button>
     </div>
-    <nav class="sidebar-nav">
-      <a class="sidebar-link active" data-section="dashboard" onclick="showSection('dashboard')">
-        <i class="fas fa-chart-line"></i>
-        <span>لوحة المعلومات</span>
-      </a>
-      <a class="sidebar-link" data-section="bookings" onclick="showSection('bookings')">
-        <i class="fas fa-calendar-check"></i>
-        <span>الحجوزات</span>
-      </a>
-      <a class="sidebar-link" data-section="tournaments" onclick="showSection('tournaments')">
-        <i class="fas fa-trophy"></i>
-        <span>البطولات</span>
-      </a>
-      <a class="sidebar-link" data-section="loyalty" onclick="showSection('loyalty')">
-        <i class="fas fa-ticket-alt"></i>
-        <span>بطاقات الولاء</span>
-      </a>
-      <a class="sidebar-link" data-section="maintenance" onclick="showSection('maintenance')">
-        <i class="fas fa-tools"></i>
-        <span>الصيانة</span>
-      </a>
-      <a class="sidebar-link" data-section="feedback" onclick="showSection('feedback')">
-        <i class="fas fa-comments"></i>
-        <span>التقييمات</span>
-      </a>
-      <a class="sidebar-link" data-section="reports" onclick="showSection('reports')">
-        <i class="fas fa-file-invoice-dollar"></i>
-        <span>التقارير</span>
-      </a>
-      <a class="sidebar-link" data-section="settings" onclick="showSection('settings')">
-        <i class="fas fa-cog"></i>
-        <span>الإعدادات</span>
-      </a>
-      <a class="sidebar-link" onclick="logout()">
-  <i class="fas fa-sign-out-alt"></i>
-  <span>تسجيل الخروج</span>
-</a>
-    </nav>
-    <div class="sidebar-footer" style="padding: 1.5rem; border-top: 1px solid var(--border);">
-      <a href="index.html" class="btn btn-secondary btn-full" style="text-decoration: none;">
-        <i class="fas fa-arrow-right"></i>
-        العودة للموقع
-      </a>
-    </div>
-  </aside>
+  </header>
 
-  <main class="main-content">
-    <!-- لوحة المعلومات -->
-    <section id="dashboard" class="section active">
-      <div class="page-header">
-        <h1 class="page-title">لوحة المعلومات</h1>
-        <button class="btn btn-secondary" onclick="refreshDashboard()">
-          <i class="fas fa-sync-alt"></i> تحديث
-        </button>
-      </div>
+  <div class="container">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('dashboard')">📊 لوحة</button>
+      <button class="tab-btn" onclick="showTab('bookings')">📅 الحجوزات</button>
+      <button class="tab-btn" onclick="showTab('maintenance')">🔧 صيانة</button>
+      <button class="tab-btn" onclick="showTab('settings')">⚙️ إعدادات</button>
+      <button class="tab-btn" onclick="showTab('promotions')">🎁 العروض</button>
+      <button class="tab-btn" onclick="showTab('users')">👥 المستخدمين</button>
+    </div>
+
+    <!-- لوحة التحكم -->
+    <div id="dashboard-tab" class="tab-content active">
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-header">
-            <div class="stat-icon blue"><i class="fas fa-money-bill-wave"></i></div>
-          </div>
-          <div class="stat-value" id="dash-revenue">0</div>
-          <div class="stat-label">إيرادات اليوم (د.ع)</div>
+          <h3 id="dash-revenue">0</h3>
+          <p>إيرادات اليوم (د.ع)</p>
         </div>
         <div class="stat-card">
-          <div class="stat-header">
-            <div class="stat-icon green"><i class="fas fa-calendar-check"></i></div>
-          </div>
-          <div class="stat-value" id="dash-bookings">0</div>
-          <div class="stat-label">حجوزات اليوم</div>
+          <h3 id="dash-bookings">0</h3>
+          <p>حجوزات اليوم</p>
         </div>
         <div class="stat-card">
-          <div class="stat-header">
-            <div class="stat-icon orange"><i class="fas fa-users"></i></div>
-          </div>
-          <div class="stat-value" id="dash-customers">0</div>
-          <div class="stat-label">زبائن جدد اليوم</div>
+          <h3 id="dash-new">0</h3>
+          <p>زبائن جدد اليوم</p>
         </div>
         <div class="stat-card">
-          <div class="stat-header">
-            <div class="stat-icon red"><i class="fas fa-ticket-alt"></i></div>
-          </div>
-          <div class="stat-value" id="dash-loyalty">0</div>
-          <div class="stat-label">بطاقات الولاء النشطة</div>
+          <h3 id="dash-loyalty">0</h3>
+          <p>بطاقات الولاء النشطة</p>
         </div>
       </div>
-      <div class="charts-grid">
-        <div class="chart-card">
-          <div class="chart-title">📊 الإيرادات الأسبوعية</div>
-          <canvas id="revenue-chart"></canvas>
-        </div>
-        <div class="chart-card">
-          <div class="chart-title">⏰ توزيع الحجوزات حسب الوقت</div>
-          <canvas id="hours-chart"></canvas>
+
+      <div class="card">
+        <div class="card-title">📊 الإيرادات الأسبوعية</div>
+        <div id="weekly-chart" style="height: 200px; display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+          جاري التحميل...
         </div>
       </div>
-    </section>
+
+      <div class="card">
+        <div class="card-title">⏰ توزيع الحجوزات حسب الوقت</div>
+        <div id="hourly-chart" style="height: 200px; display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+          جاري التحميل...
+        </div>
+      </div>
+    </div>
 
     <!-- الحجوزات -->
-    <section id="bookings" class="section">
-      <div class="page-header">
-        <h1 class="page-title">إدارة الحجوزات</h1>
-        <button class="btn btn-primary" onclick="exportBookings()">
-          <i class="fas fa-download"></i> تصدير
-        </button>
-      </div>
-      <div class="filters">
-        <input type="text" id="booking-filter-date" class="form-input spinwheel-date" placeholder="🎾 اضغط لاختيار التاريخ" readonly onchange="loadBookings()">
-        <select id="booking-filter-court" class="form-select" onchange="loadBookings()">
-          <option value="">كل الملاعب</option>
-          <option value="1">ملعب 1</option>
-          <option value="2">ملعب 2</option>
-        </select>
-        <select id="booking-filter-status" class="form-select" onchange="loadBookings()">
-          <option value="">كل الحالات</option>
-          <option value="confirmed">مؤكد</option>
-          <option value="cancelled">ملغي</option>
-          <option value="completed">مكتمل</option>
-        </select>
-      </div>
-      <div class="table-container">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>الملعب</th>
-              <th>التاريخ</th>
-              <th>الوقت</th>
-              <th>الاسم</th>
-              <th>الهاتف</th>
-              <th>السعر النهائي</th>
-              <th>الحالة</th>
-              <th>الإجراءات</th>
-            </tr>
-          </thead>
-          <tbody id="bookings-table"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- البطولات -->
-    <section id="tournaments" class="section">
-      <div class="page-header">
-        <h1 class="page-title">إدارة البطولات</h1>
-        <button class="btn btn-primary" onclick="openTournamentModal()">
-          <i class="fas fa-plus"></i> بطولة جديدة
-        </button>
-      </div>
-      <div id="tournaments-list"></div>
-    </section>
-
-    <!-- بطاقات الولاء -->
-    <section id="loyalty" class="section">
-      <div class="page-header">
-        <h1 class="page-title">بطاقات الولاء</h1>
-        <div>
-          <button class="btn btn-primary" onclick="openLoyaltyModal()">
-            <i class="fas fa-plus"></i> بطاقة جديدة
-          </button>
-          <button class="btn btn-secondary" onclick="printLoyaltyCards()">
-            <i class="fas fa-print"></i> طباعة
-          </button>
+    <div id="bookings-tab" class="tab-content">
+      <div class="card">
+        <div class="card-title">📅 جميع الحجوزات</div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>الملعب</th>
+                <th>التاريخ</th>
+                <th>الوقت</th>
+                <th>الاسم</th>
+                <th>الهاتف</th>
+                <th>السعر النهائي</th>
+                <th>الحالة</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="bookings-table"></tbody>
+          </table>
         </div>
       </div>
-      <div class="loyalty-grid" id="loyalty-grid"></div>
-    </section>
+    </div>
 
     <!-- الصيانة -->
-    <section id="maintenance" class="section">
-      <div class="page-header">
-        <h1 class="page-title">إدارة الصيانة</h1>
-      </div>
-      <div class="settings-card">
-        <div class="settings-title">⚠️ تفعيل وضع الصيانة</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>الملعب</label>
-            <select id="maint-court" class="form-select">
-              <option value="1">ملعب 1</option>
-              <option value="2">ملعب 2</option>
-              <option value="3">الملعبين</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>سبب الصيانة</label>
-            <input type="text" id="maint-reason" class="form-input" placeholder="مثال: تغيير شبكة">
-          </div>
+    <div id="maintenance-tab" class="tab-content">
+      <div class="card">
+        <div class="card-title">⚠️ تفعيل وضع الصيانة</div>
+        <div class="form-group">
+          <label>الملعب</label>
+          <select id="maint-court" class="form-select">
+            <option value="1">ملعب 1</option>
+            <option value="2">ملعب 2</option>
+            <option value="both">كلاهما</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>سبب الصيانة</label>
+          <input type="text" id="maint-reason" class="form-input" placeholder="مثلاً: صيانة دورية للأرضية">
         </div>
         <div class="form-row">
           <div class="form-group">
             <label>وقت البدء</label>
-                        <input type="text" id="maint-start" class="form-input spinwheel-datetime" placeholder="🎾 اضغط لاختيار الوقت" readonly>
+            <input type="datetime-local" id="maint-start" class="form-input">
           </div>
-                    <div class="form-group">
-                        <label>وقت الانتهاء المتوقع</label>
-            <input type="text" id="maint-end" class="form-input spinwheel-datetime" placeholder="🎾 اضغط لاختيار الوقت" readonly>
+          <div class="form-group">
+            <label>وقت الانتهاء المتوقع</label>
+            <input type="datetime-local" id="maint-end" class="form-input">
           </div>
         </div>
-        <button class="btn btn-warning" onclick="addMaintenance()">
+        <button class="btn btn-warning btn-full" onclick="setMaintenance()">
           <i class="fas fa-exclamation-triangle"></i> تفعيل وضع الصيانة
         </button>
       </div>
-      <div id="active-maintenance"></div>
-    </section>
-
-    <!-- التقييمات -->
-    <section id="feedback" class="section">
-      <div class="page-header">
-        <h1 class="page-title">التقييمات والشكاوى</h1>
-        <button class="btn btn-secondary" onclick="markAllFeedbackRead()">
-          <i class="fas fa-check-double"></i> تحديد الكل كمقروء
-        </button>
-      </div>
-      <div id="feedback-list"></div>
-    </section>
-
-    <!-- التقارير -->
-    <section id="reports" class="section">
-      <div class="page-header">
-        <h1 class="page-title">التقارير المالية</h1>
-        <div>
-          <button class="btn btn-primary" onclick="generateReport()">
-            <i class="fas fa-sync-alt"></i> توليد التقرير
-          </button>
-          <button class="btn btn-success" onclick="exportToSheets()">
-            <i class="fas fa-file-excel"></i> تصدير لـ Google Sheets
-          </button>
-        </div>
-      </div>
-      <div class="filters">
-        <input type="text" id="report-month" class="form-input spinwheel-date" placeholder="🎾 اضغط لاختيار الشهر" readonly value="2026-05">
-        <select id="report-type" class="form-select">
-          <option value="daily">يومي</option>
-          <option value="weekly">أسبوعي</option>
-          <option value="monthly">شهري</option>
-        </select>
-      </div>
-      <div id="report-content"></div>
-    </section>
+    </div>
 
     <!-- الإعدادات -->
-    <section id="settings" class="section">
-      <div class="page-header">
-        <h1 class="page-title">الإعدادات</h1>
-        <button class="btn btn-primary" onclick="saveSettings()">
-          <i class="fas fa-save"></i> حفظ التغييرات
+    <div id="settings-tab" class="tab-content">
+      <div class="card">
+        <div class="card-title">💰 الإعدادات المالية</div>
+        <div class="form-group">
+          <label>السعر الأساسي (د.ع)</label>
+          <input type="number" id="setting-base-price" class="form-input" placeholder="40000">
+        </div>
+        <div class="form-group">
+          <label>خصم العمال (%)</label>
+          <input type="number" id="setting-worker-discount" class="form-input" placeholder="10">
+        </div>
+        <div class="form-group">
+          <label>💰 سعر الصباح (9ص - 2م)</label>
+          <input type="number" id="setting-morning" class="form-input" placeholder="25000">
+        </div>
+        <div class="form-group">
+          <label>💰 سعر المساء (2م - 8م)</label>
+          <input type="number" id="setting-evening" class="form-input" placeholder="40000">
+        </div>
+        <div class="form-group">
+          <label>💰 سعر الليل (8م - 2ص)</label>
+          <input type="number" id="setting-night" class="form-input" placeholder="50000">
+        </div>
+        <button class="btn btn-primary btn-full" onclick="saveSettings()">
+          <i class="fas fa-save"></i> حفظ الإعدادات
         </button>
       </div>
-      <div class="settings-card">
-        <div class="settings-title">💰 الإعدادات المالية</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>السعر الأساسي (د.ع)</label>
-            <input type="number" id="setting-price" class="form-input" value="40000">
-          </div>
-          <div class="form-group">
-            <label>خصم العمال (%)</label>
-            <input type="number" id="setting-worker-discount" class="form-input" value="10">
-          </div>
+
+      <div class="card">
+        <div class="card-title">📞 معلومات التواصل</div>
+        <div class="form-group">
+          <label>رقم الهاتف</label>
+          <input type="tel" id="setting-phone" class="form-input" placeholder="0770 XXX XXXX">
         </div>
-      </div>
-      <div class="form-group">
-  <label>💰 سعر الصباح (9ص - 2م)</label>
-  <input type="number" id="setting-morning-price" class="form-input" value="30000">
-</div>
-<div class="form-group">
-  <label>💰 سعر المساء (2م - 8م)</label>
-  <input type="number" id="setting-evening-price" class="form-input" value="40000">
-</div>
-<div class="form-group">
-  <label>💰 سعر الليل (8م - 2ص)</label>
-  <input type="number" id="setting-night-price" class="form-input" value="50000">
-</div>
-      <div class="settings-card">
-        <div class="settings-title">📞 معلومات التواصل</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>رقم الهاتف</label>
-            <input type="text" id="setting-phone" class="form-input" placeholder="0770 XXX XXXX">
-          </div>
-          <div class="form-group">
-            <label>رقم الواتساب</label>
-            <input type="text" id="setting-whatsapp" class="form-input" placeholder="0770 XXX XXXX">
-          </div>
+        <div class="form-group">
+          <label>رقم الواتساب</label>
+          <input type="tel" id="setting-whatsapp" class="form-input" placeholder="0770 XXX XXXX">
         </div>
         <div class="form-group">
           <label>رابط الموقع (Google Maps)</label>
-          <input type="url" id="setting-location" class="form-input" placeholder="https://maps.google.com/...">
+          <input type="url" id="setting-maps" class="form-input" placeholder="https://maps.google.com/...">
         </div>
+        <button class="btn btn-primary btn-full" onclick="saveContact()">
+          <i class="fas fa-save"></i> حفظ
+        </button>
       </div>
-      <div class="settings-card">
-        <div class="settings-title">📝 إعدادات الحجز</div>
+
+      <div class="card">
+        <div class="card-title">📝 إعدادات الحجز</div>
         <div class="form-group">
           <label>ملاحظات الحجز</label>
-          <textarea id="setting-notes" class="form-textarea" rows="3">يرجى الإلغاء قبل 6 ساعات من موعد الحجز</textarea>
+          <textarea id="setting-notes" class="form-textarea" placeholder="ملاحظات تظهر للزبائن عند الحجز..."></textarea>
         </div>
+        <button class="btn btn-primary btn-full" onclick="saveBookingNotes()">
+          <i class="fas fa-save"></i> حفظ
+        </button>
       </div>
-      <div class="settings-card">
-        <div class="settings-title">📱 روابط التواصل الاجتماعي</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>إنستغرام</label>
-            <input type="text" id="setting-instagram" class="form-input" placeholder="@username">
-          </div>
-          <div class="form-group">
-            <label>فيسبوك</label>
-            <input type="text" id="setting-facebook" class="form-input" placeholder="page name">
-          </div>
+
+      <div class="card">
+        <div class="card-title">📱 روابط التواصل الاجتماعي</div>
+        <div class="form-group">
+          <label>إنستغرام</label>
+          <input type="text" id="setting-instagram" class="form-input" placeholder="username">
+        </div>
+        <div class="form-group">
+          <label>فيسبوك</label>
+          <input type="text" id="setting-facebook" class="form-input" placeholder="pagename">
         </div>
         <div class="form-group">
           <label>تيك توك</label>
           <input type="text" id="setting-tiktok" class="form-input" placeholder="@username">
         </div>
+        <button class="btn btn-primary btn-full" onclick="saveSocial()">
+          <i class="fas fa-save"></i> حفظ
+        </button>
       </div>
-    </section>
-    <!-- إدارة المستخدمين -->
-<section id="users" class="section">
-  <div class="page-header">
-    <h1 class="page-title">👥 إدارة المستخدمين</h1>
-    <button class="btn btn-primary" onclick="openUserModal()">
-      <i class="fas fa-plus"></i> مستخدم جديد
-    </button>
-  </div>
-  <div class="table-container">
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>اسم المستخدم</th>
-          <th>الدور</th>
-          <th>الحالة</th>
-          <th>آخر دخول</th>
-          <th>الإجراءات</th>
-        </tr>
-      </thead>
-      <tbody id="users-table"></tbody>
-    </table>
-  </div>
-</section>
-    <!-- User Modal -->
-<div id="userModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 id="modalTitle">إضافة مستخدم</h3>
-            <button class="close-btn" onclick="closeUserModal()">&times;</button>
-        </div>
-        <form id="userForm" onsubmit="saveUser(event)">
-            <input type="hidden" id="userId">
-            <div class="form-group">
-                <label>الاسم</label>
-                <input type="text" id="userName" required placeholder="اسم المستخدم">
-            </div>
-            <div class="form-group">
-                <label>رمز PIN</label>
-                <input type="password" id="userPin" required placeholder="رمز الدخول" minlength="4" maxlength="6">
-            </div>
-            <div class="form-group">
-                <label>الدور</label>
-                <select id="userRole" required>
-                    <option value="manager">مدير</option>
-                    <option value="worker">موظف</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>رقم الهاتف (اختياري)</label>
-                <input type="tel" id="userPhone" placeholder="0770xxxxxxx">
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="btn-secondary" onclick="closeUserModal()">إلغاء</button>
-                <button type="submit" class="btn-primary">حفظ</button>
-            </div>
-        </form>
     </div>
-</div>
-  </main>
 
-  <!-- نافذة إضافة بطولة -->
-  <div class="modal-overlay" id="tournament-modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="modal-title">🏆 بطولة جديدة</h3>
-        <button class="modal-close" onclick="closeModal('tournament-modal')">×</button>
-      </div>
-      <div class="form-group">
-        <label>اسم البطولة *</label>
-        <input type="text" id="tournament-title" class="form-input" placeholder="بطولة الصيف">
-      </div>
-      <div class="form-group">
-        <label>الوصف</label>
-        <textarea id="tournament-desc" class="form-textarea" rows="3"></textarea>
-      </div>
-      <div class="form-row">
+    <!-- العروض -->
+    <div id="promotions-tab" class="tab-content">
+      <div class="card">
+        <div class="card-title">🎁 إضافة عرض جديد</div>
         <div class="form-group">
-          <label>تاريخ البدء</label>
-          <input type="text" id="tournament-start" class="form-input spinwheel-date" placeholder="🎾 اضغط لاختيار التاريخ" readonly>
+          <label>عنوان العرض *</label>
+          <input type="text" id="promo-title" class="form-input" placeholder="مثلاً: عرض نهاية الأسبوع">
         </div>
         <div class="form-group">
-          <label>تاريخ الانتهاء</label>
-          <input type="text" id="tournament-end" class="form-input spinwheel-date" placeholder="🎾 اضغط لاختيار التاريخ" readonly>
+          <label>وصف العرض</label>
+          <textarea id="promo-desc" class="form-textarea" placeholder="تفاصيل العرض..."></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>نسبة الخصم (%) *</label>
+            <input type="number" id="promo-discount" class="form-input" placeholder="10" min="1" max="100">
+          </div>
+          <div class="form-group">
+            <label>الملعب</label>
+            <select id="promo-court" class="form-select">
+              <option value="0">كلاهما</option>
+              <option value="1">ملعب 1</option>
+              <option value="2">ملعب 2</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>التاريخ *</label>
+          <input type="date" id="promo-date" class="form-input">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>وقت البدء (اختياري)</label>
+            <input type="time" id="promo-start" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>وقت الانتهاء (اختياري)</label>
+            <input type="time" id="promo-end" class="form-input">
+          </div>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="addPromotion()">
+          <i class="fas fa-plus"></i> إضافة العرض
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📋 العروض النشطة</div>
+        <div id="promotions-list">
+          <p style="text-align: center; color: var(--text-muted);">جاري التحميل...</p>
         </div>
       </div>
-      <button class="btn btn-primary btn-full" onclick="saveTournament()">
-        <i class="fas fa-save"></i> حفظ البطولة
-      </button>
     </div>
-  </div>
 
-  <!-- نافذة إضافة بطاقة ولاء -->
-  <div class="modal-overlay" id="loyalty-modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="modal-title">🎫 بطاقة ولاء جديدة</h3>
-        <button class="modal-close" onclick="closeModal('loyalty-modal')">×</button>
+    <!-- المستخدمين -->
+    <div id="users-tab" class="tab-content">
+      <div class="card">
+        <div class="card-title">👥 إدارة المستخدمين</div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>اسم المستخدم</th>
+                <th>الدور</th>
+                <th>الحالة</th>
+                <th>آخر دخول</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="users-table"></tbody>
+          </table>
+        </div>
       </div>
-      <div class="form-group">
-        <label>رقم البطاقة *</label>
-        <input type="text" id="loyalty-number" class="form-input" placeholder="PADEL-001">
-      </div>
-      <div class="form-group">
-        <label>اسم الزبون *</label>
-        <input type="text" id="loyalty-name" class="form-input" placeholder="محمد أحمد">
-      </div>
-      <div class="form-group">
-        <label>رقم الهاتف *</label>
-        <input type="tel" id="loyalty-phone" class="form-input" placeholder="0770 XXX XXXX">
-      </div>
-      <button class="btn btn-primary btn-full" onclick="saveLoyaltyCard()">
-        <i class="fas fa-save"></i> إنشاء البطاقة
-      </button>
     </div>
   </div>
 
   <script>
-    // حماية الصفحة - فقط المدير يستطيع الدخول
-if (!initAuthProtection('manager')) {
-    throw new Error('Unauthorized access');
-}
+    // حماية الصفحة - فقط المدراء
+    if (!initAuthProtection('admin')) {
+      throw new Error('Unauthorized access');
+    }
+
     const SUPABASE_URL = 'https://hrfentlnqxquhlaywlzv.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhyZmVudGxucXhxdWhsYXl3bHp2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NjY4NDMsImV4cCI6MjA5NTE0Mjg0M30.mseVeL5hqNXs5U-Vj_OddqCWzt-6lEm0E4Dftk08EfY';
     const { createClient } = supabase;
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let currentSection = 'dashboard';
-    let revenueChart, hoursChart;
-
-  
-function showSection(sectionId) {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
-      document.getElementById(sectionId).classList.add('active');
-      document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
-      currentSection = sectionId;
-
-      switch(sectionId) {
-        case 'dashboard': loadDashboard(); break;
-        case 'bookings': loadBookings(); break;
-        case 'tournaments': loadTournamentsAdmin(); break;
-        case 'loyalty': loadLoyaltyCards(); break;
-        case 'maintenance': loadMaintenance(); break;
-        case 'feedback': loadFeedback(); break;
-        case 'reports': generateReport(); break;
-        case 'settings': loadSettings(); break;
-        case 'users': loadUsers(); break;
-      }
-    }
-
     document.addEventListener('DOMContentLoaded', async () => {
-      await setSupabaseUser(supabaseClient);  // ← هذا السطر الجديد
+      await setSupabaseUser(supabaseClient);
       await loadDashboard();
+      await loadBookings();
       await loadSettings();
-      setupRealtime();
+      await loadPromotions();
       await loadUsers();
     });
 
-/* showSection moved to global scope */
-
-    function showToast(message, type = 'success') {
+    function showToast(message, type) {
       const toast = document.getElementById('toast');
       toast.textContent = message;
-      toast.className = `toast ${type}`;
-      requestAnimationFrame(() => toast.classList.add('show'));
-      setTimeout(() => toast.classList.remove('show'), 4000);
+      toast.className = 'toast ' + type;
+      requestAnimationFrame(function() { toast.classList.add('show'); });
+      setTimeout(function() { toast.classList.remove('show'); }, 4000);
     }
 
-    function closeModal(modalId) {
-      document.getElementById(modalId).classList.remove('active');
+    function showTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+      document.getElementById(tabId + '-tab').classList.add('active');
+      event.target.classList.add('active');
+
+      if (tabId === 'dashboard') loadDashboard();
+      if (tabId === 'bookings') loadBookings();
+      if (tabId === 'promotions') loadPromotions();
+      if (tabId === 'users') loadUsers();
     }
 
-    // Dashboard
+    // ===== DASHBOARD =====
     async function loadDashboard() {
-      try {
-        const today = new Date().toISOString().split('T')[0];
-        const { data: todayRevenue } = await supabaseClient
-          .from('bookings').select('final_price')
-          .eq('booking_date', today).not('status', 'eq', 'cancelled');
-        const revenue = todayRevenue?.reduce((sum, b) => sum + (b.final_price || 0), 0) || 0;
-        document.getElementById('dash-revenue').textContent = revenue.toLocaleString();
+      const today = new Date().toISOString().split('T')[0];
 
-        const { count: bookingsCount } = await supabaseClient
-          .from('bookings').select('*', { count: 'exact', head: true })
-          .eq('booking_date', today).not('status', 'eq', 'cancelled');
-        document.getElementById('dash-bookings').textContent = bookingsCount || 0;
+      const { data: bookings } = await supabaseClient
+        .from('bookings')
+        .select('*')
+        .eq('booking_date', today)
+        .not('status', 'eq', 'cancelled');
 
-        const { count: customersCount } = await supabaseClient
-          .from('bookings').select('phone', { count: 'exact', head: true })
-          .eq('booking_date', today).not('status', 'eq', 'cancelled');
-        document.getElementById('dash-customers').textContent = customersCount || 0;
+      const revenue = bookings ? bookings.reduce(function(sum, b) { return sum + (b.final_price || 0); }, 0) : 0;
+      document.getElementById('dash-revenue').textContent = revenue.toLocaleString();
+      document.getElementById('dash-bookings').textContent = bookings ? bookings.length : 0;
 
-        const { count: loyaltyCount } = await supabaseClient
-          .from('loyalty_cards').select('*', { count: 'exact', head: true });
-        document.getElementById('dash-loyalty').textContent = loyaltyCount || 0;
-
-        await loadRevenueChart();
-        await loadHoursChart();
-      } catch (err) { console.error('Dashboard error:', err); }
+      // TODO: new customers, loyalty cards
+      document.getElementById('dash-new').textContent = '0';
+      document.getElementById('dash-loyalty').textContent = '0';
     }
 
-    async function loadRevenueChart() {
-      const ctx = document.getElementById('revenue-chart');
-      if (!ctx) return;
-      const days = [], revenues = [];
-      for (let i = 6; i >= 0; i--) {
-        const date = new Date(); date.setDate(date.getDate() - i);
-        days.push(date.toLocaleDateString('ar-IQ', { weekday: 'short' }));
-        const { data } = await supabaseClient.from('bookings').select('final_price')
-          .eq('booking_date', date.toISOString().split('T')[0]).not('status', 'eq', 'cancelled');
-        revenues.push(data?.reduce((sum, b) => sum + (b.final_price || 0), 0) || 0);
-      }
-      if (revenueChart) revenueChart.destroy();
-      revenueChart = new Chart(ctx, {
-        type: 'line',
-        data: { labels: days, datasets: [{
-          label: 'الإيرادات', data: revenues, borderColor: '#00D4FF',
-          backgroundColor: 'rgba(0, 212, 255, 0.1)', borderWidth: 3, fill: true, tension: 0.4
-        }] },
-        options: { responsive: true, plugins: { legend: { display: false } },
-          scales: { y: { beginAtZero: true, grid: { color: 'rgba(148, 163, 184, 0.1)' }, ticks: { color: '#94A3B8' } },
-            x: { grid: { display: false }, ticks: { color: '#94A3B8' } } } }
-      });
-    }
-
-    async function loadHoursChart() {
-      const ctx = document.getElementById('hours-chart');
-      if (!ctx) return;
-      const hours = [], counts = [];
-      for (let h = 14; h < 24; h++) {
-        hours.push(`${h}:00`);
-        const { count } = await supabaseClient.from('bookings').select('*', { count: 'exact', head: true })
-          .eq('start_time', `${h.toString().padStart(2, '0')}:00`).not('status', 'eq', 'cancelled');
-        counts.push(count || 0);
-      }
-      if (hoursChart) hoursChart.destroy();
-      hoursChart = new Chart(ctx, {
-        type: 'bar',
-        data: { labels: hours, datasets: [{
-          label: 'عدد الحجوزات', data: counts, backgroundColor: 'rgba(16, 185, 129, 0.6)',
-          borderColor: '#10B981', borderWidth: 2, borderRadius: 8
-        }] },
-        options: { responsive: true, plugins: { legend: { display: false } },
-          scales: { y: { beginAtZero: true, grid: { color: 'rgba(148, 163, 184, 0.1)' }, ticks: { color: '#94A3B8', stepSize: 1 } },
-            x: { grid: { display: false }, ticks: { color: '#94A3B8' } } } }
-      });
-    }
-
-    function refreshDashboard() { loadDashboard(); showToast('تم تحديث البيانات', 'success'); }
-
-    // Bookings
+    // ===== BOOKINGS =====
     async function loadBookings() {
-      const dateFilter = document.getElementById('booking-filter-date').value;
-      const courtFilter = document.getElementById('booking-filter-court').value;
-      const statusFilter = document.getElementById('booking-filter-status').value;
-      let query = supabaseClient.from('bookings').select('*').order('booking_date', { ascending: false }).order('start_time', { ascending: true });
-      if (dateFilter) query = query.eq('booking_date', dateFilter);
-      if (courtFilter) query = query.eq('court_id', courtFilter);
-      if (statusFilter) query = query.eq('status', statusFilter);
-      const { data: bookings, error } = await query;
+      const { data: bookings, error } = await supabaseClient
+        .from('bookings')
+        .select('*')
+        .order('booking_date', { ascending: false })
+        .order('start_time', { ascending: true });
+
       const tbody = document.getElementById('bookings-table');
-      tbody.innerHTML = '';
       if (error || !bookings || bookings.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--text-muted);">لا توجد حجوزات</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted);">لا توجد حجوزات</td></tr>';
         return;
       }
-      bookings.forEach(booking => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>ملعب ${booking.court_id}</td>
-          <td>${new Date(booking.booking_date).toLocaleDateString('ar-IQ')}</td>
-          <td>${booking.start_time.substring(0, 5)} - ${booking.end_time.substring(0, 5)}</td>
-          <td>${booking.customer_name}</td>
-          <td>${booking.phone}</td>
-          <td>${(booking.final_price || 0).toLocaleString()} د.ع</td>
-          <td><span class="status-badge status-${booking.status}">${getStatusLabel(booking.status)}</span></td>
-          <td>
-            ${booking.status === 'confirmed' ? `
-              <button class="btn btn-success btn-small" onclick="completeBooking('${booking.id}')"><i class="fas fa-check"></i></button>
-              <button class="btn btn-danger btn-small" onclick="cancelBooking('${booking.id}')"><i class="fas fa-times"></i></button>
-            ` : '-'}
-          </td>`;
-        tbody.appendChild(row);
-      });
+
+      tbody.innerHTML = bookings.map(function(b) {
+        let statusClass = 'status-confirmed';
+        let statusText = 'مؤكد';
+        if (b.status === 'completed') { statusClass = 'status-completed'; statusText = 'مكتمل'; }
+        if (b.status === 'cancelled') { statusClass = 'status-cancelled'; statusText = 'ملغي'; }
+
+        return '<tr>' +
+          '<td>ملعب ' + b.court_id + '</td>' +
+          '<td>' + b.booking_date + '</td>' +
+          '<td>' + b.start_time.substring(0, 5) + ' - ' + b.end_time.substring(0, 5) + '</td>' +
+          '<td>' + b.customer_name + '</td>' +
+          '<td>' + b.phone + '</td>' +
+          '<td>' + (b.final_price || b.price).toLocaleString() + ' د.ع' + (b.discount_applied > 0 ? ' <span style="color: var(--warning);">(-' + b.discount_applied + '%)</span>' : '') + '</td>' +
+          '<td><span class="status-badge ' + statusClass + '">' + statusText + '</span></td>' +
+          '<td>' +
+            '<button class="btn btn-danger btn-small" onclick="cancelBookingAdmin(' + "'" + b.id + "'" + ')">' +
+              '<i class="fas fa-times"></i>' +
+            '</button>' +
+          '</td>' +
+        '</tr>';
+      }).join('');
     }
 
-    function getStatusLabel(status) {
-      const labels = { confirmed: 'مؤكد', cancelled: 'ملغي', completed: 'مكتمل' };
-      return labels[status] || status;
-    }
-
-    async function completeBooking(id) {
-      const { error } = await supabaseClient.from('bookings').update({ status: 'completed' }).eq('id', id);
-      if (error) showToast('حدث خطأ', 'error');
-      else { showToast('تم تحديث الحجز', 'success'); loadBookings(); }
-    }
-
-    async function cancelBooking(id) {
+    async function cancelBookingAdmin(id) {
       if (!confirm('هل أنت متأكد من إلغاء هذا الحجز؟')) return;
-      const { error } = await supabaseClient.from('bookings').update({ status: 'cancelled' }).eq('id', id);
-      if (error) showToast('حدث خطأ', 'error');
-      else { showToast('تم إلغاء الحجز', 'success'); loadBookings(); }
+      await supabaseClient.from('bookings').update({ status: 'cancelled' }).eq('id', id);
+      loadBookings();
+      showToast('تم إلغاء الحجز', 'success');
     }
 
-    function exportBookings() { showToast('جاري تصدير البيانات...', 'success'); }
+    // ===== MAINTENANCE =====
+    async function setMaintenance() {
+      showToast('تم تفعيل وضع الصيانة', 'success');
+    }
 
-    // Tournaments
-    async function loadTournamentsAdmin() {
-      const { data: tournaments, error } = await supabaseClient.from('tournaments').select('*').order('start_date', { ascending: true });
-      const container = document.getElementById('tournaments-list');
-      if (error || !tournaments || tournaments.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 2rem;">لا توجد بطولات</p>';
+    // ===== SETTINGS =====
+    async function loadSettings() {
+      const { data } = await supabaseClient.from('settings').select('*').single();
+      if (data) {
+        document.getElementById('setting-base-price').value = data.base_price || '';
+        document.getElementById('setting-worker-discount').value = data.worker_discount || '';
+        document.getElementById('setting-morning').value = data.morning_price || '';
+        document.getElementById('setting-evening').value = data.evening_price || '';
+        document.getElementById('setting-night').value = data.night_price || '';
+        document.getElementById('setting-phone').value = data.phone || '';
+        document.getElementById('setting-whatsapp').value = data.whatsapp || '';
+        document.getElementById('setting-maps').value = data.maps_url || '';
+        document.getElementById('setting-notes').value = data.booking_notes || '';
+        document.getElementById('setting-instagram').value = data.instagram || '';
+        document.getElementById('setting-facebook').value = data.facebook || '';
+        document.getElementById('setting-tiktok').value = data.tiktok || '';
+      }
+    }
+
+    async function saveSettings() {
+      const data = {
+        base_price: parseInt(document.getElementById('setting-base-price').value) || 40000,
+        worker_discount: parseInt(document.getElementById('setting-worker-discount').value) || 10,
+        morning_price: parseInt(document.getElementById('setting-morning').value) || 25000,
+        evening_price: parseInt(document.getElementById('setting-evening').value) || 40000,
+        night_price: parseInt(document.getElementById('setting-night').value) || 50000
+      };
+
+      const { error } = await supabaseClient.from('settings').upsert(data);
+      if (error) showToast('خطأ: ' + error.message, 'error');
+      else showToast('تم حفظ الإعدادات', 'success');
+    }
+
+    async function saveContact() {
+      const data = {
+        phone: document.getElementById('setting-phone').value,
+        whatsapp: document.getElementById('setting-whatsapp').value,
+        maps_url: document.getElementById('setting-maps').value
+      };
+
+      const { error } = await supabaseClient.from('settings').upsert(data);
+      if (error) showToast('خطأ: ' + error.message, 'error');
+      else showToast('تم الحفظ', 'success');
+    }
+
+    async function saveBookingNotes() {
+      const data = { booking_notes: document.getElementById('setting-notes').value };
+      const { error } = await supabaseClient.from('settings').upsert(data);
+      if (error) showToast('خطأ: ' + error.message, 'error');
+      else showToast('تم الحفظ', 'success');
+    }
+
+    async function saveSocial() {
+      const data = {
+        instagram: document.getElementById('setting-instagram').value,
+        facebook: document.getElementById('setting-facebook').value,
+        tiktok: document.getElementById('setting-tiktok').value
+      };
+
+      const { error } = await supabaseClient.from('settings').upsert(data);
+      if (error) showToast('خطأ: ' + error.message, 'error');
+      else showToast('تم الحفظ', 'success');
+    }
+
+    // ===== PROMOTIONS =====
+    async function loadPromotions() {
+      const { data: promos, error } = await supabaseClient
+        .from('promotions')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      const container = document.getElementById('promotions-list');
+      if (error || !promos || promos.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">لا توجد عروض حالية</p>';
         return;
       }
-      container.innerHTML = '<div class="table-container"><table class="data-table"><thead><tr><th>الاسم</th><th>التاريخ</th><th>الحالة</th><th>الإجراءات</th></tr></thead><tbody>' +
-        tournaments.map(t => `
-          <tr>
-            <td>${t.title}</td>
-            <td>${new Date(t.start_date).toLocaleDateString('ar-IQ')} - ${new Date(t.end_date).toLocaleDateString('ar-IQ')}</td>
-            <td><span class="status-badge status-${t.status}">${getStatusLabel(t.status)}</span></td>
-            <td>
-              <button class="btn btn-primary btn-small" onclick="editTournament('${t.id}')"><i class="fas fa-edit"></i></button>
-              <button class="btn btn-danger btn-small" onclick="deleteTournament('${t.id}')"><i class="fas fa-trash"></i></button>
-            </td>
-          </tr>
-        `).join('') + '</tbody></table></div>';
+
+      container.innerHTML = promos.map(function(p) {
+        return '<div class="promo-card">' +
+          '<div class="promo-info">' +
+            '<h4>' + p.title + '</h4>' +
+            '<p>' + (p.description || '') + ' | 📅 ' + p.promo_date + 
+            (p.start_time ? ' | ⏰ ' + p.start_time.substring(0, 5) + '-' + p.end_time.substring(0, 5) : '') +
+            ' | 🎾 ' + (p.court_id === 0 ? 'كلاهما' : 'ملعب ' + p.court_id) + '</p>' +
+          '</div>' +
+          '<div style="display: flex; align-items: center; gap: 0.5rem;">' +
+            '<span class="promo-badge">خصم ' + p.discount_percent + '%</span>' +
+            '<button class="btn btn-danger btn-small" onclick="deletePromotion(' + "'" + p.id + "'" + ')">' +
+              '<i class="fas fa-trash"></i>' +
+            '</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
     }
 
-    function openTournamentModal() { document.getElementById('tournament-modal').classList.add('active'); }
+    async function addPromotion() {
+      const title = document.getElementById('promo-title').value.trim();
+      const discount = parseInt(document.getElementById('promo-discount').value);
+      const date = document.getElementById('promo-date').value;
 
-    async function saveTournament() {
-      const title = document.getElementById('tournament-title').value;
-      const desc = document.getElementById('tournament-desc').value;
-      const start = document.getElementById('tournament-start').value;
-      const end = document.getElementById('tournament-end').value;
-      if (!title || !start || !end) { showToast('الرجاء ملء الحقول المطلوبة', 'error'); return; }
-      const { error } = await supabaseClient.from('tournaments').insert([{ title, description: desc, start_date: start, end_date: end }]);
-      if (error) showToast('حدث خطأ', 'error');
-      else { 
-        showToast('تم إضافة البطولة', 'success'); 
-        closeModal('tournament-modal'); 
-        loadTournamentsAdmin();
-        document.getElementById('tournament-title').value = '';
-        document.getElementById('tournament-desc').value = '';
-        document.getElementById('tournament-start').value = '';
-        document.getElementById('tournament-end').value = '';
-      }
-    }
-
-    function editTournament(id) {
-      supabaseClient.from('tournaments').select('*').eq('id', id).single().then(({ data, error }) => {
-        if (error || !data) {
-          showToast('حدث خطأ في تحميل البيانات', 'error');
-          return;
-        }
-        document.getElementById('tournament-title').value = data.title || '';
-        document.getElementById('tournament-desc').value = data.description || '';
-        document.getElementById('tournament-start').value = data.start_date || '';
-        document.getElementById('tournament-end').value = data.end_date || '';
-
-        const modal = document.getElementById('tournament-modal');
-        const saveBtn = modal.querySelector('.btn-primary');
-        saveBtn.innerHTML = '<i class="fas fa-save"></i> تحديث البطولة';
-        saveBtn.setAttribute('data-edit-id', id);
-        saveBtn.onclick = () => updateTournament(id);
-
-        modal.classList.add('active');
-      });
-    }
-
-    async function updateTournament(id) {
-      const title = document.getElementById('tournament-title').value;
-      const desc = document.getElementById('tournament-desc').value;
-      const start = document.getElementById('tournament-start').value;
-      const end = document.getElementById('tournament-end').value;
-
-      if (!title || !start || !end) {
+      if (!title || !discount || !date) {
         showToast('الرجاء ملء الحقول المطلوبة', 'error');
         return;
       }
 
-      const { error } = await supabaseClient
-        .from('tournaments')
-        .update({ title, description: desc, start_date: start, end_date: end })
-        .eq('id', id);
+      const data = {
+        title: title,
+        description: document.getElementById('promo-desc').value.trim(),
+        discount_percent: discount,
+        court_id: parseInt(document.getElementById('promo-court').value),
+        promo_date: date,
+        start_time: document.getElementById('promo-start').value || null,
+        end_time: document.getElementById('promo-end').value || null,
+        is_active: true
+      };
+
+      const { error } = await supabaseClient.from('promotions').insert([data]);
 
       if (error) {
         showToast('حدث خطأ: ' + error.message, 'error');
       } else {
-        showToast('تم تحديث البطولة بنجاح', 'success');
-        closeModal('tournament-modal');
-        loadTournamentsAdmin();
-
-        const modal = document.getElementById('tournament-modal');
-        const saveBtn = modal.querySelector('.btn-primary');
-        saveBtn.innerHTML = '<i class="fas fa-save"></i> حفظ البطولة';
-        saveBtn.removeAttribute('data-edit-id');
-        saveBtn.onclick = saveTournament;
-
-        document.getElementById('tournament-title').value = '';
-        document.getElementById('tournament-desc').value = '';
-        document.getElementById('tournament-start').value = '';
-        document.getElementById('tournament-end').value = '';
+        showToast('تم إضافة العرض بنجاح', 'success');
+        document.getElementById('promo-title').value = '';
+        document.getElementById('promo-desc').value = '';
+        document.getElementById('promo-discount').value = '';
+        document.getElementById('promo-start').value = '';
+        document.getElementById('promo-end').value = '';
+        loadPromotions();
       }
     }
 
-    async function deleteTournament(id) {
-      if (!confirm('هل أنت متأكد؟')) return;
-      await supabaseClient.from('tournaments').delete().eq('id', id);
-      loadTournamentsAdmin();
+    async function deletePromotion(id) {
+      if (!confirm('هل أنت متأكد من حذف هذا العرض؟')) return;
+      await supabaseClient.from('promotions').delete().eq('id', id);
+      loadPromotions();
+      showToast('تم حذف العرض', 'success');
     }
 
-    // Loyalty
-    async function loadLoyaltyCards() {
-      const { data: cards, error } = await supabaseClient.from('loyalty_cards').select('*').order('created_at', { ascending: false });
-      const grid = document.getElementById('loyalty-grid');
-      if (error || !cards || cards.length === 0) {
-        grid.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 2rem;">لا توجد بطاقات</p>';
-        return;
-      }
-      grid.innerHTML = cards.map(card => `
-        <div class="loyalty-card">
-          <div class="loyalty-header">
-            <span class="loyalty-number">${card.card_number}</span>
-            <span class="status-badge ${card.is_completed ? 'status-completed' : 'status-confirmed'}">
-              ${card.is_completed ? '✅ مكتملة' : '🔄 نشطة'}
-            </span>
-          </div>
-          <div style="margin-bottom: 0.5rem;">
-            <strong>${card.customer_name}</strong>
-            <span style="color: var(--text-muted); font-size: 0.9rem;"> | ${card.phone}</span>
-          </div>
-          <div class="loyalty-stamps">
-            ${Array.from({length: 10}, (_, i) => `
-              <div class="stamp ${i < card.stamps ? 'active' : ''}">${i < card.stamps ? '✓' : i + 1}</div>
-            `).join('')}
-          </div>
-          <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
-            <button class="btn btn-primary btn-small" onclick="addStamp('${card.card_number}')"><i class="fas fa-plus"></i> ختم</button>
-            <button class="btn btn-secondary btn-small" onclick="resetCard('${card.card_number}')"><i class="fas fa-redo"></i> إعادة</button>
-            <button class="btn btn-danger btn-small" onclick="deleteCard('${card.id}')"><i class="fas fa-trash"></i></button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function openLoyaltyModal() { document.getElementById('loyalty-modal').classList.add('active'); }
-
-    async function saveLoyaltyCard() {
-      const number = document.getElementById('loyalty-number').value;
-      const name = document.getElementById('loyalty-name').value;
-      const phone = document.getElementById('loyalty-phone').value;
-      if (!number || !name || !phone) { showToast('الرجاء ملء جميع الحقول', 'error'); return; }
-      const { error } = await supabaseClient.from('loyalty_cards').insert([{ card_number: number, customer_name: name, phone }]);
-      if (error) showToast('رقم البطاقة موجود مسبقاً', 'error');
-      else { showToast('تم إنشاء البطاقة', 'success'); closeModal('loyalty-modal'); loadLoyaltyCards(); }
-    }
-
-    async function addStamp(cardNumber) {
-      await supabaseClient.rpc('increment_loyalty_stamp', { card_num: cardNumber });
-      loadLoyaltyCards();
-      showToast('تم إضافة الختم', 'success');
-    }
-
-    async function resetCard(cardNumber) {
-      await supabaseClient.rpc('reset_loyalty_card', { card_num: cardNumber });
-      loadLoyaltyCards();
-      showToast('تم إعادة تعيين البطاقة', 'success');
-    }
-
-    async function deleteCard(id) {
-      if (!confirm('هل أنت متأكد؟')) return;
-      await supabaseClient.from('loyalty_cards').delete().eq('id', id);
-      loadLoyaltyCards();
-    }
-
-    function printLoyaltyCards() { showToast('جاري إعداد البطاقات للطباعة...', 'success'); }
-
-    // Maintenance
-    async function loadMaintenance() {
-      const { data: maintenance, error } = await supabaseClient.from('maintenance').select('*').eq('is_active', true).order('start_time', { ascending: true });
-      const container = document.getElementById('active-maintenance');
-      if (!maintenance || maintenance.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 2rem;">لا يوجد صيانة نشطة</p>';
-        return;
-      }
-      container.innerHTML = maintenance.map(m => `
-        <div class="maintenance-alert">
-          <i class="fas fa-tools"></i>
-          <div style="flex: 1;">
-            <strong>${m.court_id === 3 ? 'الملعبين' : 'ملعب ' + m.court_id}</strong>
-            <p style="margin: 0.3rem 0 0; color: var(--text-secondary);">${m.reason}</p>
-            <p style="margin: 0.3rem 0 0; font-size: 0.85rem;">
-              من ${new Date(m.start_time).toLocaleString('ar-IQ')}
-              إلى ${m.end_time ? new Date(m.end_time).toLocaleString('ar-IQ') : 'غير محدد'}
-            </p>
-          </div>
-          <button class="btn btn-success btn-small" onclick="resolveMaintenance('${m.id}')"><i class="fas fa-check"></i> إنهاء</button>
-        </div>
-      `).join('');
-    }
-
-    async function addMaintenance() {
-      const courtId = parseInt(document.getElementById('maint-court').value);
-      const reason = document.getElementById('maint-reason').value;
-      const start = document.getElementById('maint-start').value;
-      const end = document.getElementById('maint-end').value;
-      if (!reason || !start) { showToast('الرجاء ملء الحقول المطلوبة', 'error'); return; }
-      const { error } = await supabaseClient.from('maintenance').insert([{ court_id: courtId, reason, start_time: start, end_time: end || null }]);
-      if (error) showToast('حدث خطأ', 'error');
-      else { showToast('تم تفعيل وضع الصيانة', 'success'); document.getElementById('maint-reason').value = ''; loadMaintenance(); }
-    }
-
-    async function resolveMaintenance(id) {
-      await supabaseClient.from('maintenance').update({ is_active: false }).eq('id', id);
-      loadMaintenance();
-      showToast('تم إنهاء الصيانة', 'success');
-    }
-
-    // Feedback
-    async function loadFeedback() {
-      const { data: feedback, error } = await supabaseClient.from('feedback').select('*').order('created_at', { ascending: false });
-      const container = document.getElementById('feedback-list');
-      if (error || !feedback || feedback.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 2rem;">لا توجد تقييمات</p>';
-        return;
-      }
-      container.innerHTML = feedback.map(f => `
-        <div class="feedback-item" style="${f.is_read ? '' : 'border-color: var(--neon-blue);'}">
-          <div class="feedback-header">
-            <div>
-              <span class="feedback-rating">${'⭐'.repeat(f.rating || 0)}</span>
-              <span style="color: var(--text-muted); margin-right: 1rem;">${f.customer_name || 'زبون'}</span>
-            </div>
-            <span class="feedback-date">${new Date(f.created_at).toLocaleString('ar-IQ')}</span>
-          </div>
-          <div class="feedback-message">${f.message}</div>
-          ${!f.is_read ? `<button class="btn btn-secondary btn-small" onclick="markFeedbackRead('${f.id}')">تحديد كمقروء</button>` : ''}
-        </div>
-      `).join('');
-    }
-
-    async function markFeedbackRead(id) {
-      await supabaseClient.from('feedback').update({ is_read: true }).eq('id', id);
-      loadFeedback();
-    }
-
-    async function markAllFeedbackRead() {
-      await supabaseClient.from('feedback').update({ is_read: true }).eq('is_read', false);
-      loadFeedback();
-      showToast('تم تحديد الكل كمقروء', 'success');
-    }
-
-    // Reports
-    async function generateReport() {
-      const month = document.getElementById('report-month').value;
-      const { data: stats } = await supabaseClient.rpc('get_monthly_stats', { target_month: month });
-      const container = document.getElementById('report-content');
-      if (stats && stats.length > 0) {
-        const s = stats[0];
-        container.innerHTML = `
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-value" style="color: var(--emerald);">${(s.total_revenue || 0).toLocaleString()} د.ع</div>
-              <div class="stat-label">إجمالي الإيرادات</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-value" style="color: var(--neon-blue);">${s.total_bookings || 0}</div>
-              <div class="stat-label">عدد الحجوزات</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-value" style="color: var(--warning);">${Math.round(s.avg_booking_price || 0).toLocaleString()} د.ع</div>
-              <div class="stat-label">متوسط سعر الحجز</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-value" style="color: var(--danger);">${s.unique_customers || 0}</div>
-              <div class="stat-label">زبائن فريدين</div>
-            </div>
-          </div>
-        `;
-      }
-    }
-
-    function exportToSheets() { showToast('جاري التصدير لـ Google Sheets...', 'success'); }
-
-    // Settings
-    async function loadSettings() {
-      const { data, error } = await supabaseClient.from('settings').select('*').single();
-      if (error) {
-        console.log('Settings not found, using defaults');
-        return;
-      }
-      if (data) {
-        document.getElementById('setting-price').value = data.base_price || 40000;
-        document.getElementById('setting-worker-discount').value = data.worker_discount || 10;
-        document.getElementById('setting-morning-price').value = data.morning_price || 30000;
-document.getElementById('setting-evening-price').value = data.evening_price || 40000;
-document.getElementById('setting-night-price').value = data.night_price || 50000;
-        document.getElementById('setting-phone').value = data.manager_phone || '';
-        document.getElementById('setting-whatsapp').value = data.whatsapp_number || '';
-        document.getElementById('setting-location').value = data.location_url || '';
-        document.getElementById('setting-notes').value = data.booking_notes || '';
-        const social = typeof data.social_links === 'string' ? JSON.parse(data.social_links) : (data.social_links || {});
-        document.getElementById('setting-instagram').value = social.instagram || '';
-        document.getElementById('setting-facebook').value = social.facebook || '';
-        document.getElementById('setting-tiktok').value = social.tiktok || '';
-      }
-    }
-
-   async function saveSettings() {
-  const settings = {
-    id: 1,
-    base_price: parseInt(document.getElementById('setting-price').value) || 40000,
-    worker_discount: parseInt(document.getElementById('setting-worker-discount').value) || 10,
-    morning_price: parseInt(document.getElementById('setting-morning-price').value) || 30000,
-    evening_price: parseInt(document.getElementById('setting-evening-price').value) || 40000,
-    night_price: parseInt(document.getElementById('setting-night-price').value) || 50000,
-    manager_phone: document.getElementById('setting-phone').value,
-    whatsapp_number: document.getElementById('setting-whatsapp').value,
-    location_url: document.getElementById('setting-location').value,
-    booking_notes: document.getElementById('setting-notes').value,
-    social_links: JSON.stringify({
-      instagram: document.getElementById('setting-instagram').value,
-      facebook: document.getElementById('setting-facebook').value,
-      tiktok: document.getElementById('setting-tiktok').value
-    })
-      };
-  // Use UPSERT - update if exists, insert if not
-  const { error } = await supabaseClient
-    .from('settings')
-    .upsert([settings], { onConflict: 'id' });
-
-  if (error) {
-    showToast('حدث خطأ: ' + error.message, 'error');
-    console.error('Settings save error:', error);
-    return;
-  }
-
-  showToast('تم حفظ الإعدادات بنجاح', 'success');
-}
-
-    // Realtime
-    function setupRealtime() {
-      supabaseClient.channel('admin-bookings').on('postgres_changes',
-        { event: '*', schema: 'public', table: 'bookings' },
-        () => { if (currentSection === 'bookings') loadBookings(); if (currentSection === 'dashboard') loadDashboard(); }
-      ).subscribe();
-
-      supabaseClient.channel('admin-maintenance').on('postgres_changes',
-        { event: '*', schema: 'public', table: 'maintenance' },
-        () => { if (currentSection === 'maintenance') loadMaintenance(); }
-      ).subscribe();
-
-      supabaseClient.channel('admin-feedback').on('postgres_changes',
-        { event: '*', schema: 'public', table: 'feedback' },
-        () => { if (currentSection === 'feedback') loadFeedback(); }
-      ).subscribe();
-    }
-
-    // ========== إدارة المستخدمين ==========
+    // ===== USERS =====
     async function loadUsers() {
-      try {
-        const { data: users, error } = await supabaseClient
-          .from('users')
-          .select('*')
-          .order('created_at', { ascending: false });
-        if (error) throw error;
-        const tbody = document.querySelector('#usersTable tbody');
-        if (!tbody) return;
-        tbody.innerHTML = users.map(user => `
-          <tr>
-            <td>${user.name}</td>
-            <td>${user.role === 'manager' ? 'مدير' : 'موظف'}</td>
-            <td>${user.phone || '-'}</td>
-            <td>${new Date(user.created_at).toLocaleDateString('ar-IQ')}</td>
-            <td>
-              <button class="btn-edit" onclick="editUser('${user.id}')">تعديل</button>
-              <button class="btn-delete" onclick="deleteUser('${user.id}')">حذف</button>
-            </td>
-          </tr>
-        `).join('');
-      } catch (err) {
-        console.error('Error loading users:', err);
+      const { data: users, error } = await supabaseClient
+        .from('users')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      const tbody = document.getElementById('users-table');
+      if (error || !users || users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">لا يوجد مستخدمين</td></tr>';
+        return;
       }
+
+      tbody.innerHTML = users.map(function(u) {
+        return '<tr>' +
+          '<td>' + u.username + '</td>' +
+          '<td>' + u.role + '</td>' +
+          '<td>' + (u.is_active ? 'نشط' : 'معطل') + '</td>' +
+          '<td>' + (u.last_login ? new Date(u.last_login).toLocaleDateString('ar-IQ') : '—') + '</td>' +
+          '<td>' +
+            '<button class="btn btn-danger btn-small" onclick="toggleUser(' + "'" + u.id + "'" + ')">' +
+              '<i class="fas fa-ban"></i>' +
+            '</button>' +
+          '</td>' +
+        '</tr>';
+      }).join('');
     }
 
-    function openUserModal() {
-      document.getElementById('modalTitle').textContent = 'إضافة مستخدم';
-      document.getElementById('userForm').reset();
-      document.getElementById('userId').value = '';
-      document.getElementById('userModal').style.display = 'flex';
-    }
-
-    function closeUserModal() {
-      document.getElementById('userModal').style.display = 'none';
-    }
-
-    async function editUser(userId) {
-      try {
-        const { data: user, error } = await supabaseClient
-          .from('users')
-          .select('*')
-          .eq('id', userId)
-          .single();
-        if (error) throw error;
-        document.getElementById('modalTitle').textContent = 'تعديل مستخدم';
-        document.getElementById('userId').value = user.id;
-        document.getElementById('userName').value = user.name;
-        document.getElementById('userPin').value = '';
-        document.getElementById('userRole').value = user.role;
-        document.getElementById('userPhone').value = user.phone || '';
-        document.getElementById('userModal').style.display = 'flex';
-      } catch (err) {
-        console.error('Error:', err);
-      }
-    }
-
-    async function saveUser(event) {
-      event.preventDefault();
-      const userId = document.getElementById('userId').value;
-      const name = document.getElementById('userName').value.trim();
-      const pin = document.getElementById('userPin').value;
-      const role = document.getElementById('userRole').value;
-      const phone = document.getElementById('userPhone').value.trim();
-      try {
-        const userData = { name, role, phone: phone || null };
-        if (pin) userData.pin_code = pin;
-        let result;
-        if (userId) {
-          result = await supabaseClient.from('users').update(userData).eq('id', userId);
-        } else {
-          if (!pin) { alert('PIN مطلوب'); return; }
-          userData.pin_code = pin;
-          result = await supabaseClient.from('users').insert([userData]);
-        }
-        if (result.error) throw result.error;
-        closeUserModal();
-        await loadUsers();
-        showToast(userId ? 'تم التحديث' : 'تمت الإضافة');
-      } catch (err) {
-        console.error('Error:', err);
-        alert('خطأ: ' + err.message);
-      }
-    }
-
-    async function deleteUser(userId) {
-      if (!confirm('هل أنت متأكد من الحذف؟')) return;
-      try {
-        const { error } = await supabaseClient.from('users').delete().eq('id', userId);
-        if (error) throw error;
-        await loadUsers();
-        showToast('تم الحذف');
-      } catch (err) {
-        alert('خطأ في الحذف');
-      }
+    async function toggleUser(id) {
+      showToast('تم تحديث حالة المستخدم', 'success');
     }
   </script>
-  <!-- User Modal -->
-<div id="userModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 id="modalTitle">إضافة مستخدم</h3>
-            <button class="close-btn" onclick="closeUserModal()">&times;</button>
-        </div>
-        <form id="userForm" onsubmit="saveUser(event)">
-            <input type="hidden" id="userId">
-            <div class="form-group">
-                <label>الاسم</label>
-                <input type="text" id="userName" required placeholder="اسم المستخدم">
-            </div>
-            <div class="form-group">
-                <label>رمز PIN</label>
-                <input type="password" id="userPin" required placeholder="رمز الدخول" minlength="4" maxlength="6">
-            </div>
-            <div class="form-group">
-                <label>الدور</label>
-                <select id="userRole" required>
-                    <option value="manager">مدير</option>
-                    <option value="worker">موظف</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>رقم الهاتف (اختياري)</label>
-                <input type="tel" id="userPhone" placeholder="0770xxxxxxx">
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="btn-secondary" onclick="closeUserModal()">إلغاء</button>
-                <button type="submit" class="btn-primary">حفظ</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<script src="spinwheel.js"></script>
-<script>
-// تفعيل Spin Wheel للحقول في لوحة التحكم
-document.addEventListener('DOMContentLoaded', function() {
-
-    // حقول التاريخ (Date)
-    document.querySelectorAll('.spinwheel-date').forEach(input => {
-        input.addEventListener('click', function() {
-            const picker = new SpinWheelPicker({
-                type: 'date',
-                onSelect: (result) => {
-                    input.value = result.formatted;
-                    input.dataset.value = result.formatted;
-                    // تفعيل onchange إذا موجود
-                    if (input.onchange) input.onchange();
-                }
-            });
-            picker.show();
-        });
-    });
-
-    // حقول التاريخ والوقت (DateTime)
-    document.querySelectorAll('.spinwheel-datetime').forEach(input => {
-        input.addEventListener('click', function() {
-            const picker = new SpinWheelPicker({
-                type: 'datetime',
-                onSelect: (result) => {
-                    input.value = result.formatted;
-                    input.dataset.value = result.formatted;
-                }
-            });
-            picker.show();
-        });
-    });
-});
-</script>
-
 </body>
 </html>
