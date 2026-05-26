@@ -290,6 +290,7 @@
       <button class="tab-btn" onclick="showTab('settings')">⚙️ إعدادات</button>
       <button class="tab-btn" onclick="showTab('promotions')">🎁 العروض</button>
       <button class="tab-btn" onclick="showTab('users')">👥 المستخدمين</button>
+      <button class="tab-btn" onclick="showTab(\'tournaments\')">🏆 البطولات</button>
     </div>
 
     <div id="dashboard-tab" class="tab-content active">
@@ -489,6 +490,111 @@
         </div>
       </div>
     </div>
+      <div id="tournaments-tab" class="tab-content">
+      <div class="card">
+        <div class="card-title">🏆 إنشاء بطولة جديدة</div>
+        <div class="form-group">
+          <label>اسم البطولة *</label>
+          <input type="text" id="tour-name" class="form-input" placeholder="مثلاً: بطولة الصيف">
+        </div>
+        <div class="form-group">
+          <label>وصف البطولة</label>
+          <textarea id="tour-desc" class="form-textarea" placeholder="تفاصيل البطولة..."></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>التاريخ *</label>
+            <input type="date" id="tour-date" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>وقت البدء *</label>
+            <input type="time" id="tour-time" class="form-input">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>الملعب *</label>
+            <select id="tour-court" class="form-select">
+              <option value="1">ملعب 1</option>
+              <option value="2">ملعب 2</option>
+              <option value="0">كلاهما</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>عدد الفرق *</label>
+            <input type="number" id="tour-teams" class="form-input" placeholder="مثلاً: 4, 8, 16..." min="2" max="32">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>رسوم الاشتراك (د.ع)</label>
+            <input type="number" id="tour-fee" class="form-input" placeholder="50000">
+          </div>
+          <div class="form-group">
+            <label>الجائزة</label>
+            <input type="text" id="tour-prize" class="form-input" placeholder="مثلاً: 500,000 د.ع + كأس">
+          </div>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="createTournament()">
+          <i class="fas fa-plus"></i> إنشاء البطولة
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📋 البطولات</div>
+        <div id="tournaments-list">
+          <p style="text-align: center; color: var(--text-muted);">جاري التحميل...</p>
+        </div>
+      </div>
+
+      <div id="tournament-detail" style="display: none;">
+        <div class="card">
+          <div class="card-title" id="detail-title">🏆 تفاصيل البطولة</div>
+          <div id="detail-content"></div>
+        </div>
+
+        <div class="card" id="teams-card">
+          <div class="card-title">👥 الفرق المشاركة</div>
+          <div id="teams-list"></div>
+          <div id="add-team-form" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+            <h4 style="margin-bottom: 0.8rem; color: var(--neon-blue);">➕ إضافة فريق</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label>اسم الفريق *</label>
+                <input type="text" id="team-name" class="form-input" placeholder="فريق النصر">
+              </div>
+              <div class="form-group">
+                <label>اللاعب 1 *</label>
+                <input type="text" id="player1-name" class="form-input" placeholder="اسم اللاعب">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>هاتف اللاعب 1</label>
+                <input type="tel" id="player1-phone" class="form-input" placeholder="0770 XXX XXXX">
+              </div>
+              <div class="form-group">
+                <label>اللاعب 2 *</label>
+                <input type="text" id="player2-name" class="form-input" placeholder="اسم اللاعب">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>هاتف اللاعب 2</label>
+              <input type="tel" id="player2-phone" class="form-input" placeholder="0770 XXX XXXX">
+            </div>
+            <button class="btn btn-primary btn-full" onclick="addTeam()">
+              <i class="fas fa-plus"></i> إضافة فريق
+            </button>
+          </div>
+        </div>
+
+        <div class="card" id="bracket-card">
+          <div class="card-title">🎯 جدول المباريات (Bracket)</div>
+          <div id="bracket-display"></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script>
@@ -758,42 +864,47 @@
       showToast('تم تحديث حالة المستخدم', 'success');
     }
 
-    async function deleteTournament(id) {
-      if (!confirm('هل أنت متأكد من حذف هذه البطولة؟ سيتم حذف جميع الفرق والمباريات أيضاً!')) return;
-
-      await supabaseClient.from('tournament_matches').delete().eq('tournament_id', id);
-      await supabaseClient.from('tournament_teams').delete().eq('tournament_id', id);
-      await supabaseClient.from('tournaments').delete().eq('id', id);
-
-      showToast('تم حذف البطولة', 'success');
-      loadTournaments();
-      document.getElementById('tournament-detail').style.display = 'none';
-    }
-
+    // ============================================
+    // نظام البطولات
+    // ============================================
+    let currentTournamentId = null;
     let editingTournamentId = null;
 
-    async function editTournament(id) {
-      editingTournamentId = id;
-      const { data: tour } = await supabaseClient.from('tournaments').select('*').eq('id', id).single();
-      if (!tour) return;
+    async function createTournament() {
+      const name = document.getElementById('tour-name').value.trim();
+      const date = document.getElementById('tour-date').value;
+      const time = document.getElementById('tour-time').value;
+      const court = parseInt(document.getElementById('tour-court').value);
+      const teamCount = parseInt(document.getElementById('tour-teams').value);
+      const fee = parseInt(document.getElementById('tour-fee').value) || 0;
+      const prize = document.getElementById('tour-prize').value.trim();
+      const desc = document.getElementById('tour-desc').value.trim();
 
-      // Fill the form with existing data
-      document.getElementById('tour-name').value = tour.name;
-      document.getElementById('tour-desc').value = tour.description || '';
-      document.getElementById('tour-date').value = tour.tournament_date;
-      document.getElementById('tour-time').value = tour.start_time.substring(0, 5);
-      document.getElementById('tour-court').value = tour.court_id;
-      document.getElementById('tour-teams').value = tour.team_count;
-      document.getElementById('tour-fee').value = tour.entry_fee || '';
-      document.getElementById('tour-prize').value = tour.prize || '';
+      if (!name || !date || !time || !teamCount || teamCount < 2) {
+        showToast('الرجاء ملء الحقول المطلوبة (عدد الفرق 2 على الأقل)', 'error');
+        return;
+      }
 
-      // Change button to "تحديث"
-      const btn = document.querySelector('#tournaments-tab .btn-primary.btn-full');
-      btn.innerHTML = '<i class="fas fa-save"></i> تحديث البطولة';
-      btn.onclick = function() { updateTournament(); };
+      const { data, error } = await supabaseClient.from('tournaments').insert([{
+        name: name, description: desc, tournament_date: date, start_time: time,
+        court_id: court, team_count: teamCount, entry_fee: fee, prize: prize, status: 'upcoming'
+      }]).select();
 
-      showToast('تم تحميل البيانات للتعديل', 'success');
-      document.getElementById('tournaments-tab').scrollIntoView({ behavior: 'smooth' });
+      if (error) { showToast('خطأ: ' + error.message, 'error'); return; }
+
+      if (data && data[0]) {
+        await supabaseClient.rpc('create_tournament_matches', { p_tournament_id: data[0].id });
+      }
+
+      showToast('تم إنشاء البطولة بنجاح!', 'success');
+      document.getElementById('tour-name').value = '';
+      document.getElementById('tour-desc').value = '';
+      document.getElementById('tour-date').value = '';
+      document.getElementById('tour-time').value = '';
+      document.getElementById('tour-teams').value = '';
+      document.getElementById('tour-fee').value = '';
+      document.getElementById('tour-prize').value = '';
+      loadTournaments();
     }
 
     async function updateTournament() {
@@ -822,7 +933,6 @@
 
       showToast('تم تحديث البطولة بنجاح!', 'success');
 
-      // Reset form
       document.getElementById('tour-name').value = '';
       document.getElementById('tour-desc').value = '';
       document.getElementById('tour-date').value = '';
@@ -832,13 +942,257 @@
       document.getElementById('tour-prize').value = '';
       editingTournamentId = null;
 
-      // Reset button
       const btn = document.querySelector('#tournaments-tab .btn-primary.btn-full');
       btn.innerHTML = '<i class="fas fa-plus"></i> إنشاء البطولة';
       btn.onclick = function() { createTournament(); };
 
       loadTournaments();
     }
+
+    async function deleteTournament(id) {
+      if (!confirm('هل أنت متأكد من حذف هذه البطولة؟ سيتم حذف جميع الفرق والمباريات أيضاً!')) return;
+
+      await supabaseClient.from('tournament_matches').delete().eq('tournament_id', id);
+      await supabaseClient.from('tournament_teams').delete().eq('tournament_id', id);
+      await supabaseClient.from('tournaments').delete().eq('id', id);
+
+      showToast('تم حذف البطولة', 'success');
+      loadTournaments();
+      document.getElementById('tournament-detail').style.display = 'none';
+    }
+
+    async function editTournament(id) {
+      editingTournamentId = id;
+      const { data: tour } = await supabaseClient.from('tournaments').select('*').eq('id', id).single();
+      if (!tour) return;
+
+      document.getElementById('tour-name').value = tour.name;
+      document.getElementById('tour-desc').value = tour.description || '';
+      document.getElementById('tour-date').value = tour.tournament_date;
+      document.getElementById('tour-time').value = tour.start_time.substring(0, 5);
+      document.getElementById('tour-court').value = tour.court_id;
+      document.getElementById('tour-teams').value = tour.team_count;
+      document.getElementById('tour-fee').value = tour.entry_fee || '';
+      document.getElementById('tour-prize').value = tour.prize || '';
+
+      const btn = document.querySelector('#tournaments-tab .btn-primary.btn-full');
+      btn.innerHTML = '<i class="fas fa-save"></i> تحديث البطولة';
+      btn.onclick = function() { updateTournament(); };
+
+      showToast('تم تحميل البيانات للتعديل', 'success');
+      document.getElementById('tournaments-tab').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function loadTournaments() {
+      const { data: tours, error } = await supabaseClient
+        .from('tournaments').select('*').order('tournament_date', { ascending: true });
+
+      const container = document.getElementById('tournaments-list');
+      if (error || !tours || tours.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">لا توجد بطولات</p>';
+        return;
+      }
+
+      container.innerHTML = tours.map(function(t) {
+        let statusBadge = '';
+        if (t.status === 'upcoming') statusBadge = '<span style="color: var(--neon-blue);">🔜 قادمة</span>';
+        else if (t.status === 'ongoing') statusBadge = '<span style="color: var(--warning);">▶️ جارية</span>';
+        else statusBadge = '<span style="color: var(--emerald);">✅ منتهية</span>';
+
+        return '<div class="promo-card">' +
+          '<div style="flex: 1;">' +
+            '<h4 style="color: var(--neon-blue); margin-bottom: 0.3rem;">' + t.name + '</h4>' +
+            '<p style="color: var(--text-secondary); font-size: 0.85rem;">📅 ' + t.tournament_date + ' | ⏰ ' + t.start_time.substring(0, 5) + 
+            ' | 🎾 ' + (t.court_id === 0 ? 'كلاهما' : 'ملعب ' + t.court_id) + ' | 👥 ' + t.team_count + ' فرق</p>' +
+            '<p style="color: var(--text-secondary); font-size: 0.85rem;">💰 رسوم: ' + (t.entry_fee || 0).toLocaleString() + ' د.ع' + 
+            (t.prize ? ' | 🏆 ' + t.prize : '') + '</p>' +
+          '</div>' +
+          '<div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: center;">' +
+            statusBadge +
+            '<div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">' +
+              '<button class="btn btn-primary btn-small" onclick="editTournament(' + "'" + t.id + "'" + ')">' +
+                '<i class="fas fa-edit"></i> تعديل' +
+              '</button>' +
+              '<button class="btn btn-danger btn-small" onclick="deleteTournament(' + "'" + t.id + "'" + ')">' +
+                '<i class="fas fa-trash"></i> حذف' +
+              '</button>' +
+              '<button class="btn btn-success btn-small" onclick="showTournamentDetail(' + "'" + t.id + "'" + ')">' +
+                '<i class="fas fa-cog"></i> إدارة' +
+              '</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    async function showTournamentDetail(tourId) {
+      currentTournamentId = tourId;
+      document.getElementById('tournament-detail').style.display = 'block';
+      document.getElementById('tournament-detail').scrollIntoView({ behavior: 'smooth' });
+
+      const { data: tour } = await supabaseClient.from('tournaments').select('*').eq('id', tourId).single();
+      if (tour) {
+        document.getElementById('detail-title').innerHTML = '🏆 ' + tour.name;
+      }
+
+      loadTeams(tourId);
+      loadBracket(tourId);
+    }
+
+    async function loadTeams(tourId) {
+      const { data: teams } = await supabaseClient
+        .from('tournament_teams').select('*').eq('tournament_id', tourId).order('created_at');
+
+      const container = document.getElementById('teams-list');
+      if (!teams || teams.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-muted); text-align: center;">لا توجد فرق مسجلة</p>';
+      } else {
+        container.innerHTML = teams.map(function(team, idx) {
+          return '<div style="background: var(--bg-primary); border: 1px solid var(--border); border-radius: 10px; padding: 0.8rem; margin-bottom: 0.5rem;">' +
+            '<strong style="color: var(--neon-blue);">#' + (idx+1) + ' ' + team.team_name + '</strong>' +
+            '<p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.3rem;">' +
+            '👤 ' + team.player1_name + (team.player1_phone ? ' (' + team.player1_phone + ')' : '') +
+            ' &nbsp;|&nbsp; 👤 ' + team.player2_name + (team.player2_phone ? ' (' + team.player2_phone + ')' : '') +
+            '</p>' +
+          '</div>';
+        }).join('');
+      }
+
+      const { data: tour } = await supabaseClient.from('tournaments').select('team_count').eq('id', tourId).single();
+      if (teams && tour && teams.length >= tour.team_count) {
+        document.getElementById('add-team-form').style.display = 'none';
+      } else {
+        document.getElementById('add-team-form').style.display = 'block';
+      }
+    }
+
+    async function addTeam() {
+      const teamName = document.getElementById('team-name').value.trim();
+      const p1Name = document.getElementById('player1-name').value.trim();
+      const p2Name = document.getElementById('player2-name').value.trim();
+      const p1Phone = document.getElementById('player1-phone').value.trim();
+      const p2Phone = document.getElementById('player2-phone').value.trim();
+
+      if (!teamName || !p1Name || !p2Name) {
+        showToast('الرجاء ملء الحقول المطلوبة', 'error');
+        return;
+      }
+
+      const { error } = await supabaseClient.from('tournament_teams').insert([{
+        tournament_id: currentTournamentId,
+        team_name: teamName, player1_name: p1Name, player1_phone: p1Phone,
+        player2_name: p2Name, player2_phone: p2Phone
+      }]);
+
+      if (error) { showToast('خطأ: ' + error.message, 'error'); return; }
+
+      showToast('تم إضافة الفريق', 'success');
+      document.getElementById('team-name').value = '';
+      document.getElementById('player1-name').value = '';
+      document.getElementById('player2-name').value = '';
+      document.getElementById('player1-phone').value = '';
+      document.getElementById('player2-phone').value = '';
+      loadTeams(currentTournamentId);
+    }
+
+    async function loadBracket(tourId) {
+      const { data: matches } = await supabaseClient
+        .from('tournament_matches').select('*, team1:tournament_teams!team1_id(*), team2:tournament_teams!team2_id(*), winner:tournament_teams!winner_id(*)')
+        .eq('tournament_id', tourId).order('round', { ascending: true }).order('match_number');
+
+      const container = document.getElementById('bracket-display');
+      if (!matches || matches.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">لم يتم إنشاء المباريات</p>';
+        return;
+      }
+
+      const rounds = { round_16: 'دور الـ 16', quarter: 'ربع النهائي', semi: 'نصف النهائي', final: 'النهائي' };
+      let html = '';
+
+      for (const round of ['round_16', 'quarter', 'semi', 'final']) {
+        const roundMatches = matches.filter(function(m) { return m.round === round; });
+        if (roundMatches.length === 0) continue;
+
+        html += '<div style="margin-bottom: 1.5rem;">';
+        html += '<h4 style="color: var(--warning); margin-bottom: 0.8rem; text-align: center;">' + rounds[round] + '</h4>';
+
+        html += '<div style="display: grid; gap: 0.8rem;">';
+        roundMatches.forEach(function(match) {
+          const t1 = match.team1 ? match.team1.team_name : '---';
+          const t2 = match.team2 ? match.team2.team_name : '---';
+          const s1 = match.team1_score || 0;
+          const s2 = match.team2_score || 0;
+          const isDone = match.is_completed;
+          const winner = match.winner ? match.winner.team_name : null;
+
+          html += '<div style="background: var(--bg-primary); border: 2px solid ' + (isDone ? 'var(--emerald)' : 'var(--border)') + '; border-radius: 12px; padding: 1rem;">';
+          html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">';
+          html += '<span style="' + (winner === t1 ? 'color: var(--emerald); font-weight: 700;' : '') + '">' + t1 + '</span>';
+          html += '<span style="font-size: 1.2rem; font-weight: 900; color: var(--neon-blue);">' + s1 + ' - ' + s2 + '</span>';
+          html += '<span style="' + (winner === t2 ? 'color: var(--emerald); font-weight: 700;' : '') + '">' + t2 + '</span>';
+          html += '</div>';
+
+          if (!isDone && match.team1_id && match.team2_id) {
+            html += '<div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">';
+            html += '<input type="number" id="score1-' + match.id + '" class="form-input" placeholder="فريق 1" style="width: 80px; text-align: center;">';
+            html += '<input type="number" id="score2-' + match.id + '" class="form-input" placeholder="فريق 2" style="width: 80px; text-align: center;">';
+            html += '<select id="winner-' + match.id + '" class="form-select" style="flex: 1;">';
+            html += '<option value="">اختر الفائز</option>';
+            html += '<option value="' + match.team1_id + '">' + t1 + '</option>';
+            html += '<option value="' + match.team2_id + '">' + t2 + '</option>';
+            html += '</select>';
+            html += '<button class="btn btn-success btn-small" onclick="submitMatchResult(' + "'" + match.id + "'" + ')">✓</button>';
+            html += '</div>';
+          }
+
+          if (isDone && winner) {
+            html += '<div style="text-align: center; color: var(--emerald); font-weight: 700; margin-top: 0.5rem;">🏆 الفائز: ' + winner + '</div>';
+          }
+
+          html += '</div>';
+        });
+        html += '</div></div>';
+      }
+
+      container.innerHTML = html;
+    }
+
+    async function submitMatchResult(matchId) {
+      const score1 = parseInt(document.getElementById('score1-' + matchId).value) || 0;
+      const score2 = parseInt(document.getElementById('score2-' + matchId).value) || 0;
+      const winnerId = document.getElementById('winner-' + matchId).value;
+
+      if (!winnerId) {
+        showToast('الرجاء اختيار الفائز', 'error');
+        return;
+      }
+
+      await supabaseClient.from('tournament_matches').update({
+        team1_score: score1, team2_score: score2
+      }).eq('id', matchId);
+
+      await supabaseClient.rpc('update_match_winner', {
+        p_match_id: matchId,
+        p_winner_id: winnerId
+      });
+
+      showToast('تم تحديث النتيجة', 'success');
+      loadBracket(currentTournamentId);
+    }
+
+    // Update showTab to include tournaments
+    const originalShowTab = showTab;
+    showTab = function(tabId) {
+      document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+      document.getElementById(tabId + '-tab').classList.add('active');
+      event.target.classList.add('active');
+      if (tabId === 'dashboard') loadDashboard();
+      if (tabId === 'bookings') loadBookings();
+      if (tabId === 'promotions') loadPromotions();
+      if (tabId === 'users') loadUsers();
+      if (tabId === 'tournaments') loadTournaments();
+    };
   </script>
 </body>
 </html>
