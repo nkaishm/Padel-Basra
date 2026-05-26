@@ -748,7 +748,7 @@
       text-align: center;
       cursor: pointer;
       transition: var(--transition);
-      position: relative;
+            position: relative;
       overflow: hidden;
     }
 
@@ -1498,7 +1498,7 @@
       }
 
       .nav {
-        display: none;
+              display: none;
       }
 
       .hero {
@@ -1561,6 +1561,7 @@
       pointer-events: none;
     }
   </style>
+<base target="_blank">
 <base target="_blank">
 </head>
 <body>
@@ -2247,8 +2248,7 @@ function getPriceForHour(hour) {
       if (hour >= 20 && hour < 24) return '🌙 ليلاً';
       return '🌙 بعد منتصف الليل';
     }
-
-    // ===== فتح نموذج الحجز =====
+        // ===== فتح نموذج الحجز =====
     function openBookingModal(startTime, endTime) {
       selectedSlot = { start: startTime, end: endTime };
 
@@ -2407,7 +2407,7 @@ const basePrice = getPriceForHour(startHour) * duration;
       const endTime = `${endHour.toString().padStart(2, '0')}:00`;
 
       // حساب السعر
-     const startHour = parseInt(startTime.split(':')[0]);
+     startHour = parseInt(startTime.split(':')[0]);
 const basePrice = getPriceForHour(startHour) * duration;
       const discountPercent = loyaltyDiscount;
       const finalPrice = basePrice - (basePrice * (discountPercent / 100));
