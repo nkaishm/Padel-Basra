@@ -92,30 +92,43 @@
     .hero p { color: var(--text-secondary); font-size: 1rem; max-width: 500px; margin: 0 auto; }
 
     /* ===== STATS ===== */
-    .stats-bar {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      padding: 1rem;
-      flex-wrap: wrap;
-    }
+   .stats-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
 
     .stat-item {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 0.8rem 1.2rem;
-      text-align: center;
-      min-width: 100px;
-    }
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
 
-    .stat-value {
-      font-size: 1.5rem;
-      font-weight: 900;
-      color: var(--neon-blue);
-    }
+.stat-icon {
+  font-size: 2rem;
+  margin-bottom: 0.3rem;
+}
 
-    .stat-label { font-size: 0.8rem; color: var(--text-secondary); }
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--neon-blue);
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
 
     /* ===== COURT CARDS - SIMPLIFIED ===== */
     .courts-section { padding: 1rem; max-width: 800px; margin: 0 auto; }
@@ -501,15 +514,18 @@
     <p>ملاعب بادل احترافية بأحدث التجهيزات. احجز موعدك بسهولة واستمتع بأفضل تجربة لعب.</p>
   </section>
 
-    <div class="stat-item">
-      <div class="stat-value" id="stat-available">2</div>
-      <div class="stat-label">ملعب متاح</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-value" id="stat-price">25000</div>
-      <div class="stat-label">السعر/ساعة</div>
-    </div>
+    <div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-icon">🎾</div>
+    <div class="stat-value" id="stat-available">2</div>
+    <div class="stat-label">ملعب متاح</div>
   </div>
+  <div class="stat-item">
+    <div class="stat-icon">🎾</div>
+    <div class="stat-value" id="stat-price">25,000</div>
+    <div class="stat-label">السعر/ساعة</div>
+  </div>
+</div>
 
   <section class="courts-section">
     <div class="court-card" id="court1-card">
