@@ -267,13 +267,6 @@
 
             const userData = data[0];
 
-            // 🔍 تسجيل مفصل للتحقق
-            console.log('🔍 Full userData:', JSON.stringify(userData));
-            console.log('🔍 userData.role:', userData.role);
-            console.log('🔍 userData.role type:', typeof userData.role);
-            console.log('🔍 Is role === worker?', userData.role === 'worker');
-            console.log('🔍 Is role === manager?', userData.role === 'manager');
-
             if (!userData.is_active) {
                 throw new Error('الحساب معطل. تواصل مع المدير');
             }
@@ -291,18 +284,16 @@
             // ✅ إرسال اسم المستخدم لـ Supabase RLS
             await setSupabaseUser(supabaseClient);
 
-            // إعادة التوجيه
-            const redirect = new URLSearchParams(window.location.search).get('redirect');
-            let targetPage = 'index.html';
+            // 🔴 DEBUG: Show what verify_pin returned
+            alert('DEBUG\nRole from DB: [' + userData.role + ']\nType: ' + typeof userData.role);
 
-            if (redirect) {
-                targetPage = redirect;
-            } else if (userData.role === 'manager') {
+            let targetPage = 'index.html';
+            if (userData.role === 'manager') {
                 targetPage = 'admin.html';
             } else if (userData.role === 'worker') {
                 targetPage = 'worker.html';
             }
-
+            alert('DEBUG\nWill go to: ' + targetPage);
             window.location.href = targetPage;
 
         } catch (err) {
