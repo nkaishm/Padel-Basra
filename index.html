@@ -1055,7 +1055,7 @@
           let social = {};
           try {
             if (typeof settings.social_links === 'string') {
-              social = JSON.parse(settings.social_links.replace(/\/g, ''));
+              social = JSON.parse(settings.social_links.replace(/\\/g, ''));
             } else {
               social = settings.social_links;
             }
