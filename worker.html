@@ -229,6 +229,9 @@
     }
   </style>
 <base target="_blank">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/ar.js"></script>
 <base target="_blank">
 </head>
 <body>
@@ -267,7 +270,7 @@
           </div>
           <div class="form-group">
             <label>التاريخ</label>
-            <input type="date" id="quick-date" class="form-input">
+            <input type="text" id="quick-date" class="form-input" placeholder="اختر التاريخ" readonly>
           </div>
         </div>
         <div class="form-row">
@@ -331,11 +334,10 @@
   </div>
 
   <script>
-    // حماية الصفحة - الموظفين والمدير
+    // حماية الصفحة - فقط الموظفين
     if (!initAuthProtection('worker')) {
       throw new Error('Unauthorized access');
     }
-    console.log('✅ Worker page loaded, session:', getSession());
 
     const SUPABASE_URL = 'https://hrfentlnqxquhlaywlzv.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhyZmVudGxucXhxdWhsYXl3bHp2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NjY4NDMsImV4cCI6MjA5NTE0Mjg0M30.mseVeL5hqNXs5U-Vj_OddqCWzt-6lEm0E4Dftk08EfY';
