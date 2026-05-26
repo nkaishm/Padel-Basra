@@ -117,7 +117,7 @@
 
     .stat-label { font-size: 0.8rem; color: var(--text-secondary); }
 
-    /* ===== COURT CARDS ===== */
+    /* ===== COURT CARDS - SIMPLIFIED ===== */
     .courts-section { padding: 1rem; max-width: 800px; margin: 0 auto; }
 
     .court-card {
@@ -135,7 +135,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1rem;
+      margin-bottom: 0.8rem;
     }
 
     .court-header h3 { font-size: 1.2rem; display: flex; align-items: center; gap: 8px; }
@@ -150,27 +150,21 @@
     .court-status.available { background: var(--emerald-dim); color: var(--emerald); }
     .court-status.busy { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
 
-    .court-info-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.8rem;
-    }
-
-    .court-info-item {
+    .court-next-booking {
       background: var(--bg-primary);
       border-radius: 10px;
       padding: 0.8rem;
       text-align: center;
     }
 
-    .court-info-item .value {
-      font-size: 1.2rem;
+    .court-next-booking .value {
+      font-size: 1.3rem;
       font-weight: 900;
       color: var(--neon-blue);
     }
 
-    .court-info-item .label {
-      font-size: 0.75rem;
+    .court-next-booking .label {
+      font-size: 0.8rem;
       color: var(--text-secondary);
       margin-top: 0.2rem;
     }
@@ -468,10 +462,8 @@
       .hero h1 { font-size: 1.5rem; }
       .hero p { font-size: 0.9rem; }
 
-      .court-info-grid { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
-      .court-info-item { padding: 0.6rem; }
-      .court-info-item .value { font-size: 1rem; }
-      .court-info-item .label { font-size: 0.7rem; }
+      .court-card { padding: 1rem; }
+      .court-header h3 { font-size: 1rem; }
 
       .booking-grid { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
       .time-slot { padding: 0.5rem; }
@@ -519,7 +511,7 @@
       <div class="stat-label">ملعب متاح</div>
     </div>
     <div class="stat-item">
-      <div class="stat-value" id="stat-price">40K</div>
+      <div class="stat-value" id="stat-price">25000</div>
       <div class="stat-label">السعر/ساعة</div>
     </div>
   </div>
@@ -530,19 +522,9 @@
         <h3>🎾 ملعب 1</h3>
         <span class="court-status available" id="court1-status">متاح</span>
       </div>
-      <div class="court-info-grid">
-        <div class="court-info-item">
-          <div class="value" id="court1-next">--:--</div>
-          <div class="label">الحجز القادم</div>
-        </div>
-        <div class="court-info-item">
-          <div class="value" id="court1-bookings">0</div>
-          <div class="label">حجوزات اليوم</div>
-        </div>
-        <div class="court-info-item">
-          <div class="value" id="court1-price">40K</div>
-          <div class="label">السعر</div>
-        </div>
+      <div class="court-next-booking">
+        <div class="value" id="court1-next">--:--</div>
+        <div class="label">الحجز القادم</div>
       </div>
     </div>
 
@@ -551,19 +533,9 @@
         <h3>🎾 ملعب 2</h3>
         <span class="court-status available" id="court2-status">متاح</span>
       </div>
-      <div class="court-info-grid">
-        <div class="court-info-item">
-          <div class="value" id="court2-next">--:--</div>
-          <div class="label">الحجز القادم</div>
-        </div>
-        <div class="court-info-item">
-          <div class="value" id="court2-bookings">0</div>
-          <div class="label">حجوزات اليوم</div>
-        </div>
-        <div class="court-info-item">
-          <div class="value" id="court2-price">40K</div>
-          <div class="label">السعر</div>
-        </div>
+      <div class="court-next-booking">
+        <div class="value" id="court2-next">--:--</div>
+        <div class="label">الحجز القادم</div>
       </div>
     </div>
   </section>
@@ -769,11 +741,9 @@
           for (let i = 11; i < TIME_SLOTS.length; i++) TIME_SLOTS[i].price = settings.night_price;
         }
 
-        // Update price displays
+        // Update price displays - show number only, no letters
         const avgPrice = settings.morning_price || 25000;
         document.getElementById('stat-price').textContent = avgPrice.toLocaleString();
-        document.getElementById('court1-price').textContent = avgPrice.toLocaleString();
-        document.getElementById('court2-price').textContent = avgPrice.toLocaleString();
       }
     }
 
@@ -782,6 +752,7 @@
       const today = new Date().toISOString().split('T')[0];
       const now = new Date();
       const currentHour = now.getHours();
+      let totalBookings = 0;
 
       for (let court = 1; court <= 2; court++) {
         const { data: bookings } = await supabaseClient
@@ -793,7 +764,7 @@
           .order('start_time', { ascending: true });
 
         const count = bookings ? bookings.length : 0;
-        document.getElementById('court' + court + '-bookings').textContent = count;
+        totalBookings += count;
 
         // Find next booking
         const nextBooking = bookings ? bookings.find(function(b) {
@@ -818,7 +789,7 @@
       }
 
       // Update stat
-      document.getElementById('stat-today').textContent = count;
+      document.getElementById('stat-today').textContent = totalBookings;
     }
 
     // ===== DATE PICKER =====
