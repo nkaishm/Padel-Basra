@@ -753,9 +753,8 @@
         }
 
         // Update price displays - show number only, no letters
-        const avgPrice = settings.morning_price || 25000;
-        document.getElementById('stat-price').textContent = avgPrice.toLocaleString();
-      }
+const displayPrice = settings.display_price || settings.morning_price || 25000;
+document.getElementById('stat-price').textContent = displayPrice.toLocaleString();
     }
 
     // ===== COURT STATUS =====
