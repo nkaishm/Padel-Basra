@@ -1720,14 +1720,10 @@
         </div>
 
         <div class="date-selector">
-          <button class="date-nav" id="prev-date">
-            <i class="fas fa-chevron-right"></i>
-          </button>
-          <div class="date-display" id="current-date"></div>
-          <button class="date-nav" id="next-date">
-            <i class="fas fa-chevron-left"></i>
-          </button>
-        </div>
+  <div class="date-display" id="current-date" style="cursor: pointer;">
+    اضغط لاختيار التاريخ
+  </div>
+</div>
       </div>
 
       <div class="time-grid" id="time-grid">
@@ -2061,18 +2057,18 @@ function getPriceForHour(hour) {
         });
       });
 
-      // التنقل بين التواريخ
-      document.getElementById('prev-date').addEventListener('click', () => {
-        currentDate.setDate(currentDate.getDate() - 1);
-        updateDateDisplay();
-        loadTimeSlots();
-      });
-
-      document.getElementById('next-date').addEventListener('click', () => {
-        currentDate.setDate(currentDate.getDate() + 1);
-        updateDateDisplay();
-        loadTimeSlots();
-      });
+      // Spin Wheel للتاريخ
+document.getElementById('current-date').addEventListener('click', function() {
+  const picker = new SpinWheelPicker({
+    type: 'date',
+    onSelect: (result) => {
+      currentDate = result.date;
+      updateDateDisplay();
+      loadTimeSlots();
+    }
+  });
+  picker.show();
+});
 
       // إغلاق النوافذ المنبثقة
       document.getElementById('close-modal').addEventListener('click', closeModal);
