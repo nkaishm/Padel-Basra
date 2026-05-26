@@ -340,11 +340,11 @@
     const { createClient } = supabase;
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('quick-date').value = new Date().toISOString().split('T')[0];
-      loadTimeOptions();
-      loadTodayBookings();
-      loadCheckInList();
+    
+document.addEventListener('DOMContentLoaded', async () => {
+      await setSupabaseUser(supabaseClient);  // ← هذا السطر الجديد
+      await loadDashboard();
+      // ... إلخ
     });
 
     function showToast(message, type = 'success') {
