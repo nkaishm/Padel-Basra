@@ -177,133 +177,126 @@ class SpinWheelPicker {
         return active ? active.dataset.value : null;
     }
 
-    bindEvents() {
-        // Cancel button
-        document.getElementById('sw-cancel').addEventListener('click', () => {
-            this.hide();
-            this.onCancel();
-        });
+  bindEvents() {
+    const self = this;
 
-        // Done button
-        document.getElementById('sw-done').addEventListener('click', () => {
-            const result = this.getSelectedDate();
-            this.hide();
-            this.onSelect(result);
-        });
-
-        // Overlay click
-        this.overlay.addEventListener('click', () => {
-            this.hide();
-            this.onCancel();
-        });
-
-        // Column interactions
-        const columns = this.modal.querySelectorAll('.spinwheel-column');
-        columns.forEach(column => {
-            const items = column.querySelector('.spinwheel-items');
-            const type = column.dataset.type;
-
-            // Mouse/Touch events
-            column.addEventListener('mousedown', (e) => this.startDrag(e, items, type));
-            column.addEventListener('touchstart', (e) => this.startDrag(e, items, type), { passive: true });
-            
-            document.addEventListener('mousemove', (e) => this.onDrag(e, items));
-            document.addEventListener('touchmove', (e) => this.onDrag(e, items), { passive: true });
-            
-            document.addEventListener('mouseup', () => this.endDrag(items, type));
-            document.addEventListener('touchend', () => this.endDrag(items, type));
+    // Cancel button
+    const cancelBtn = document.getElementById('sw-cancel');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            self.hide();
+            self.onCancel();
         });
     }
 
-    startDrag(e, items, type) {
-        this.isDragging = true;
-        this.dragItems = items;
-        this.dragType = type;
-        this.startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-        
-        const transform = items.style.transform;
-        this.currentOffset = transform ? parseInt(transform.replace('translateY(', '').replace('px)', '')) || 72 : 72;
-        
-        items.style.transition = 'none';
-    }
-
-    onDrag(e, items) {
-        if (!this.isDragging || this.dragItems !== items) return;
-        
-        const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-        const delta = clientY - this.startY;
-        const newOffset = this.currentOffset + delta;
-        
-        items.style.transform = `translateY(${newOffset}px)`;
-    }
-
-    endDrag(items, type) {
-        if (!this.isDragging || this.dragItems !== items) return;
-        this.isDragging = false;
-        
-        items.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
-        
-        const itemHeight = 36;
-        const currentTransform = items.style.transform;
-        const currentOffset = parseInt(currentTransform.replace('translateY(', '').replace('px)', '')) || 72;
-        
-        // Calculate nearest item
-        const containerHeight = 180;
-        const centerOffset = containerHeight / 2 - itemHeight / 2; // 72
-        const relativeOffset = centerOffset - currentOffset;
-        const nearestIndex = Math.round(relativeOffset / itemHeight);
-        
-        const maxIndex = items.children.length - 1;
-        const clampedIndex = Math.max(0, Math.min(nearestIndex, maxIndex));
-        
-        const newOffset = centerOffset - (clampedIndex * itemHeight);
-        items.style.transform = `translateY(${newOffset}px)`;
-        
-        // Update active class
-        Array.from(items.children).forEach((item, index) => {
-            item.classList.toggle('active', index === clampedIndex);
+    // Done button
+    const doneBtn = document.getElementById('sw-done');
+    if (doneBtn) {
+        doneBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const result = self.getSelectedDate();
+            self.hide();
+            self.onSelect(result);
         });
+    }
 
-        // Update days if month/year changed
-        if (type === 'month' || type === 'year') {
-            setTimeout(() => this.updateDays(), 350);
+    // Overlay click
+    this.overlay.addEventListener('click', (e) => {
+        if (e.target === self.overlay) {
+            self.hide();
+            self.onCancel();
         }
-    }
+    });
 
-    getSelectedDate() {
-        const year = this.getSelectedValue('year');
-        const month = this.months.indexOf(this.getSelectedValue('month'));
-        const day = this.getSelectedValue('day');
-        const hour = this.getSelectedValue('hour') || '00';
-        const minute = this.getSelectedValue('minute') || '00';
+    // Column interactions - دعم الماوس واللمس
+    const columns = this.modal.querySelectorAll('.spinwheel-column');
+    columns.forEach(column => {
+        const items = column.querySelector('.spinwheel-items');
+        const type = column.dataset.type;
+        if (!items) return;
 
-        if (this.type === 'date') {
-            return {
-                date: new Date(year, month, day),
-                formatted: `${year}-${(month + 1).toString().padStart(2, '0')}-${day}`,
-                display: `${this.months[month]} ${day}, ${year}`
-            };
-        } else if (this.type === 'time') {
-            return {
-                time: `${hour}:${minute}`,
-                formatted: `${hour}:${minute}`,
-                display: `${hour}:${minute}`
-            };
-        } else {
-            const date = new Date(year, month, day, hour, minute);
-            return {
-                date: date,
-                formatted: `${year}-${(month + 1).toString().padStart(2, '0')}-${day}T${hour}:${minute}:00`,
-                display: `${this.months[month]} ${day}, ${year} ${hour}:${minute}`
-            };
-        }
-    }
+        // متغيرات السحب
+        let isDragging = false;
+        let startY = 0;
+        let currentOffset = 0;
+        let itemHeight = 36;
 
-    show() {
-        this.overlay.classList.add('active');
-        this.modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
+        // دالة بدء السحب (ماوس + لمس)
+        const startDrag = (clientY) => {
+            isDragging = true;
+            startY = clientY;
+            const transform = items.style.transform;
+            currentOffset = transform ? 
+                parseInt(transform.replace('translateY(', '').replace('px)', '')) || 72 : 72;
+            items.style.transition = 'none';
+        };
+
+        // دالة السحب
+        const onDrag = (clientY) => {
+            if (!isDragging) return;
+            const delta = clientY - startY;
+            const newOffset = currentOffset + delta;
+            items.style.transform = `translateY(${newOffset}px)`;
+        };
+
+        // دالة إنهاء السحب
+        const endDrag = () => {
+            if (!isDragging) return;
+            isDragging = false;
+            
+            items.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
+            
+            const containerHeight = 180;
+            const centerOffset = containerHeight / 2 - itemHeight / 2;
+            const currentTransform = items.style.transform;
+            const currentOffsetVal = parseInt(currentTransform.replace('translateY(', '').replace('px)', '')) || 72;
+            const relativeOffset = centerOffset - currentOffsetVal;
+            const nearestIndex = Math.round(relativeOffset / itemHeight);
+            
+            const maxIndex = items.children.length - 1;
+            const clampedIndex = Math.max(0, Math.min(nearestIndex, maxIndex));
+            
+            const newOffset = centerOffset - (clampedIndex * itemHeight);
+            items.style.transform = `translateY(${newOffset}px)`;
+            
+            Array.from(items.children).forEach((item, index) => {
+                item.classList.toggle('active', index === clampedIndex);
+            });
+
+            if (type === 'month' || type === 'year') {
+                setTimeout(() => this.updateDays(), 350);
+            }
+        };
+
+        // أحداث الماوس (PC)
+        column.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            startDrag(e.clientY);
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            onDrag(e.clientY);
+        });
+        
+        document.addEventListener('mouseup', () => {
+            endDrag();
+        });
+
+        // أحداث اللمس (Mobile)
+        column.addEventListener('touchstart', (e) => {
+            startDrag(e.touches[0].clientY);
+        }, { passive: true });
+        
+        column.addEventListener('touchmove', (e) => {
+            onDrag(e.touches[0].clientY);
+        }, { passive: true });
+        
+        column.addEventListener('touchend', () => {
+            endDrag();
+        });
+    });
+} 
 
 hide() {
     // إزالة active class
