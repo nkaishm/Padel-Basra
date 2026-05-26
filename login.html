@@ -11,13 +11,19 @@
       --bg-primary: #0B1120;
       --bg-secondary: #0f172a;
       --bg-card: #1e293b;
+      --bg-hover: #334155;
       --neon-blue: #00D4FF;
       --neon-blue-dim: rgba(0, 212, 255, 0.1);
+      --neon-blue-glow: rgba(0, 212, 255, 0.3);
       --emerald: #10B981;
+      --emerald-dim: rgba(16, 185, 129, 0.1);
+      --emerald-glow: rgba(16, 185, 129, 0.3);
       --danger: #EF4444;
       --text-primary: #F8FAFC;
       --text-secondary: #94A3B8;
+      --text-muted: #64748B;
       --border: rgba(148, 163, 184, 0.1);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -39,7 +45,7 @@
       border-radius: 24px;
       padding: 3rem;
       width: 100%;
-      max-width: 420px;
+      max-width: 480px;
       text-align: center;
     }
 
@@ -60,12 +66,96 @@
 
     .login-subtitle {
       color: var(--text-secondary);
-      margin-bottom: 2rem;
+      margin-bottom: 2.5rem;
       font-size: 0.95rem;
     }
 
-    .form-group {
+    /* ===== اختيار الدور ===== */
+    .role-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .role-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 2rem 1rem;
+      background: var(--bg-primary);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .role-btn i {
+      font-size: 2rem;
+    }
+
+    .role-btn:hover {
+      border-color: var(--neon-blue);
+      color: var(--neon-blue);
+      background: var(--neon-blue-dim);
+      transform: translateY(-3px);
+    }
+
+    .role-btn.active {
+      border-color: var(--neon-blue);
+      background: var(--neon-blue-dim);
+      color: var(--neon-blue);
+      box-shadow: 0 0 20px var(--neon-blue-glow);
+    }
+
+    .role-btn.manager.active {
+      border-color: var(--emerald);
+      background: var(--emerald-dim);
+      color: var(--emerald);
+      box-shadow: 0 0 20px var(--emerald-glow);
+    }
+
+    /* ===== نموذج تسجيل الدخول ===== */
+    .login-form {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .login-form.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
       margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .form-header i {
+      font-size: 1.2rem;
+    }
+
+    .form-header h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .form-group {
+      margin-bottom: 1.2rem;
       text-align: right;
     }
 
@@ -88,7 +178,7 @@
       font-size: 1.1rem;
       text-align: center;
       letter-spacing: 2px;
-      transition: all 0.3s;
+      transition: var(--transition);
     }
 
     .form-input:focus {
@@ -114,8 +204,8 @@
       font-size: 1.1rem;
       font-weight: 800;
       cursor: pointer;
-      transition: all 0.3s;
-      margin-top: 1rem;
+      transition: var(--transition);
+      margin-top: 0.5rem;
     }
 
     .btn-login:hover {
@@ -127,6 +217,32 @@
       opacity: 0.5;
       cursor: not-allowed;
       transform: none;
+    }
+
+    .btn-login.manager-btn {
+      background: linear-gradient(135deg, var(--emerald), #059669);
+    }
+
+    .btn-login.manager-btn:hover {
+      box-shadow: 0 8px 30px rgba(16, 185, 129, 0.3);
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 1rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: inherit;
+      transition: var(--transition);
+    }
+
+    .back-btn:hover {
+      color: var(--neon-blue);
     }
 
     .error-msg {
@@ -150,7 +266,7 @@
       color: var(--text-secondary);
       text-decoration: none;
       font-size: 0.9rem;
-      transition: color 0.3s;
+      transition: var(--transition);
     }
 
     .back-link:hover { color: var(--neon-blue); }
@@ -182,9 +298,10 @@
     @media (max-width: 480px) {
       .login-container { padding: 2rem 1.5rem; }
       .login-title { font-size: 1.5rem; }
+      .role-selector { gap: 0.8rem; }
+      .role-btn { padding: 1.5rem 0.8rem; }
     }
   </style>
-<base target="_blank">
 <base target="_blank">
 </head>
 <body>
@@ -197,19 +314,63 @@
 
     <div class="error-msg" id="error-msg"></div>
 
-    <div class="form-group">
-      <label>اسم المستخدم</label>
-      <input type="text" id="username" class="form-input" placeholder="admin أو worker1" autocomplete="off">
+    <!-- اختيار الدور -->
+    <div id="role-selection">
+      <div class="role-selector">
+        <button class="role-btn manager" onclick="selectRole('manager')">
+          <i class="fas fa-user-shield"></i>
+          <span>مدير</span>
+        </button>
+        <button class="role-btn worker" onclick="selectRole('worker')">
+          <i class="fas fa-user"></i>
+          <span>موظف</span>
+        </button>
+      </div>
     </div>
 
-    <div class="form-group">
-      <label>رمز PIN (6 أرقام)</label>
-      <input type="password" id="pin" class="form-input pin-input" placeholder="••••••" maxlength="6" inputmode="numeric" autocomplete="off">
+    <!-- نموذج المدير -->
+    <div id="manager-form" class="login-form">
+      <div class="form-header">
+        <i class="fas fa-user-shield" style="color: var(--emerald);"></i>
+        <h3 style="color: var(--emerald);">تسجيل دخول المدير</h3>
+      </div>
+      <div class="form-group">
+        <label>اسم المستخدم</label>
+        <input type="text" id="manager-username" class="form-input" placeholder="admin" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>رمز PIN (6 أرقام)</label>
+        <input type="password" id="manager-pin" class="form-input pin-input" placeholder="••••••" maxlength="6" inputmode="numeric" autocomplete="off">
+      </div>
+      <button class="btn-login manager-btn" id="manager-btn" onclick="login('manager')">
+        <i class="fas fa-lock"></i> تسجيل الدخول
+      </button>
+      <button class="back-btn" onclick="backToSelection()">
+        <i class="fas fa-arrow-right"></i> رجوع
+      </button>
     </div>
 
-    <button class="btn-login" id="login-btn" onclick="login()">
-      <i class="fas fa-lock"></i> تسجيل الدخول
-    </button>
+    <!-- نموذج الموظف -->
+    <div id="worker-form" class="login-form">
+      <div class="form-header">
+        <i class="fas fa-user" style="color: var(--neon-blue);"></i>
+        <h3 style="color: var(--neon-blue);">تسجيل دخول الموظف</h3>
+      </div>
+      <div class="form-group">
+        <label>اسم المستخدم</label>
+        <input type="text" id="worker-username" class="form-input" placeholder="worker1" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>رمز PIN (6 أرقام)</label>
+        <input type="password" id="worker-pin" class="form-input pin-input" placeholder="••••••" maxlength="6" inputmode="numeric" autocomplete="off">
+      </div>
+      <button class="btn-login" id="worker-btn" onclick="login('worker')">
+        <i class="fas fa-lock"></i> تسجيل الدخول
+      </button>
+      <button class="back-btn" onclick="backToSelection()">
+        <i class="fas fa-arrow-right"></i> رجوع
+      </button>
+    </div>
 
     <a href="index.html" class="back-link">
       <i class="fas fa-arrow-right"></i>
@@ -225,97 +386,125 @@
     const { createClient } = supabase;
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // إذا كان مسجلاً مسبقاً، أعد التوجيه
-    if (getSession()) {
-        const redirect = new URLSearchParams(window.location.search).get('redirect') || 'admin.html';
-        window.location.href = redirect;
+    let selectedRole = null;
+
+    // إذا كان مسجلاً مسبقاً، وجه حسب الدور
+    const existingSession = getSession();
+    if (existingSession) {
+      if (existingSession.role === 'manager') {
+        window.location.href = 'admin.html';
+      } else if (existingSession.role === 'worker') {
+        window.location.href = 'worker.html';
+      }
     }
 
-    async function login() {
-        const username = document.getElementById('username').value.trim().toLowerCase();
-        const pin = document.getElementById('pin').value.trim();
-        const errorMsg = document.getElementById('error-msg');
-        const btn = document.getElementById('login-btn');
+    function selectRole(role) {
+      selectedRole = role;
+      document.getElementById('role-selection').style.display = 'none';
 
-        // التحقق من المحاولات
-        const attemptCheck = checkLoginAttempts();
-        if (!attemptCheck.allowed) {
-            errorMsg.textContent = attemptCheck.message;
-            errorMsg.classList.add('show');
-            return;
+      if (role === 'manager') {
+        document.getElementById('manager-form').classList.add('active');
+      } else {
+        document.getElementById('worker-form').classList.add('active');
+      }
+    }
+
+    function backToSelection() {
+      selectedRole = null;
+      document.getElementById('role-selection').style.display = 'block';
+      document.getElementById('manager-form').classList.remove('active');
+      document.getElementById('worker-form').classList.remove('active');
+    }
+
+    async function login(expectedRole) {
+      const usernameInput = expectedRole === 'manager' ? 'manager-username' : 'worker-username';
+      const pinInput = expectedRole === 'manager' ? 'manager-pin' : 'worker-pin';
+      const btnId = expectedRole === 'manager' ? 'manager-btn' : 'worker-btn';
+
+      const username = document.getElementById(usernameInput).value.trim().toLowerCase();
+      const pin = document.getElementById(pinInput).value.trim();
+      const errorMsg = document.getElementById('error-msg');
+      const btn = document.getElementById(btnId);
+
+      // التحقق من المحاولات
+      const attemptCheck = checkLoginAttempts();
+      if (!attemptCheck.allowed) {
+        errorMsg.textContent = attemptCheck.message;
+        errorMsg.classList.add('show');
+        return;
+      }
+
+      if (!username || pin.length !== 6) {
+        errorMsg.textContent = 'الرجاء إدخال اسم المستخدم وPIN مكون من 6 أرقام';
+        errorMsg.classList.add('show');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحقق...';
+
+      try {
+        const { data, error } = await supabaseClient
+          .rpc('verify_pin', { p_username: username, p_pin: pin });
+
+        if (error) throw error;
+
+        if (!data || !data[0] || !data[0].valid) {
+          recordFailedAttempt();
+          throw new Error('اسم المستخدم أو PIN غير صحيح');
         }
 
-        if (!username || pin.length !== 6) {
-            errorMsg.textContent = 'الرجاء إدخال اسم المستخدم وPIN مكون من 6 أرقام';
-            errorMsg.classList.add('show');
-            return;
+        const userData = data[0];
+
+        if (!userData.is_active) {
+          throw new Error('الحساب معطل. تواصل مع المدير');
         }
 
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحقق...';
-
-        try {
-            const { data, error } = await supabaseClient
-                .rpc('verify_pin', { p_username: username, p_pin: pin });
-
-            if (error) throw error;
-
-            if (!data || !data[0] || !data[0].valid) {
-                recordFailedAttempt();
-                throw new Error('اسم المستخدم أو PIN غير صحيح');
-            }
-
-            const userData = data[0];
-
-            if (!userData.is_active) {
-                throw new Error('الحساب معطل. تواصل مع المدير');
-            }
-
-            // إنشاء الجلسة
-            const session = {
-                username: username,
-                role: userData.role,
-                loginTime: Date.now(),
-                expiresAt: Date.now() + AUTH_CONFIG.SESSION_TIMEOUT
-            };
-
-            saveSession(session);
-
-            // ✅ إرسال اسم المستخدم لـ Supabase RLS
-            await setSupabaseUser(supabaseClient);
-
-            // 🔴 DEBUG: Show what verify_pin returned
-            alert('DEBUG\nRole from DB: [' + userData.role + ']\nType: ' + typeof userData.role);
-
-            let targetPage = 'index.html';
-            if (userData.role === 'manager') {
-                targetPage = 'admin.html';
-            } else if (userData.role === 'worker') {
-                targetPage = 'worker.html';
-            }
-            alert('DEBUG\nWill go to: ' + targetPage);
-            window.location.href = targetPage;
-
-        } catch (err) {
-            console.error('Login error:', err);
-            errorMsg.textContent = err.message || 'حدث خطأ في تسجيل الدخول';
-            errorMsg.classList.add('show');
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-lock"></i> تسجيل الدخول';
+        // ✅ التحقق من تطابق الدور
+        if (userData.role !== expectedRole) {
+          throw new Error('هذا الحساب ليس ' + (expectedRole === 'manager' ? 'مدير' : 'موظف'));
         }
+
+        // إنشاء الجلسة
+        const session = {
+          username: username,
+          role: userData.role,
+          loginTime: Date.now(),
+          expiresAt: Date.now() + AUTH_CONFIG.SESSION_TIMEOUT
+        };
+
+        saveSession(session);
+
+        // إرسال اسم المستخدم لـ Supabase RLS
+        await setSupabaseUser(supabaseClient);
+
+        // ✅ التوجيه المباشر حسب الدور المختار
+        const targetPage = expectedRole === 'manager' ? 'admin.html' : 'worker.html';
+        window.location.href = targetPage;
+
+      } catch (err) {
+        console.error('Login error:', err);
+        errorMsg.textContent = err.message || 'حدث خطأ في تسجيل الدخول';
+        errorMsg.classList.add('show');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-lock"></i> تسجيل الدخول';
+      }
     }
 
     // Enter للتسجيل
-    document.getElementById('pin').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') login();
+    document.getElementById('manager-pin').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') login('manager');
+    });
+    document.getElementById('worker-pin').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') login('worker');
     });
 
     function showToast(message, type = 'error') {
-        const toast = document.getElementById('toast');
-        toast.textContent = message;
-        toast.className = `toast ${type}`;
-        requestAnimationFrame(() => toast.classList.add('show'));
-        setTimeout(() => toast.classList.remove('show'), 4000);
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast ${type}`;
+      requestAnimationFrame(() => toast.classList.add('show'));
+      setTimeout(() => toast.classList.remove('show'), 4000);
     }
   </script>
 </body>
