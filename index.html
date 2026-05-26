@@ -2406,7 +2406,8 @@ const basePrice = getPriceForHour(startHour) * duration;
       const endTime = `${endHour.toString().padStart(2, '0')}:00`;
 
       // حساب السعر
-      const basePrice = (settings.base_price || 40000) * duration;
+     const startHour = parseInt(startTime.split(':')[0]);
+const basePrice = getPriceForHour(startHour) * duration;
       const discountPercent = loyaltyDiscount;
       const finalPrice = basePrice - (basePrice * (discountPercent / 100));
 
