@@ -546,21 +546,10 @@
     font-size: 12px;
 }
     }
-
-    /* ✅ إصلاح عرض التاريخ في المتصفح العربي */
-    input[type="date"],
-    input[type="datetime-local"] {
-        direction: ltr !important;
-        text-align: left !important;
-        font-family: 'Segoe UI', Tahoma, sans-serif !important;
-    }
-    input[type="date"]::-webkit-calendar-picker-indicator,
-    input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-        margin-left: auto;
-        margin-right: 0;
-    }
   </style>
 <base target="_blank">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
 <base target="_blank">
 </head>
 <body>
@@ -677,7 +666,7 @@
         </button>
       </div>
       <div class="filters">
-        <input type="date" id="booking-filter-date" class="form-input" onchange="loadBookings()">
+        <input type="text" id="booking-filter-date" class="form-input" placeholder="Select Date" readonly onchange="loadBookings()">
         <select id="booking-filter-court" class="form-select" onchange="loadBookings()">
           <option value="">كل الملاعب</option>
           <option value="1">ملعب 1</option>
@@ -749,7 +738,7 @@
             <select id="maint-court" class="form-select">
               <option value="1">ملعب 1</option>
               <option value="2">ملعب 2</option>
-                            <option value="3">الملعبين</option>
+              <option value="3">الملعبين</option>
             </select>
           </div>
           <div class="form-group">
@@ -760,11 +749,11 @@
         <div class="form-row">
           <div class="form-group">
             <label>وقت البدء</label>
-            <input type="datetime-local" id="maint-start" class="form-input">
+                        <input type="text" id="maint-start" class="form-input" placeholder="Start Time" readonly>
           </div>
           <div class="form-group">
                         <label>وقت الانتهاء المتوقع</label>
-            <input type="datetime-local" id="maint-end" class="form-input">
+            <input type="text" id="maint-end" class="form-input" placeholder="End Time" readonly>
           </div>
         </div>
         <button class="btn btn-warning" onclick="addMaintenance()">
@@ -962,11 +951,11 @@
       <div class="form-row">
         <div class="form-group">
           <label>تاريخ البدء</label>
-          <input type="date" id="tournament-start" class="form-input">
+          <input type="text" id="tournament-start" class="form-input" placeholder="Start Date" readonly>
         </div>
         <div class="form-group">
           <label>تاريخ الانتهاء</label>
-          <input type="date" id="tournament-end" class="form-input">
+          <input type="text" id="tournament-end" class="form-input" placeholder="End Date" readonly>
         </div>
       </div>
       <button class="btn btn-primary btn-full" onclick="saveTournament()">
@@ -1020,6 +1009,36 @@ document.addEventListener('DOMContentLoaded', async () => {
       await loadSettings();
       setupRealtime();
       await loadUsers();
+
+      // ✅ English Date Pickers
+      flatpickr("#booking-filter-date", {
+        dateFormat: "Y-m-d",
+        disableMobile: true,
+        placeholder: "Select Date",
+        onChange: function() { loadBookings(); }
+      });
+      flatpickr("#tournament-start", {
+        dateFormat: "Y-m-d",
+        disableMobile: true,
+        placeholder: "Start Date"
+      });
+      flatpickr("#tournament-end", {
+        dateFormat: "Y-m-d",
+        disableMobile: true,
+        placeholder: "End Date"
+      });
+      flatpickr("#maint-start", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i",
+        disableMobile: true,
+        placeholder: "Start Time"
+      });
+      flatpickr("#maint-end", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i",
+        disableMobile: true,
+        placeholder: "End Time"
+      });
     });
 
     function showSection(sectionId) {
@@ -1480,7 +1499,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('setting-morning-price').value = data.morning_price || 30000;
 document.getElementById('setting-evening-price').value = data.evening_price || 40000;
 document.getElementById('setting-night-price').value = data.night_price || 50000;
-        document.getElementById('setting-phone').value = data.manager_phone || '';
+                document.getElementById('setting-phone').value = data.manager_phone || '';
         document.getElementById('setting-whatsapp').value = data.whatsapp_number || '';
         document.getElementById('setting-location').value = data.location_url || '';
         document.getElementById('setting-notes').value = data.booking_notes || '';
@@ -1499,7 +1518,7 @@ document.getElementById('setting-night-price').value = data.night_price || 50000
     morning_price: parseInt(document.getElementById('setting-morning-price').value) || 30000,
     evening_price: parseInt(document.getElementById('setting-evening-price').value) || 40000,
     night_price: parseInt(document.getElementById('setting-night-price').value) || 50000,
-        manager_phone: document.getElementById('setting-phone').value,
+    manager_phone: document.getElementById('setting-phone').value,
     whatsapp_number: document.getElementById('setting-whatsapp').value,
     location_url: document.getElementById('setting-location').value,
     booking_notes: document.getElementById('setting-notes').value,
@@ -1621,6 +1640,36 @@ document.getElementById('setting-night-price').value = data.night_price || 50000
         if (result.error) throw result.error;
         closeUserModal();
         await loadUsers();
+
+      // ✅ English Date Pickers
+      flatpickr("#booking-filter-date", {
+        dateFormat: "Y-m-d",
+        disableMobile: true,
+        placeholder: "Select Date",
+        onChange: function() { loadBookings(); }
+      });
+      flatpickr("#tournament-start", {
+        dateFormat: "Y-m-d",
+        disableMobile: true,
+        placeholder: "Start Date"
+      });
+      flatpickr("#tournament-end", {
+        dateFormat: "Y-m-d",
+        disableMobile: true,
+        placeholder: "End Date"
+      });
+      flatpickr("#maint-start", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i",
+        disableMobile: true,
+        placeholder: "Start Time"
+      });
+      flatpickr("#maint-end", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i",
+        disableMobile: true,
+        placeholder: "End Time"
+      });
         showToast(userId ? 'تم التحديث' : 'تمت الإضافة');
       } catch (err) {
         console.error('Error:', err);
@@ -1634,6 +1683,36 @@ document.getElementById('setting-night-price').value = data.night_price || 50000
         const { error } = await supabaseClient.from('users').delete().eq('id', userId);
         if (error) throw error;
         await loadUsers();
+
+      // ✅ English Date Pickers
+      flatpickr("#booking-filter-date", {
+        dateFormat: "Y-m-d",
+        disableMobile: true,
+        placeholder: "Select Date",
+        onChange: function() { loadBookings(); }
+      });
+      flatpickr("#tournament-start", {
+        dateFormat: "Y-m-d",
+        disableMobile: true,
+        placeholder: "Start Date"
+      });
+      flatpickr("#tournament-end", {
+        dateFormat: "Y-m-d",
+        disableMobile: true,
+        placeholder: "End Date"
+      });
+      flatpickr("#maint-start", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i",
+        disableMobile: true,
+        placeholder: "Start Time"
+      });
+      flatpickr("#maint-end", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i",
+        disableMobile: true,
+        placeholder: "End Time"
+      });
         showToast('تم الحذف');
       } catch (err) {
         alert('خطأ في الحذف');
