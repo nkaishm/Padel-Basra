@@ -142,14 +142,16 @@ function getCurrentRole() {
 // ============================================
 // إرسال اسم المستخدم لـ Supabase (للـ RLS)
 // ============================================
-function setSupabaseUser(supabaseClient) {
+async function setSupabaseUser(supabaseClient) {
     const session = getSession();
-    if (session) {
-        // تعيين متغير الجلسة للـ RLS
-        supabaseClient.rpc('set_config', { 
-            key: 'app.current_user', 
-            value: session.username 
-        });
+    if (session && session.username) {
+        try {
+            await supabaseClient.rpc('set_app_user', { 
+                p_username: session.username 
+            });
+        } catch (err) {
+            console.error('Error setting app user:', err);
+        }
     }
 }
 
