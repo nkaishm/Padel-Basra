@@ -225,21 +225,10 @@
     const { createClient } = supabase;
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // ✅ إذا كان مسجلاً مسبقاً، وجه حسب الدور المخزن
-    const existingSession = getSession();
-    if (existingSession) {
-        const redirect = new URLSearchParams(window.location.search).get('redirect');
-        let targetPage = 'index.html';
-
-        if (redirect) {
-            targetPage = redirect;
-        } else if (existingSession.role === 'manager') {
-            targetPage = 'admin.html';
-        } else if (existingSession.role === 'worker') {
-            targetPage = 'worker.html';
-        }
-
-        window.location.href = targetPage;
+    // إذا كان مسجلاً مسبقاً، أعد التوجيه
+    if (getSession()) {
+        const redirect = new URLSearchParams(window.location.search).get('redirect') || 'admin.html';
+        window.location.href = redirect;
     }
 
     async function login() {
@@ -278,6 +267,13 @@
 
             const userData = data[0];
 
+            // 🔍 تسجيل مفصل للتحقق
+            console.log('🔍 Full userData:', JSON.stringify(userData));
+            console.log('🔍 userData.role:', userData.role);
+            console.log('🔍 userData.role type:', typeof userData.role);
+            console.log('🔍 Is role === worker?', userData.role === 'worker');
+            console.log('🔍 Is role === manager?', userData.role === 'manager');
+
             if (!userData.is_active) {
                 throw new Error('الحساب معطل. تواصل مع المدير');
             }
@@ -295,21 +291,18 @@
             // ✅ إرسال اسم المستخدم لـ Supabase RLS
             await setSupabaseUser(supabaseClient);
 
-            // ✅ تحديد الصفحة حسب الدور فقط (بدون اعتماد على redirect القديم)
+            // إعادة التوجيه
+            const redirect = new URLSearchParams(window.location.search).get('redirect');
             let targetPage = 'index.html';
 
-            if (userData.role === 'manager') {
+            if (redirect) {
+                targetPage = redirect;
+            } else if (userData.role === 'manager') {
                 targetPage = 'admin.html';
             } else if (userData.role === 'worker') {
                 targetPage = 'worker.html';
             }
 
-            // ✅ مسح redirect من URL لمنع التضارب في المستقبل
-            if (window.history.replaceState) {
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-
-            console.log('✅ Role:', userData.role, '→ Redirecting to:', targetPage);
             window.location.href = targetPage;
 
         } catch (err) {
