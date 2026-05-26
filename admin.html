@@ -419,27 +419,30 @@
     <!-- الإعدادات -->
     <div id="settings-tab" class="tab-content">
       <div class="card">
-        <div class="card-title">💰 الإعدادات المالية</div>
-        <div class="form-group">
-  <label>💰 السعر الرئيسي (للعرض في الواجهة)</label>
-  <input type="number" id="setting-display-price" class="form-input" placeholder="25000">
+  <div class="card-title">💰 الإعدادات المالية</div>
+  
+  <!-- أضف هذا الحقل الجديد -->
+  <div class="form-group">
+    <label>💰 السعر الرئيسي (للعرض في الواجهة)</label>
+    <input type="number" id="setting-display-price" class="form-input" placeholder="25000">
+  </div>
+  
+  <div class="form-group">
+    <label>💰 سعر الصباح (9ص - 2م)</label>
+    <input type="number" id="setting-morning" class="form-input" placeholder="25000">
+  </div>
+  <div class="form-group">
+    <label>💰 سعر المساء (2م - 8م)</label>
+    <input type="number" id="setting-evening" class="form-input" placeholder="40000">
+  </div>
+  <div class="form-group">
+    <label>💰 سعر الليل (8م - 2ص)</label>
+    <input type="number" id="setting-night" class="form-input" placeholder="50000">
+  </div>
+  <button class="btn btn-primary btn-full" onclick="saveSettings()">
+    <i class="fas fa-save"></i> حفظ الإعدادات
+  </button>
 </div>
-        <div class="form-group">
-          <label>💰 سعر الصباح (9ص - 2م)</label>
-          <input type="number" id="setting-morning" class="form-input" placeholder="25000">
-        </div>
-        <div class="form-group">
-          <label>💰 سعر المساء (2م - 8م)</label>
-          <input type="number" id="setting-evening" class="form-input" placeholder="40000">
-        </div>
-        <div class="form-group">
-          <label>💰 سعر الليل (8م - 2ص)</label>
-          <input type="number" id="setting-night" class="form-input" placeholder="50000">
-        </div>
-        <button class="btn btn-primary btn-full" onclick="saveSettings()">
-          <i class="fas fa-save"></i> حفظ الإعدادات
-        </button>
-      </div>
 
       <div class="card">
         <div class="card-title">📞 معلومات التواصل</div>
@@ -676,23 +679,21 @@
 
     // ===== SETTINGS =====
     async function loadSettings() {
-      const { data } = await supabaseClient.from('settings').select('*').single();
-      if (data) {
-        document.getElementById('setting-base-price').value = data.base_price || '';
-        document.getElementById('setting-worker-discount').value = data.worker_discount || '';
-        document.getElementById('setting-morning').value = data.morning_price || '';
-        document.getElementById('setting-evening').value = data.evening_price || '';
-        document.getElementById('setting-night').value = data.night_price || '';
-        document.getElementById('setting-phone').value = data.phone || '';
-        document.getElementById('setting-whatsapp').value = data.whatsapp || '';
-        document.getElementById('setting-maps').value = data.maps_url || '';
-        document.getElementById('setting-notes').value = data.booking_notes || '';
-        document.getElementById('setting-instagram').value = data.instagram || '';
-        document.getElementById('setting-facebook').value = data.facebook || '';
-        document.getElementById('setting-tiktok').value = data.tiktok || '';
-        document.getElementById('setting-display-price').value = data.display_price || '';
-      }
-    }
+  const { data } = await supabaseClient.from('settings').select('*').single();
+  if (data) {
+    document.getElementById('setting-morning').value = data.morning_price || '';
+    document.getElementById('setting-evening').value = data.evening_price || '';
+    document.getElementById('setting-night').value = data.night_price || '';
+    document.getElementById('setting-phone').value = data.phone || '';
+    document.getElementById('setting-whatsapp').value = data.whatsapp || '';
+    document.getElementById('setting-maps').value = data.maps_url || '';
+    document.getElementById('setting-notes').value = data.booking_notes || '';
+    document.getElementById('setting-instagram').value = data.instagram || '';
+    document.getElementById('setting-facebook').value = data.facebook || '';
+    document.getElementById('setting-tiktok').value = data.tiktok || '';
+    document.getElementById('setting-display-price').value = data.display_price || '';
+  }
+}
 
     async function saveSettings() {
       const data = {
