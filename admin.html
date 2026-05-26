@@ -421,12 +421,9 @@
       <div class="card">
         <div class="card-title">💰 الإعدادات المالية</div>
         <div class="form-group">
-          <label>السعر الأساسي (د.ع)</label>
-          <input type="number" id="setting-base-price" class="form-input" placeholder="40000">
-        </div>
-        <div class="form-group">
-          <label>خصم العمال (%)</label>
-          <input type="number" id="setting-worker-discount" class="form-input" placeholder="10">
+          <label>💰 السعر الرئيسي (للعرض في الواجهة)</label>
+          <input type="number" id="setting-display-price" class="form-input" placeholder="300" readonly style="opacity: 0.6;">
+          <small style="color: var(--text-muted); font-size: 0.75rem;">يتم تحديده تلقائياً من سعر الصباح</small>
         </div>
         <div class="form-group">
           <label>💰 سعر الصباح (9ص - 2م)</label>
@@ -699,45 +696,47 @@
 
     async function saveSettings() {
       const data = {
-        base_price: parseInt(document.getElementById('setting-base-price').value) || 40000,
-        worker_discount: parseInt(document.getElementById('setting-worker-discount').value) || 10,
-        morning_price: parseInt(document.getElementById('setting-morning').value) || 25000,
-        evening_price: parseInt(document.getElementById('setting-evening').value) || 40000,
-        night_price: parseInt(document.getElementById('setting-night').value) || 50000
+        morning_price: parseInt(document.getElementById('setting-morning').value) || 300,
+        evening_price: parseInt(document.getElementById('setting-evening').value) || 3000,
+        night_price: parseInt(document.getElementById('setting-night').value) || 3500
       };
 
-      const { error } = await supabaseClient.from('settings').upsert(data);
+      const { error } = await supabaseClient.from('settings').upsert(data, { onConflict: 'id' });
       if (error) showToast('خطأ: ' + error.message, 'error');
       else showToast('تم حفظ الإعدادات', 'success');
     }
 
     async function saveContact() {
       const data = {
-        phone: document.getElementById('setting-phone').value,
-        whatsapp: document.getElementById('setting-whatsapp').value,
-        maps_url: document.getElementById('setting-maps').value
+        manager_phone: document.getElementById('setting-phone').value,
+        whatsapp_number: document.getElementById('setting-whatsapp').value,
+        location_url: document.getElementById('setting-maps').value
       };
 
-      const { error } = await supabaseClient.from('settings').upsert(data);
+      const { error } = await supabaseClient.from('settings').upsert(data, { onConflict: 'id' });
       if (error) showToast('خطأ: ' + error.message, 'error');
       else showToast('تم الحفظ', 'success');
     }
 
     async function saveBookingNotes() {
       const data = { booking_notes: document.getElementById('setting-notes').value };
-      const { error } = await supabaseClient.from('settings').upsert(data);
+      const { error } = await supabaseClient.from('settings').upsert(data, { onConflict: 'id' });
       if (error) showToast('خطأ: ' + error.message, 'error');
       else showToast('تم الحفظ', 'success');
     }
 
     async function saveSocial() {
-      const data = {
+      const social = {
         instagram: document.getElementById('setting-instagram').value,
         facebook: document.getElementById('setting-facebook').value,
         tiktok: document.getElementById('setting-tiktok').value
       };
 
-      const { error } = await supabaseClient.from('settings').upsert(data);
+      const data = {
+        social_links: JSON.stringify(social)
+      };
+
+      const { error } = await supabaseClient.from('settings').upsert(data, { onConflict: 'id' });
       if (error) showToast('خطأ: ' + error.message, 'error');
       else showToast('تم الحفظ', 'success');
     }
