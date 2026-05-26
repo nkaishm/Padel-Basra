@@ -223,12 +223,184 @@
     .toast.success { background: var(--emerald-dim); border: 1px solid var(--emerald); color: var(--emerald); }
     .toast.error { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); }
 
+    /* ===== SPIN WHEEL DATE PICKER ===== */
+    .spin-wheel-container {
+      position: relative;
+      width: 100%;
+      height: 180px;
+      background: var(--bg-primary);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+    }
+
+    .spin-wheel-container:active { cursor: grabbing; }
+
+    .spin-wheel-label {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 0.75rem;
+      color: var(--neon-blue);
+      font-weight: 700;
+      z-index: 10;
+      pointer-events: none;
+      background: var(--bg-primary);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .spin-wheel-highlight {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 40px;
+      transform: translateY(-50%);
+      background: var(--neon-blue-dim);
+      border-top: 2px solid var(--neon-blue);
+      border-bottom: 2px solid var(--neon-blue);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .spin-wheel-column {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      overflow: hidden;
+    }
+
+    .spin-wheel-track {
+      position: absolute;
+      left: 0;
+      right: 0;
+      will-change: transform;
+    }
+
+    .spin-wheel-item {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      transition: color 0.2s;
+    }
+
+    .spin-wheel-item.active {
+      color: var(--neon-blue);
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .spin-wheel-date-display {
+      text-align: center;
+      padding: 10px;
+      background: var(--neon-blue-dim);
+      border: 1px solid var(--neon-blue);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-weight: 700;
+      color: var(--neon-blue);
+      font-size: 1.1rem;
+    }
+
+    /* ===== SPIN WHEEL TIME PICKER ===== */
+    .spin-time-container {
+      position: relative;
+      width: 100%;
+      height: 180px;
+      background: var(--bg-primary);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+    }
+
+    .spin-time-container:active { cursor: grabbing; }
+
+    .spin-time-highlight {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 40px;
+      transform: translateY(-50%);
+      background: var(--neon-blue-dim);
+      border-top: 2px solid var(--neon-blue);
+      border-bottom: 2px solid var(--neon-blue);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .spin-time-column {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      overflow: hidden;
+    }
+
+    .spin-time-track {
+      position: absolute;
+      left: 0;
+      right: 0;
+      will-change: transform;
+    }
+
+    .spin-time-item {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      transition: color 0.2s;
+    }
+
+    .spin-time-item.active {
+      color: var(--neon-blue);
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .spin-time-display {
+      text-align: center;
+      padding: 10px;
+      background: var(--neon-blue-dim);
+      border: 1px solid var(--neon-blue);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-weight: 700;
+      color: var(--neon-blue);
+      font-size: 1.1rem;
+    }
+
+    .spin-time-separator {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--neon-blue);
+      z-index: 10;
+      pointer-events: none;
+    }
+
     @media (max-width: 768px) {
       .form-row { grid-template-columns: 1fr; }
       .booking-item { flex-direction: column; align-items: flex-start; }
     }
   </style>
-<base target="_blank">
 <base target="_blank">
 </head>
 <body>
@@ -267,13 +439,42 @@
           </div>
           <div class="form-group">
             <label>التاريخ</label>
-            <input type="date" id="quick-date" class="form-input">
+            <div class="spin-wheel-date-display" id="date-display">اختر التاريخ</div>
+            <div class="spin-wheel-container" id="date-picker">
+              <div class="spin-wheel-highlight"></div>
+              <div class="spin-wheel-column" style="right: 0; width: 33%;" data-type="day">
+                <div class="spin-wheel-label">يوم</div>
+                <div class="spin-wheel-track" id="day-track"></div>
+              </div>
+              <div class="spin-wheel-column" style="right: 33%; width: 33%;" data-type="month">
+                <div class="spin-wheel-label">شهر</div>
+                <div class="spin-wheel-track" id="month-track"></div>
+              </div>
+              <div class="spin-wheel-column" style="right: 66%; width: 34%;" data-type="year">
+                <div class="spin-wheel-label">سنة</div>
+                <div class="spin-wheel-track" id="year-track"></div>
+              </div>
+            </div>
+            <input type="hidden" id="quick-date" value="">
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
             <label>الوقت</label>
-            <select id="quick-time" class="form-select"></select>
+            <div class="spin-time-display" id="time-display">اختر الوقت</div>
+            <div class="spin-time-container" id="time-picker">
+              <div class="spin-time-highlight"></div>
+              <div class="spin-time-column" style="right: 0; width: 45%;" data-type="hour">
+                <div class="spin-wheel-label">ساعة</div>
+                <div class="spin-time-track" id="hour-track"></div>
+              </div>
+              <div class="spin-time-separator">:</div>
+              <div class="spin-time-column" style="right: 55%; width: 45%;" data-type="minute">
+                <div class="spin-wheel-label">دقيقة</div>
+                <div class="spin-time-track" id="minute-track"></div>
+              </div>
+            </div>
+            <input type="hidden" id="quick-time" value="">
           </div>
           <div class="form-group">
             <label>المدة</label>
@@ -341,11 +542,11 @@
     const { createClient } = supabase;
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    
-document.addEventListener('DOMContentLoaded', async () => {
-      await setSupabaseUser(supabaseClient);  // ← هذا السطر الجديد
+    document.addEventListener('DOMContentLoaded', async () => {
+      await setSupabaseUser(supabaseClient);
+      initDatePicker();
+      initTimePicker();
       await loadDashboard();
-      // ... إلخ
     });
 
     function showToast(message, type = 'success') {
@@ -365,23 +566,234 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (tabId === 'check-in') loadCheckInList();
     }
 
-    function loadTimeOptions() {
-      const select = document.getElementById('quick-time');
-      select.innerHTML = '';
-      // Hours from 9 AM to 11 PM
-      for (let h = 9; h < 24; h++) {
-        const option = document.createElement('option');
-        option.value = `${h.toString().padStart(2, '0')}:00`;
-        option.textContent = `${h.toString().padStart(2, '0')}:00`;
-        select.appendChild(option);
+    // ===== SPIN WHEEL DATE PICKER =====
+    function initDatePicker() {
+      const today = new Date();
+      const currentYear = today.getFullYear();
+
+      // Generate days (1-31)
+      const dayTrack = document.getElementById('day-track');
+      for (let i = 1; i <= 31; i++) {
+        const div = document.createElement('div');
+        div.className = 'spin-wheel-item';
+        div.textContent = i;
+        div.dataset.value = i;
+        dayTrack.appendChild(div);
       }
-      // Hours from 12 AM to 1 AM (next day)
-      for (let h = 0; h < 2; h++) {
-        const option = document.createElement('option');
-        option.value = `${h.toString().padStart(2, '0')}:00`;
-        option.textContent = `${h.toString().padStart(2, '0')}:00`;
-        select.appendChild(option);
+
+      // Generate months (1-12)
+      const monthTrack = document.getElementById('month-track');
+      const monthNames = ['يناير','فبراير','مارس','ابريل','مايو','يونيو','يوليو','اغسطس','سبتمبر','اكتوبر','نوفمبر','ديسمبر'];
+      for (let i = 1; i <= 12; i++) {
+        const div = document.createElement('div');
+        div.className = 'spin-wheel-item';
+        div.textContent = monthNames[i-1];
+        div.dataset.value = i;
+        monthTrack.appendChild(div);
       }
+
+      // Generate years (current-1 to current+2)
+      const yearTrack = document.getElementById('year-track');
+      for (let i = currentYear - 1; i <= currentYear + 2; i++) {
+        const div = document.createElement('div');
+        div.className = 'spin-wheel-item';
+        div.textContent = i;
+        div.dataset.value = i;
+        yearTrack.appendChild(div);
+      }
+
+      // Initialize with today's date
+      const selectedDay = today.getDate();
+      const selectedMonth = today.getMonth() + 1;
+      const selectedYear = today.getFullYear();
+
+      setupSpinWheel('date-picker', 'day-track', selectedDay - 1, 31, (val) => updateDate('day', val + 1));
+      setupSpinWheel('date-picker', 'month-track', selectedMonth - 1, 12, (val) => updateDate('month', val + 1));
+      setupSpinWheel('date-picker', 'year-track', 1, 4, (val) => updateDate('year', currentYear - 1 + val));
+
+      updateDateDisplay();
+    }
+
+    let dateValues = { day: new Date().getDate(), month: new Date().getMonth() + 1, year: new Date().getFullYear() };
+
+    function updateDate(type, value) {
+      dateValues[type] = value;
+      updateDateDisplay();
+    }
+
+    function updateDateDisplay() {
+      const display = document.getElementById('date-display');
+      const hidden = document.getElementById('quick-date');
+      const monthNames = ['يناير','فبراير','مارس','ابريل','مايو','يونيو','يوليو','اغسطس','سبتمبر','اكتوبر','نوفمبر','ديسمبر'];
+
+      const day = dateValues.day.toString().padStart(2, '0');
+      const month = dateValues.month.toString().padStart(2, '0');
+      const year = dateValues.year;
+
+      display.textContent = `${day} ${monthNames[dateValues.month - 1]} ${year}`;
+      hidden.value = `${year}-${month}-${day}`;
+    }
+
+    // ===== SPIN WHEEL TIME PICKER =====
+    function initTimePicker() {
+      // Generate hours (9-23, 0-1)
+      const hourTrack = document.getElementById('hour-track');
+      const hours = [];
+      for (let h = 9; h < 24; h++) hours.push(h);
+      for (let h = 0; h < 2; h++) hours.push(h);
+
+      hours.forEach(h => {
+        const div = document.createElement('div');
+        div.className = 'spin-time-item';
+        div.textContent = h.toString().padStart(2, '0');
+        div.dataset.value = h;
+        hourTrack.appendChild(div);
+      });
+
+      // Generate minutes (00, 30)
+      const minuteTrack = document.getElementById('minute-track');
+      const minutes = ['00', '30'];
+      minutes.forEach(m => {
+        const div = document.createElement('div');
+        div.className = 'spin-time-item';
+        div.textContent = m;
+        div.dataset.value = m;
+        minuteTrack.appendChild(div);
+      });
+
+      // Initialize with current time or 9:00
+      const now = new Date();
+      const currentHour = now.getHours();
+      let hourIndex = hours.indexOf(currentHour);
+      if (hourIndex === -1) hourIndex = 0;
+
+      setupSpinWheel('time-picker', 'hour-track', hourIndex, hours.length, (val) => updateTime('hour', hours[val]));
+      setupSpinWheel('time-picker', 'minute-track', 0, 2, (val) => updateTime('minute', minutes[val]));
+
+      updateTimeDisplay();
+    }
+
+    let timeValues = { hour: 9, minute: '00' };
+
+    function updateTime(type, value) {
+      timeValues[type] = value;
+      updateTimeDisplay();
+    }
+
+    function updateTimeDisplay() {
+      const display = document.getElementById('time-display');
+      const hidden = document.getElementById('quick-time');
+      const hour = timeValues.hour.toString().padStart(2, '0');
+      const minute = timeValues.minute;
+
+      display.textContent = `${hour}:${minute}`;
+      hidden.value = `${hour}:${minute}`;
+    }
+
+    // ===== SPIN WHEEL CORE FUNCTION =====
+    function setupSpinWheel(containerId, trackId, initialIndex, totalItems, onChange) {
+      const container = document.getElementById(containerId);
+      const track = document.getElementById(trackId);
+      const itemHeight = 40;
+      const visibleItems = 4; // items visible above/below center
+      const centerOffset = (container.offsetHeight / 2) - (itemHeight / 2);
+
+      let currentIndex = initialIndex;
+      let isDragging = false;
+      let startY = 0;
+      let currentY = 0;
+      let velocity = 0;
+      let lastY = 0;
+      let lastTime = 0;
+
+      function updatePosition(animate = true) {
+        const y = centerOffset - (currentIndex * itemHeight);
+        track.style.transition = animate ? 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none';
+        track.style.transform = `translateY(${y}px)`;
+
+        // Update active states
+        const items = track.querySelectorAll('.spin-wheel-item, .spin-time-item');
+        items.forEach((item, i) => {
+          item.classList.toggle('active', i === currentIndex);
+        });
+
+        onChange(currentIndex);
+      }
+
+      function handleStart(y) {
+        isDragging = true;
+        startY = y;
+        currentY = y;
+        lastY = y;
+        lastTime = Date.now();
+        velocity = 0;
+        track.style.transition = 'none';
+      }
+
+      function handleMove(y) {
+        if (!isDragging) return;
+
+        const delta = y - startY;
+        const y = centerOffset - (currentIndex * itemHeight) + delta;
+        track.style.transform = `translateY(${y}px)`;
+
+        const now = Date.now();
+        const dt = now - lastTime;
+        if (dt > 0) {
+          velocity = (y - lastY) / dt;
+        }
+        lastY = y;
+        lastTime = now;
+        currentY = y;
+      }
+
+      function handleEnd() {
+        if (!isDragging) return;
+        isDragging = false;
+
+        // Snap to nearest item
+        const delta = currentY - startY;
+        const itemDelta = Math.round(delta / itemHeight);
+        currentIndex = Math.max(0, Math.min(totalItems - 1, currentIndex - itemDelta));
+
+        updatePosition(true);
+      }
+
+      // Mouse events
+      container.addEventListener('mousedown', (e) => {
+        if (e.target.closest(`#${trackId}`)) handleStart(e.clientY);
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        handleMove(e.clientY);
+      });
+
+      document.addEventListener('mouseup', handleEnd);
+
+      // Touch events
+      container.addEventListener('touchstart', (e) => {
+        if (e.target.closest(`#${trackId}`)) {
+          e.preventDefault();
+          handleStart(e.touches[0].clientY);
+        }
+      }, { passive: false });
+
+      document.addEventListener('touchmove', (e) => {
+        handleMove(e.touches[0].clientY);
+      }, { passive: true });
+
+      document.addEventListener('touchend', handleEnd);
+
+      // Wheel event
+      container.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? 1 : -1;
+        currentIndex = Math.max(0, Math.min(totalItems - 1, currentIndex + delta));
+        updatePosition(true);
+      }, { passive: false });
+
+      // Initial position
+      updatePosition(true);
     }
 
     async function quickBook() {
@@ -399,7 +811,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const startHour = parseInt(time.split(':')[0]);
       const endHour = startHour + duration;
-      const endTime = `${endHour.toString().padStart(2, '0')}:00`;
+      const endTime = `${(endHour % 24).toString().padStart(2, '0')}:00`;
       const basePrice = 40000 * duration;
 
       const { error } = await supabaseClient.from('bookings').insert([{
@@ -590,6 +1002,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       await supabaseClient.rpc('increment_loyalty_stamp', { card_num: cardNumber });
       checkAndStamp();
       showToast('تم إضافة الختم', 'success');
+    }
+
+    async function loadDashboard() {
+      await loadTodayBookings();
     }
   </script>
 </body>
