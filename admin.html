@@ -548,6 +548,7 @@
     }
   </style>
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
   <div class="toast" id="toast"></div>
@@ -748,7 +749,7 @@
             <label>وقت البدء</label>
             <input type="datetime-local" id="maint-start" class="form-input">
           </div>
-          <div class="form-group">
+                    <div class="form-group">
                         <label>وقت الانتهاء المتوقع</label>
             <input type="datetime-local" id="maint-end" class="form-input">
           </div>
@@ -1498,7 +1499,7 @@ document.getElementById('setting-night-price').value = data.night_price || 50000
 
   // Use UPSERT - update if exists, insert if not
   const { error } = await supabaseClient
-    .from('settings')
+     .from('settings')
     .upsert([settings], { onConflict: 'id' });
 
   if (error) {
@@ -1536,7 +1537,7 @@ document.getElementById('setting-night-price').value = data.night_price || 50000
           .select('*')
           .order('created_at', { ascending: false });
         if (error) throw error;
-        const tbody = document.querySelector('#usersTable tbody');
+        const tbody = document.querySelector('#users-table tbody');
         if (!tbody) return;
         tbody.innerHTML = users.map(user => `
           <tr>
@@ -1576,7 +1577,7 @@ document.getElementById('setting-night-price').value = data.night_price || 50000
         if (error) throw error;
         document.getElementById('modalTitle').textContent = 'تعديل مستخدم';
         document.getElementById('userId').value = user.id;
-        document.getElementById('userName').value = user.name;
+        document.getElementById('userName').value = user.username;
         document.getElementById('userPin').value = '';
         document.getElementById('userRole').value = user.role;
         document.getElementById('userPhone').value = user.phone || '';
@@ -1594,8 +1595,8 @@ document.getElementById('setting-night-price').value = data.night_price || 50000
       const role = document.getElementById('userRole').value;
       const phone = document.getElementById('userPhone').value.trim();
       try {
-        const userData = { name, role, phone: phone || null };
-        if (pin) userData.pin_code = pin;
+        const userData = { username: name, role, phone: phone || null };
+        if (pin) userData.pin_hash = pin;
         let result;
         if (userId) {
           result = await supabaseClient.from('users').update(userData).eq('id', userId);
@@ -1662,4 +1663,4 @@ document.getElementById('setting-night-price').value = data.night_price || 50000
     </div>
 </div>
 </body>
-</html>
+</html>    
