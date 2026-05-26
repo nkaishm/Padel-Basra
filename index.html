@@ -649,7 +649,13 @@
       padding: 2.5rem;
       box-shadow: var(--shadow);
     }
-
+// ===== حساب السعر حسب الفترة =====
+function getPriceForHour(hour) {
+  if (hour >= 9 && hour < 14) return settings.morning_price || 30000;   // صباح 9am-2pm
+  if (hour >= 14 && hour < 20) return settings.evening_price || 40000;  // مساء 2pm-8pm
+  return settings.night_price || 50000;                                   // ليل 8pm-2am
+}
+    
     .booking-controls {
       display: flex;
       flex-wrap: wrap;
@@ -2195,7 +2201,7 @@
             `;
           } else {
             slot.classList.add('available');
-            const price = settings.base_price || 40000;
+            const price = getPriceForHour(hour);
             slot.innerHTML = `
               <span class="time">${timeStr}</span>
               <span class="time-period">${period}</span>
@@ -2338,7 +2344,8 @@
     // ===== تحديث السعر =====
     function updatePrice() {
       const duration = parseInt(document.getElementById('duration').value);
-      const basePrice = (settings.base_price || 40000) * duration;
+     const startHour = parseInt(selectedSlot.start.split(':')[0]);
+const basePrice = getPriceForHour(startHour) * duration;
 
       let discountAmount = 0;
       if (loyaltyDiscount > 0) {
