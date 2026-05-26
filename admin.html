@@ -421,14 +421,6 @@
       <div class="card">
         <div class="card-title">💰 الإعدادات المالية</div>
         <div class="form-group">
-          <label>السعر الأساسي (د.ع)</label>
-          <input type="number" id="setting-base-price" class="form-input" placeholder="40000">
-        </div>
-        <div class="form-group">
-          <label>خصم العمال (%)</label>
-          <input type="number" id="setting-worker-discount" class="form-input" placeholder="10">
-        </div>
-        <div class="form-group">
           <label>💰 سعر الصباح (9ص - 2م)</label>
           <input type="number" id="setting-morning" class="form-input" placeholder="25000">
         </div>
@@ -699,8 +691,6 @@
 
     async function saveSettings() {
       const data = {
-        base_price: parseInt(document.getElementById('setting-base-price').value) || 40000,
-        worker_discount: parseInt(document.getElementById('setting-worker-discount').value) || 10,
         morning_price: parseInt(document.getElementById('setting-morning').value) || 25000,
         evening_price: parseInt(document.getElementById('setting-evening').value) || 40000,
         night_price: parseInt(document.getElementById('setting-night').value) || 50000
