@@ -331,10 +331,11 @@
   </div>
 
   <script>
-    // حماية الصفحة - فقط الموظفين
+    // حماية الصفحة - الموظفين والمدير
     if (!initAuthProtection('worker')) {
       throw new Error('Unauthorized access');
     }
+    console.log('✅ Worker page loaded, session:', getSession());
 
     const SUPABASE_URL = 'https://hrfentlnqxquhlaywlzv.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhyZmVudGxucXhxdWhsYXl3bHp2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NjY4NDMsImV4cCI6MjA5NTE0Mjg0M30.mseVeL5hqNXs5U-Vj_OddqCWzt-6lEm0E4Dftk08EfY';
@@ -343,9 +344,9 @@
 
     
 document.addEventListener('DOMContentLoaded', async () => {
-      await setSupabaseUser(supabaseClient);
-      loadTimeOptions();
-      await loadTodayBookings();
+      await setSupabaseUser(supabaseClient);  // ← هذا السطر الجديد
+      await loadDashboard();
+      // ... إلخ
     });
 
     function showToast(message, type = 'success') {
