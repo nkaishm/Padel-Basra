@@ -229,8 +229,6 @@
     }
   </style>
 <base target="_blank">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
 <base target="_blank">
 </head>
 <body>
@@ -269,7 +267,7 @@
           </div>
           <div class="form-group">
             <label>التاريخ</label>
-            <input type="text" id="quick-date" class="form-input" placeholder="Select Date" readonly>
+            <input type="date" id="quick-date" class="form-input">
           </div>
         </div>
         <div class="form-row">
@@ -345,16 +343,9 @@
 
     
 document.addEventListener('DOMContentLoaded', async () => {
-      await setSupabaseUser(supabaseClient);
-      loadTimeOptions();
-      await loadTodayBookings();
-
-      // English Date Picker
-      flatpickr("#quick-date", {
-        dateFormat: "Y-m-d",
-        minDate: "today",
-        disableMobile: true
-      });
+      await setSupabaseUser(supabaseClient);  // ← هذا السطر الجديد
+      await loadDashboard();
+      // ... إلخ
     });
 
     function showToast(message, type = 'success') {
@@ -377,7 +368,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     function loadTimeOptions() {
       const select = document.getElementById('quick-time');
       select.innerHTML = '';
-      for (let h = 14; h < 24; h++) {
+      // Hours from 9 AM to 11 PM
+      for (let h = 9; h < 24; h++) {
+        const option = document.createElement('option');
+        option.value = `${h.toString().padStart(2, '0')}:00`;
+        option.textContent = `${h.toString().padStart(2, '0')}:00`;
+        select.appendChild(option);
+      }
+      // Hours from 12 AM to 1 AM (next day)
+      for (let h = 0; h < 2; h++) {
         const option = document.createElement('option');
         option.value = `${h.toString().padStart(2, '0')}:00`;
         option.textContent = `${h.toString().padStart(2, '0')}:00`;
