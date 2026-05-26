@@ -649,12 +649,6 @@
       padding: 2.5rem;
       box-shadow: var(--shadow);
     }
-// ===== حساب السعر حسب الفترة =====
-function getPriceForHour(hour) {
-  if (hour >= 9 && hour < 14) return settings.morning_price || 30000;   // صباح 9am-2pm
-  if (hour >= 14 && hour < 20) return settings.evening_price || 40000;  // مساء 2pm-8pm
-  return settings.night_price || 50000;                                   // ليل 8pm-2am
-}
     
     .booking-controls {
       display: flex;
@@ -1995,6 +1989,7 @@ night_price: 50000,
           location_url: 'https://maps.google.com'
         };
         updateSettingsUI();
+    
       }
     }
 
@@ -2005,7 +2000,12 @@ night_price: 50000,
         phoneCard.href = `tel:${settings.manager_phone}`;
         phoneCard.querySelector('span:last-child').textContent = settings.manager_phone;
       }
-
+// ===== حساب السعر حسب الفترة =====
+function getPriceForHour(hour) {
+  if (hour >= 9 && hour < 14) return settings.morning_price || 30000;
+  if (hour >= 14 && hour < 20) return settings.evening_price || 40000;
+  return settings.night_price || 50000;
+}
       // تحديث واتساب
       const whatsappCard = document.getElementById('whatsapp-card');
       if (whatsappCard && settings.whatsapp_number) {
