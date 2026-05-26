@@ -4,7 +4,7 @@
 
 class SpinWheelPicker {
     constructor(options = {}) {
-        this.type = options.type || 'datetime'; // 'date', 'time', 'datetime'
+        this.type = options.type || 'datetime';
         this.minDate = options.minDate || new Date();
         this.maxDate = options.maxDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
         this.onSelect = options.onSelect || (() => {});
@@ -15,28 +15,38 @@ class SpinWheelPicker {
         this.startY = 0;
         this.currentY = 0;
         this.columnData = {};
+        this.dragItems = null;
+        this.dragType = null;
         
         this.months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        this.init();
+        
+        // إزالة أي modal قديم
+        this.cleanup();
+    }
+
+    cleanup() {
+        const oldOverlay = document.getElementById('spinwheel-overlay');
+        const oldModal = document.getElementById('spinwheel-modal');
+        if (oldOverlay) oldOverlay.remove();
+        if (oldModal) oldModal.remove();
     }
 
     init() {
         this.createModal();
+        this.populateColumns();
         this.bindEvents();
     }
 
     createModal() {
-        // Remove existing modal if any
-        const existing = document.getElementById('spinwheel-modal');
-        if (existing) existing.remove();
+        this.cleanup();
 
         const overlay = document.createElement('div');
-        overlay.className = 'spinwheel-overlay';
         overlay.id = 'spinwheel-overlay';
+        overlay.className = 'spinwheel-overlay';
 
         const modal = document.createElement('div');
-        modal.className = 'spinwheel-modal';
         modal.id = 'spinwheel-modal';
+        modal.className = 'spinwheel-modal';
 
         let columnsHTML = '';
         
@@ -72,9 +82,9 @@ class SpinWheelPicker {
 
         modal.innerHTML = `
             <div class="spinwheel-header">
-                <button class="spinwheel-btn cancel" id="sw-cancel">Cancel</button>
+                <button class="spinwheel-btn cancel" id="sw-cancel" type="button">Cancel</button>
                 <span class="spinwheel-title">Select ${this.type === 'date' ? 'Date' : this.type === 'time' ? 'Time' : 'Date & Time'}</span>
-                <button class="spinwheel-btn done" id="sw-done">Done</button>
+                <button class="spinwheel-btn done" id="sw-done" type="button">Done</button>
             </div>
             <div class="spinwheel-body">
                 ${columnsHTML}
@@ -86,14 +96,12 @@ class SpinWheelPicker {
 
         this.overlay = overlay;
         this.modal = modal;
-        this.populateColumns();
     }
 
     populateColumns() {
         const now = new Date();
         const currentYear = now.getFullYear();
         
-        // Year
         if (document.getElementById('sw-year')) {
             const years = [];
             for (let y = currentYear; y <= currentYear + 2; y++) {
@@ -102,18 +110,15 @@ class SpinWheelPicker {
             this.renderColumn('year', years, currentYear);
         }
 
-        // Month
         if (document.getElementById('sw-month')) {
             const currentMonth = now.getMonth();
             this.renderColumn('month', this.months, this.months[currentMonth]);
         }
 
-        // Day
         if (document.getElementById('sw-day')) {
             this.updateDays();
         }
 
-        // Hour
         if (document.getElementById('sw-hour')) {
             const hours = [];
             for (let h = 0; h < 24; h++) {
@@ -122,7 +127,6 @@ class SpinWheelPicker {
             this.renderColumn('hour', hours, '09');
         }
 
-        // Minute
         if (document.getElementById('sw-minute')) {
             const minutes = [];
             for (let m = 0; m < 60; m += 5) {
@@ -145,7 +149,6 @@ class SpinWheelPicker {
         container.innerHTML = html;
         this.columnData[type] = { items, container };
         
-        // Scroll to active
         const activeItem = container.querySelector('.active');
         if (activeItem) {
             const itemHeight = 36;
@@ -177,144 +180,177 @@ class SpinWheelPicker {
         return active ? active.dataset.value : null;
     }
 
-  bindEvents() {
-    const self = this;
+    bindEvents() {
+        const self = this;
 
-    // Cancel button
-    const cancelBtn = document.getElementById('sw-cancel');
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            self.hide();
-            self.onCancel();
-        });
-    }
-
-    // Done button
-    const doneBtn = document.getElementById('sw-done');
-    if (doneBtn) {
-        doneBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const result = self.getSelectedDate();
-            self.hide();
-            self.onSelect(result);
-        });
-    }
-
-    // Overlay click
-    this.overlay.addEventListener('click', (e) => {
-        if (e.target === self.overlay) {
-            self.hide();
-            self.onCancel();
+        // Cancel button - استخدم onclick للتأكد
+        const cancelBtn = document.getElementById('sw-cancel');
+        if (cancelBtn) {
+            cancelBtn.onclick = function(e) {
+                if (e) e.stopPropagation();
+                self.hide();
+                self.onCancel();
+            };
         }
-    });
 
-    // Column interactions - دعم الماوس واللمس
-    const columns = this.modal.querySelectorAll('.spinwheel-column');
-    columns.forEach(column => {
-        const items = column.querySelector('.spinwheel-items');
-        const type = column.dataset.type;
-        if (!items) return;
+        // Done button - استخدم onclick للتأكد
+        const doneBtn = document.getElementById('sw-done');
+        if (doneBtn) {
+            doneBtn.onclick = function(e) {
+                if (e) e.stopPropagation();
+                const result = self.getSelectedDate();
+                self.hide();
+                self.onSelect(result);
+            };
+        }
 
-        // متغيرات السحب
-        let isDragging = false;
-        let startY = 0;
-        let currentOffset = 0;
-        let itemHeight = 36;
-
-        // دالة بدء السحب (ماوس + لمس)
-        const startDrag = (clientY) => {
-            isDragging = true;
-            startY = clientY;
-            const transform = items.style.transform;
-            currentOffset = transform ? 
-                parseInt(transform.replace('translateY(', '').replace('px)', '')) || 72 : 72;
-            items.style.transition = 'none';
-        };
-
-        // دالة السحب
-        const onDrag = (clientY) => {
-            if (!isDragging) return;
-            const delta = clientY - startY;
-            const newOffset = currentOffset + delta;
-            items.style.transform = `translateY(${newOffset}px)`;
-        };
-
-        // دالة إنهاء السحب
-        const endDrag = () => {
-            if (!isDragging) return;
-            isDragging = false;
-            
-            items.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
-            
-            const containerHeight = 180;
-            const centerOffset = containerHeight / 2 - itemHeight / 2;
-            const currentTransform = items.style.transform;
-            const currentOffsetVal = parseInt(currentTransform.replace('translateY(', '').replace('px)', '')) || 72;
-            const relativeOffset = centerOffset - currentOffsetVal;
-            const nearestIndex = Math.round(relativeOffset / itemHeight);
-            
-            const maxIndex = items.children.length - 1;
-            const clampedIndex = Math.max(0, Math.min(nearestIndex, maxIndex));
-            
-            const newOffset = centerOffset - (clampedIndex * itemHeight);
-            items.style.transform = `translateY(${newOffset}px)`;
-            
-            Array.from(items.children).forEach((item, index) => {
-                item.classList.toggle('active', index === clampedIndex);
-            });
-
-            if (type === 'month' || type === 'year') {
-                setTimeout(() => this.updateDays(), 350);
+        // Overlay click
+        this.overlay.onclick = function(e) {
+            if (e.target === self.overlay) {
+                self.hide();
+                self.onCancel();
             }
         };
 
-        // أحداث الماوس (PC)
-        column.addEventListener('mousedown', (e) => {
-            e.preventDefault();
-            startDrag(e.clientY);
-        });
-        
-        document.addEventListener('mousemove', (e) => {
-            onDrag(e.clientY);
-        });
-        
-        document.addEventListener('mouseup', () => {
-            endDrag();
-        });
+        // Column interactions - دعم كامل للماوس واللمس
+        const columns = this.modal.querySelectorAll('.spinwheel-column');
+        columns.forEach(column => {
+            const items = column.querySelector('.spinwheel-items');
+            const type = column.dataset.type;
+            if (!items) return;
 
-        // أحداث اللمس (Mobile)
-        column.addEventListener('touchstart', (e) => {
-            startDrag(e.touches[0].clientY);
-        }, { passive: true });
-        
-        column.addEventListener('touchmove', (e) => {
-            onDrag(e.touches[0].clientY);
-        }, { passive: true });
-        
-        column.addEventListener('touchend', () => {
-            endDrag();
-        });
-    });
-} 
+            const itemHeight = 36;
+            const containerHeight = 180;
+            const centerOffset = containerHeight / 2 - itemHeight / 2;
 
-hide() {
-    // إزالة active class
-    if (this.overlay) this.overlay.classList.remove('active');
-    if (this.modal) this.modal.classList.remove('active');
-    document.body.style.overflow = '';
-    
-    // انتظار انتهاء animation ثم إزالة من DOM
-    setTimeout(() => {
-        if (this.overlay && this.overlay.parentNode) {
-            this.overlay.parentNode.removeChild(this.overlay);
+            let isDragging = false;
+            let dragStartY = 0;
+            let dragStartOffset = 0;
+
+            const getClientY = (e) => {
+                return e.touches ? e.touches[0].clientY : e.clientY;
+            };
+
+            const startDrag = (clientY) => {
+                isDragging = true;
+                dragStartY = clientY;
+                const transform = items.style.transform;
+                dragStartOffset = transform ? 
+                    parseInt(transform.replace('translateY(', '').replace('px)', '')) || centerOffset : centerOffset;
+                items.style.transition = 'none';
+            };
+
+            const moveDrag = (clientY) => {
+                if (!isDragging) return;
+                const delta = clientY - dragStartY;
+                const newOffset = dragStartOffset + delta;
+                items.style.transform = `translateY(${newOffset}px)`;
+            };
+
+            const endDrag = () => {
+                if (!isDragging) return;
+                isDragging = false;
+                
+                items.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
+                
+                const currentTransform = items.style.transform;
+                const currentOffsetVal = parseInt(currentTransform.replace('translateY(', '').replace('px)', '')) || centerOffset;
+                const relativeOffset = centerOffset - currentOffsetVal;
+                const nearestIndex = Math.round(relativeOffset / itemHeight);
+                
+                const maxIndex = items.children.length - 1;
+                const clampedIndex = Math.max(0, Math.min(nearestIndex, maxIndex));
+                
+                const newOffset = centerOffset - (clampedIndex * itemHeight);
+                items.style.transform = `translateY(${newOffset}px)`;
+                
+                Array.from(items.children).forEach((item, index) => {
+                    item.classList.toggle('active', index === clampedIndex);
+                });
+
+                if (type === 'month' || type === 'year') {
+                    setTimeout(() => this.updateDays(), 350);
+                }
+            };
+
+            // أحداث الماوس (PC)
+            column.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                startDrag(getClientY(e));
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                moveDrag(getClientY(e));
+            });
+            
+            document.addEventListener('mouseup', () => {
+                endDrag();
+            });
+
+            // أحداث اللمس (Mobile)
+            column.addEventListener('touchstart', (e) => {
+                startDrag(getClientY(e));
+            }, { passive: true });
+            
+            column.addEventListener('touchmove', (e) => {
+                moveDrag(getClientY(e));
+            }, { passive: true });
+            
+            column.addEventListener('touchend', () => {
+                endDrag();
+            });
+        });
+    }
+
+    getSelectedDate() {
+        const year = this.getSelectedValue('year');
+        const month = this.months.indexOf(this.getSelectedValue('month'));
+        const day = this.getSelectedValue('day');
+        const hour = this.getSelectedValue('hour') || '00';
+        const minute = this.getSelectedValue('minute') || '00';
+
+        if (this.type === 'date') {
+            return {
+                date: new Date(year, month, day),
+                formatted: `${year}-${(month + 1).toString().padStart(2, '0')}-${day}`,
+                display: `${this.months[month]} ${day}, ${year}`
+            };
+        } else if (this.type === 'time') {
+            return {
+                time: `${hour}:${minute}`,
+                formatted: `${hour}:${minute}`,
+                display: `${hour}:${minute}`
+            };
+        } else {
+            const date = new Date(year, month, day, hour, minute);
+            return {
+                date: date,
+                formatted: `${year}-${(month + 1).toString().padStart(2, '0')}-${day}T${hour}:${minute}:00`,
+                display: `${this.months[month]} ${day}, ${year} ${hour}:${minute}`
+            };
         }
-        if (this.modal && this.modal.parentNode) {
-            this.modal.parentNode.removeChild(this.modal);
-        }
-        // إعادة تهيئة للاستخدام القادم
-        this.isDragging = false;
-    }, 350);
+    }
+
+    show() {
+        this.init();
+        
+        requestAnimationFrame(() => {
+            if (this.overlay) this.overlay.classList.add('active');
+            if (this.modal) this.modal.classList.add('active');
+        });
+        
+        document.body.style.overflow = 'hidden';
+    }
+
+    hide() {
+        if (this.overlay) this.overlay.classList.remove('active');
+        if (this.modal) this.modal.classList.remove('active');
+        document.body.style.overflow = '';
+        
+        setTimeout(() => {
+            this.cleanup();
+        }, 300);
+    }
 }
 
 // ============================================
@@ -332,19 +368,20 @@ function createSpinWheel(inputId, options = {}) {
     input.readOnly = true;
     input.placeholder = options.placeholder || 'Select...';
 
-    const picker = new SpinWheelPicker({
-        ...options,
-        onSelect: (result) => {
-            input.value = result.display;
-            input.dataset.value = result.formatted;
-            if (options.onSelect) options.onSelect(result);
-        },
-        onCancel: () => {
-            if (options.onCancel) options.onCancel();
-        }
+    input.addEventListener('click', function() {
+        const picker = new SpinWheelPicker({
+            ...options,
+            onSelect: (result) => {
+                input.value = result.display;
+                input.dataset.value = result.formatted;
+                if (options.onSelect) options.onSelect(result);
+            },
+            onCancel: () => {
+                if (options.onCancel) options.onCancel();
+            }
+        });
+        picker.show();
     });
 
-    input.addEventListener('click', () => picker.show());
-
-    return picker;
+    return input;
 }
