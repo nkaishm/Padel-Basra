@@ -548,9 +548,6 @@
     }
   </style>
 <base target="_blank">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/ar.js"></script>
 <base target="_blank">
 </head>
 <body>
@@ -667,7 +664,7 @@
         </button>
       </div>
       <div class="filters">
-        <input type="text" id="booking-filter-date" class="form-input" placeholder="اختر التاريخ" readonly onchange="loadBookings()">
+        <input type="date" id="booking-filter-date" class="form-input" onchange="loadBookings()">
         <select id="booking-filter-court" class="form-select" onchange="loadBookings()">
           <option value="">كل الملاعب</option>
           <option value="1">ملعب 1</option>
@@ -749,12 +746,12 @@
         </div>
         <div class="form-row">
           <div class="form-group">
-                        <label>وقت البدء</label>
-            <input type="datetime-local" id="maint-start" class="form-input">
+            <label>وقت البدء</label>
+            <input type="text" id="maint-start" class="form-input" placeholder="وقت البدء" readonly>
           </div>
-          <div class="form-group">
+                    <div class="form-group">
                         <label>وقت الانتهاء المتوقع</label>
-            <input type="datetime-local" id="maint-end" class="form-input">
+            <input type="text" id="maint-end" class="form-input" placeholder="وقت الانتهاء" readonly>
           </div>
         </div>
         <button class="btn btn-warning" onclick="addMaintenance()">
@@ -952,11 +949,11 @@
       <div class="form-row">
         <div class="form-group">
           <label>تاريخ البدء</label>
-          <input type="text" id="tournament-start" class="form-input" placeholder="تاريخ البدء" readonly>
+          <input type="date" id="tournament-start" class="form-input">
         </div>
         <div class="form-group">
           <label>تاريخ الانتهاء</label>
-          <input type="text" id="tournament-end" class="form-input" placeholder="تاريخ الانتهاء" readonly>
+          <input type="date" id="tournament-end" class="form-input">
         </div>
       </div>
       <button class="btn btn-primary btn-full" onclick="saveTournament()">
@@ -1010,27 +1007,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       await loadSettings();
       setupRealtime();
       await loadUsers();
-
-      // ✅ تفعيل Flatpickr للتواريخ
-      flatpickr("#booking-filter-date", {
-        locale: "ar",
-        dateFormat: "Y-m-d",
-        disableMobile: true,
-        placeholder: "اختر التاريخ",
-        onChange: function() { loadBookings(); }
-      });
-      flatpickr("#tournament-start", {
-        locale: "ar",
-        dateFormat: "Y-m-d",
-        disableMobile: true,
-        placeholder: "تاريخ البدء"
-      });
-      flatpickr("#tournament-end", {
-        locale: "ar",
-        dateFormat: "Y-m-d",
-        disableMobile: true,
-        placeholder: "تاريخ الانتهاء"
-      });
     });
 
     function showSection(sectionId) {
@@ -1499,7 +1475,7 @@ document.getElementById('setting-night-price').value = data.night_price || 50000
         document.getElementById('setting-instagram').value = social.instagram || '';
         document.getElementById('setting-facebook').value = social.facebook || '';
         document.getElementById('setting-tiktok').value = social.tiktok || '';
-             }
+      }
     }
 
    async function saveSettings() {
@@ -1523,7 +1499,7 @@ document.getElementById('setting-night-price').value = data.night_price || 50000
 
   // Use UPSERT - update if exists, insert if not
   const { error } = await supabaseClient
-    .from('settings')
+         .from('settings')
     .upsert([settings], { onConflict: 'id' });
 
   if (error) {
@@ -1632,27 +1608,6 @@ document.getElementById('setting-night-price').value = data.night_price || 50000
         if (result.error) throw result.error;
         closeUserModal();
         await loadUsers();
-
-      // ✅ تفعيل Flatpickr للتواريخ
-      flatpickr("#booking-filter-date", {
-        locale: "ar",
-        dateFormat: "Y-m-d",
-        disableMobile: true,
-        placeholder: "اختر التاريخ",
-        onChange: function() { loadBookings(); }
-      });
-      flatpickr("#tournament-start", {
-        locale: "ar",
-        dateFormat: "Y-m-d",
-        disableMobile: true,
-        placeholder: "تاريخ البدء"
-      });
-      flatpickr("#tournament-end", {
-        locale: "ar",
-        dateFormat: "Y-m-d",
-        disableMobile: true,
-        placeholder: "تاريخ الانتهاء"
-      });
         showToast(userId ? 'تم التحديث' : 'تمت الإضافة');
       } catch (err) {
         console.error('Error:', err);
@@ -1666,27 +1621,6 @@ document.getElementById('setting-night-price').value = data.night_price || 50000
         const { error } = await supabaseClient.from('users').delete().eq('id', userId);
         if (error) throw error;
         await loadUsers();
-
-      // ✅ تفعيل Flatpickr للتواريخ
-      flatpickr("#booking-filter-date", {
-        locale: "ar",
-        dateFormat: "Y-m-d",
-        disableMobile: true,
-        placeholder: "اختر التاريخ",
-        onChange: function() { loadBookings(); }
-      });
-      flatpickr("#tournament-start", {
-        locale: "ar",
-        dateFormat: "Y-m-d",
-        disableMobile: true,
-        placeholder: "تاريخ البدء"
-      });
-      flatpickr("#tournament-end", {
-        locale: "ar",
-        dateFormat: "Y-m-d",
-        disableMobile: true,
-        placeholder: "تاريخ الانتهاء"
-      });
         showToast('تم الحذف');
       } catch (err) {
         alert('خطأ في الحذف');
@@ -1729,4 +1663,4 @@ document.getElementById('setting-night-price').value = data.night_price || 50000
     </div>
 </div>
 </body>
-</html> 
+</html>
