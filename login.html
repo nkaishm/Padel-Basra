@@ -185,6 +185,7 @@
     }
   </style>
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
   <div class="toast" id="toast"></div>
@@ -266,6 +267,11 @@
 
             const userData = data[0];
 
+            // ✅ تسجيل للتحقق من البيانات
+            console.log('✅ verify_pin returned:', userData);
+            console.log('✅ role value:', userData.role);
+            console.log('✅ role type:', typeof userData.role);
+
             if (!userData.is_active) {
                 throw new Error('الحساب معطل. تواصل مع المدير');
             }
@@ -295,6 +301,7 @@
                 targetPage = 'worker.html';
             }
 
+            console.log('✅ Redirecting to:', targetPage);
             window.location.href = targetPage;
 
         } catch (err) {
