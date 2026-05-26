@@ -546,6 +546,19 @@
     font-size: 12px;
 }
     }
+
+    /* ✅ إصلاح عرض التاريخ في المتصفح العربي */
+    input[type="date"],
+    input[type="datetime-local"] {
+        direction: ltr !important;
+        text-align: left !important;
+        font-family: 'Segoe UI', Tahoma, sans-serif !important;
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+        margin-left: auto;
+        margin-right: 0;
+    }
   </style>
 <base target="_blank">
 <base target="_blank">
@@ -736,7 +749,7 @@
             <select id="maint-court" class="form-select">
               <option value="1">ملعب 1</option>
               <option value="2">ملعب 2</option>
-              <option value="3">الملعبين</option>
+                            <option value="3">الملعبين</option>
             </select>
           </div>
           <div class="form-group">
@@ -747,11 +760,11 @@
         <div class="form-row">
           <div class="form-group">
             <label>وقت البدء</label>
-            <input type="text" id="maint-start" class="form-input" placeholder="وقت البدء" readonly>
+            <input type="datetime-local" id="maint-start" class="form-input">
           </div>
-                    <div class="form-group">
+          <div class="form-group">
                         <label>وقت الانتهاء المتوقع</label>
-            <input type="text" id="maint-end" class="form-input" placeholder="وقت الانتهاء" readonly>
+            <input type="datetime-local" id="maint-end" class="form-input">
           </div>
         </div>
         <button class="btn btn-warning" onclick="addMaintenance()">
@@ -1486,7 +1499,7 @@ document.getElementById('setting-night-price').value = data.night_price || 50000
     morning_price: parseInt(document.getElementById('setting-morning-price').value) || 30000,
     evening_price: parseInt(document.getElementById('setting-evening-price').value) || 40000,
     night_price: parseInt(document.getElementById('setting-night-price').value) || 50000,
-    manager_phone: document.getElementById('setting-phone').value,
+        manager_phone: document.getElementById('setting-phone').value,
     whatsapp_number: document.getElementById('setting-whatsapp').value,
     location_url: document.getElementById('setting-location').value,
     booking_notes: document.getElementById('setting-notes').value,
@@ -1499,7 +1512,7 @@ document.getElementById('setting-night-price').value = data.night_price || 50000
 
   // Use UPSERT - update if exists, insert if not
   const { error } = await supabaseClient
-         .from('settings')
+    .from('settings')
     .upsert([settings], { onConflict: 'id' });
 
   if (error) {
