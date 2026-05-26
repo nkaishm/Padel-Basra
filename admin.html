@@ -549,6 +549,8 @@
   </style>
 <base target="_blank">
 <base target="_blank">
+  <link rel="stylesheet" href="spinwheel.css">
+<base target="_blank">
 </head>
 <body>
   <div class="toast" id="toast"></div>
@@ -664,7 +666,7 @@
         </button>
       </div>
       <div class="filters">
-        <input type="date" id="booking-filter-date" class="form-input" onchange="loadBookings()">
+        <input type="text" id="booking-filter-date" class="form-input spinwheel-date" placeholder="🎾 اضغط لاختيار التاريخ" readonly onchange="loadBookings()">
         <select id="booking-filter-court" class="form-select" onchange="loadBookings()">
           <option value="">كل الملاعب</option>
           <option value="1">ملعب 1</option>
@@ -747,11 +749,11 @@
         <div class="form-row">
           <div class="form-group">
             <label>وقت البدء</label>
-            <input type="datetime-local" id="maint-start" class="form-input">
+                        <input type="text" id="maint-start" class="form-input spinwheel-datetime" placeholder="🎾 اضغط لاختيار الوقت" readonly>
           </div>
                     <div class="form-group">
                         <label>وقت الانتهاء المتوقع</label>
-            <input type="datetime-local" id="maint-end" class="form-input">
+            <input type="text" id="maint-end" class="form-input spinwheel-datetime" placeholder="🎾 اضغط لاختيار الوقت" readonly>
           </div>
         </div>
         <button class="btn btn-warning" onclick="addMaintenance()">
@@ -786,7 +788,7 @@
         </div>
       </div>
       <div class="filters">
-        <input type="month" id="report-month" class="form-input" value="2026-05">
+        <input type="text" id="report-month" class="form-input spinwheel-date" placeholder="🎾 اضغط لاختيار الشهر" readonly value="2026-05">
         <select id="report-type" class="form-select">
           <option value="daily">يومي</option>
           <option value="weekly">أسبوعي</option>
@@ -949,11 +951,11 @@
       <div class="form-row">
         <div class="form-group">
           <label>تاريخ البدء</label>
-          <input type="date" id="tournament-start" class="form-input">
+          <input type="text" id="tournament-start" class="form-input spinwheel-date" placeholder="🎾 اضغط لاختيار التاريخ" readonly>
         </div>
         <div class="form-group">
           <label>تاريخ الانتهاء</label>
-          <input type="date" id="tournament-end" class="form-input">
+          <input type="text" id="tournament-end" class="form-input spinwheel-date" placeholder="🎾 اضغط لاختيار التاريخ" readonly>
         </div>
       </div>
       <button class="btn btn-primary btn-full" onclick="saveTournament()">
@@ -1497,7 +1499,7 @@ document.getElementById('setting-night-price').value = data.night_price || 50000
       facebook: document.getElementById('setting-facebook').value,
       tiktok: document.getElementById('setting-tiktok').value
     })
-  };
+      };
   // Use UPSERT - update if exists, insert if not
   const { error } = await supabaseClient
     .from('settings')
@@ -1663,5 +1665,43 @@ document.getElementById('setting-night-price').value = data.night_price || 50000
         </form>
     </div>
 </div>
+
+<script src="spinwheel.js"></script>
+<script>
+// تفعيل Spin Wheel للحقول في لوحة التحكم
+document.addEventListener('DOMContentLoaded', function() {
+
+    // حقول التاريخ (Date)
+    document.querySelectorAll('.spinwheel-date').forEach(input => {
+        input.addEventListener('click', function() {
+            const picker = new SpinWheelPicker({
+                type: 'date',
+                onSelect: (result) => {
+                    input.value = result.formatted;
+                    input.dataset.value = result.formatted;
+                    // تفعيل onchange إذا موجود
+                    if (input.onchange) input.onchange();
+                }
+            });
+            picker.show();
+        });
+    });
+
+    // حقول التاريخ والوقت (DateTime)
+    document.querySelectorAll('.spinwheel-datetime').forEach(input => {
+        input.addEventListener('click', function() {
+            const picker = new SpinWheelPicker({
+                type: 'datetime',
+                onSelect: (result) => {
+                    input.value = result.formatted;
+                    input.dataset.value = result.formatted;
+                }
+            });
+            picker.show();
+        });
+    });
+});
+</script>
+
 </body>
 </html>
