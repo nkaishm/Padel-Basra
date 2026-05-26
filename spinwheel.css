@@ -1,5 +1,5 @@
 /* ============================================
-   SPIN WHEEL DATE/TIME PICKER - Custom CSS
+   SPIN WHEEL DATE/TIME PICKER - Padel Theme
    ============================================ */
 
 .spinwheel-overlay {
@@ -8,9 +8,9 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    background: rgba(11, 17, 32, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     z-index: 9998;
     opacity: 0;
     visibility: hidden;
@@ -27,14 +27,15 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    background: #fff;
+    background: #1e293b;
     border-radius: 20px 20px 0 0;
     z-index: 9999;
     transform: translateY(100%);
     transition: transform 0.3s ease, opacity 0.3s ease;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    box-shadow: 0 -4px 30px rgba(0, 212, 255, 0.15);
+    font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     opacity: 0;
+    border: 1px solid rgba(0, 212, 255, 0.2);
 }
 
 .spinwheel-modal.active {
@@ -47,36 +48,47 @@
     justify-content: space-between;
     align-items: center;
     padding: 16px 20px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.2);
     position: relative;
     z-index: 10001;
 }
 
 .spinwheel-title {
     font-size: 16px;
-    font-weight: 600;
-    color: #333;
+    font-weight: 700;
+    color: #F8FAFC;
 }
 
 .spinwheel-btn {
     background: none;
     border: none;
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    padding: 4px 12px;
+    padding: 8px 16px;
     pointer-events: auto;
     position: relative;
     z-index: 10002;
     -webkit-tap-highlight-color: transparent;
+    border-radius: 8px;
+    transition: all 0.2s ease;
 }
 
 .spinwheel-btn.cancel {
-    color: #999;
+    color: #94A3B8;
+}
+
+.spinwheel-btn.cancel:hover {
+    color: #F8FAFC;
+    background: rgba(148, 163, 184, 0.1);
 }
 
 .spinwheel-btn.done {
-    color: #007AFF;
+    color: #00D4FF;
+}
+
+.spinwheel-btn.done:hover {
+    background: rgba(0, 212, 255, 0.1);
 }
 
 .spinwheel-body {
@@ -116,12 +128,12 @@
 
 .spinwheel-column::before {
     top: 0;
-    background: linear-gradient(to bottom, #fff 0%, transparent 100%);
+    background: linear-gradient(to bottom, #1e293b 0%, transparent 100%);
 }
 
 .spinwheel-column::after {
     bottom: 0;
-    background: linear-gradient(to top, #fff 0%, transparent 100%);
+    background: linear-gradient(to top, #1e293b 0%, transparent 100%);
 }
 
 .spinwheel-items {
@@ -132,7 +144,7 @@
     height: 36px;
     line-height: 36px;
     font-size: 18px;
-    color: #ccc;
+    color: #64748B;
     transition: all 0.2s ease;
     user-select: none;
     -webkit-user-select: none;
@@ -140,9 +152,10 @@
 }
 
 .spinwheel-item.active {
-    color: #333;
-    font-weight: 600;
+    color: #00D4FF;
+    font-weight: 700;
     font-size: 20px;
+    text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
 }
 
 .spinwheel-indicator {
@@ -152,8 +165,8 @@
     width: 100%;
     height: 36px;
     transform: translateY(-50%);
-    border-top: 1px solid #eee;
-    border-bottom: 1px solid #eee;
+    border-top: 1px solid rgba(0, 212, 255, 0.3);
+    border-bottom: 1px solid rgba(0, 212, 255, 0.3);
     pointer-events: none;
     z-index: 1;
 }
@@ -168,6 +181,8 @@
         border-radius: 16px;
         transform: translate(-50%, -40%) scale(0.95);
         opacity: 0;
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        box-shadow: 0 0 40px rgba(0, 212, 255, 0.1);
     }
     
     .spinwheel-modal.active {
@@ -180,21 +195,23 @@
 .spinwheel-input {
     width: 100%;
     padding: 12px 16px;
-    border: 2px solid #e0e0e0;
+    border: 2px solid rgba(148, 163, 184, 0.2);
     border-radius: 12px;
     font-size: 16px;
-    color: #333;
-    background: #fff;
+    color: #F8FAFC;
+    background: #0f172a;
     cursor: pointer;
-    transition: border-color 0.2s;
+    transition: all 0.2s ease;
     text-align: center;
+    font-family: 'Tajawal', sans-serif;
 }
 
 .spinwheel-input:focus {
     outline: none;
-    border-color: #007AFF;
+    border-color: #00D4FF;
+    box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.1);
 }
 
 .spinwheel-input::placeholder {
-    color: #999;
+    color: #64748B;
 }
