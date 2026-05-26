@@ -1018,9 +1018,7 @@
     async function loadTournaments() {
       try {
         const { data: tournaments, error } = await supabaseClient
-          .from('tournaments')
-          .select('*')
-          .order('date', { ascending: true });
+          .from('tournaments').select('*').order('tournament_date', { ascending: true })
 
         const container = document.getElementById('tournaments-list');
         if (error || !tournaments || tournaments.length === 0) {
