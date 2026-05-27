@@ -1014,13 +1014,13 @@
   '<i class="fas fa-lock"></i> ' + (t.registration_status === 'closed' ? 'فتح' : 'مكتمل') +
 '</button>' +
   '<i class="fas fa-lock"></i> ' + (t.registration_status === 'closed' ? 'فتح' : 'مكتمل') +
-'</button>' +"editTournament(' + "'" + t.id + "'" + ')">' +
+'<button class="btn btn-primary btn-small" onclick="editTournament(\'' + t.id + '\')">' +
                 '<i class="fas fa-edit"></i> تعديل' +
               '</button>' +
-              '<button class="btn btn-danger btn-small" onclick="deleteTournament(' + "'" + t.id + "'" + ')">' +
+              '<button class="btn btn-danger btn-small" onclick="deleteTournament(\'' + t.id + '\')">'
                 '<i class="fas fa-trash"></i> حذف' +
               '</button>' +
-              '<button class="btn btn-success btn-small" onclick="showTournamentDetail(' + "'" + t.id + "'" + ')">' +
+              '<button class="btn btn-success btn-small" onclick="showTournamentDetail(\'' + t.id + '\')">'
                 '<i class="fas fa-cog"></i> إدارة' +
               '</button>' +
             '</div>' +
