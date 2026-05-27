@@ -1064,7 +1064,7 @@
       (team.team_status === 'approved' ? '✅ مقبول' : (team.team_status === 'rejected' ? '❌ مرفوض' : '⏳ قيد الانتظار')) +
     '</span>' +
     '<div style="display: flex; gap: 0.3rem; margin-top: 0.3rem;">' +
-      (team.team_status !== 'approved' ? '<button class="btn btn-success btn-small" onclick="approveTeamFunc(' + "'" + team.id + "'" + ')">✅ قبول</button>' : '') +
+      '<button class=\\'btn btn-success btn-small\\' onclick=\\'approveTeamFunc("' + team.id + '")\\'>✅ قبول</button>'
       (team.team_status !== 'rejected' ? '<button class="btn btn-danger btn-small" onclick="rejectTeamFunc(' + "'" + team.id + "'" + ')">❌ رفض</button>' : '') +
     '</div>' +
   '</div>' +
