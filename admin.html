@@ -757,6 +757,388 @@
     async function toggleUser(id) {
       showToast('تم تحديث حالة المستخدم', 'success');
     }
+
+    // ============================================
+    // نظام البطولات - كامل
+    // ============================================
+    let currentTournamentId = null;
+    let editingTournamentId = null;
+
+    async function createTournament() {
+      const name = document.getElementById('tour-name').value.trim();
+      const date = document.getElementById('tour-date').value;
+      const time = document.getElementById('tour-time').value;
+      const court = parseInt(document.getElementById('tour-court').value);
+      const teamCount = parseInt(document.getElementById('tour-teams').value);
+      const fee = parseInt(document.getElementById('tour-fee').value) || 0;
+      const prize = document.getElementById('tour-prize').value.trim();
+      const desc = document.getElementById('tour-desc').value.trim();
+
+      if (!name || !date || !time || !teamCount || teamCount < 2) {
+        showToast('الرجاء ملء الحقول المطلوبة (عدد الفرق 2 على الأقل)', 'error');
+        return;
+      }
+
+      const { data, error } = await supabaseClient.from('tournaments').insert([{
+        name: name, description: desc, tournament_date: date, start_time: time,
+        court_id: court, team_count: teamCount, entry_fee: fee, prize: prize, status: 'upcoming', registration_status: 'open'
+      }]).select();
+
+      if (error) { showToast('خطأ: ' + error.message, 'error'); return; }
+
+      if (data && data[0]) {
+        await supabaseClient.rpc('create_tournament_matches', { p_tournament_id: data[0].id });
+      }
+
+      showToast('تم إنشاء البطولة بنجاح!', 'success');
+      document.getElementById('tour-name').value = '';
+      document.getElementById('tour-desc').value = '';
+      document.getElementById('tour-date').value = '';
+      document.getElementById('tour-time').value = '';
+      document.getElementById('tour-teams').value = '';
+      document.getElementById('tour-fee').value = '';
+      document.getElementById('tour-prize').value = '';
+      loadTournaments();
+    }
+
+    async function updateTournament() {
+      if (!editingTournamentId) return;
+
+      const name = document.getElementById('tour-name').value.trim();
+      const date = document.getElementById('tour-date').value;
+      const time = document.getElementById('tour-time').value;
+      const court = parseInt(document.getElementById('tour-court').value);
+      const teamCount = parseInt(document.getElementById('tour-teams').value);
+      const fee = parseInt(document.getElementById('tour-fee').value) || 0;
+      const prize = document.getElementById('tour-prize').value.trim();
+      const desc = document.getElementById('tour-desc').value.trim();
+
+      if (!name || !date || !time || !teamCount || teamCount < 2) {
+        showToast('الرجاء ملء الحقول المطلوبة', 'error');
+        return;
+      }
+
+      const { error } = await supabaseClient.from('tournaments').update({
+        name: name, description: desc, tournament_date: date, start_time: time,
+        court_id: court, team_count: teamCount, entry_fee: fee, prize: prize
+      }).eq('id', editingTournamentId);
+
+      if (error) { showToast('خطأ: ' + error.message, 'error'); return; }
+
+      showToast('تم تحديث البطولة بنجاح!', 'success');
+
+      document.getElementById('tour-name').value = '';
+      document.getElementById('tour-desc').value = '';
+      document.getElementById('tour-date').value = '';
+      document.getElementById('tour-time').value = '';
+      document.getElementById('tour-teams').value = '';
+      document.getElementById('tour-fee').value = '';
+      document.getElementById('tour-prize').value = '';
+      editingTournamentId = null;
+
+      const btn = document.querySelector('#tournaments-tab .btn-primary.btn-full');
+      btn.innerHTML = '<i class="fas fa-plus"></i> إنشاء البطولة';
+      btn.onclick = function() { createTournament(); };
+
+      loadTournaments();
+    }
+
+    async function deleteTournament(id) {
+      if (!confirm('هل أنت متأكد من حذف هذه البطولة؟ سيتم حذف جميع الفرق والمباريات أيضاً!')) return;
+
+      await supabaseClient.from('tournament_matches').delete().eq('tournament_id', id);
+      await supabaseClient.from('tournament_teams').delete().eq('tournament_id', id);
+      await supabaseClient.from('tournaments').delete().eq('id', id);
+
+      showToast('تم حذف البطولة', 'success');
+      loadTournaments();
+      document.getElementById('tournament-detail').style.display = 'none';
+    }
+
+    async function editTournament(id) {
+      editingTournamentId = id;
+      const { data: tour } = await supabaseClient.from('tournaments').select('*').eq('id', id).single();
+      if (!tour) return;
+
+      document.getElementById('tour-name').value = tour.name;
+      document.getElementById('tour-desc').value = tour.description || '';
+      document.getElementById('tour-date').value = tour.tournament_date;
+      document.getElementById('tour-time').value = tour.start_time.substring(0, 5);
+      document.getElementById('tour-court').value = tour.court_id;
+      document.getElementById('tour-teams').value = tour.team_count;
+      document.getElementById('tour-fee').value = tour.entry_fee || '';
+      document.getElementById('tour-prize').value = tour.prize || '';
+
+      const btn = document.querySelector('#tournaments-tab .btn-primary.btn-full');
+      btn.innerHTML = '<i class="fas fa-save"></i> تحديث البطولة';
+      btn.onclick = function() { updateTournament(); };
+
+      showToast('تم تحميل البيانات للتعديل', 'success');
+      document.getElementById('tournaments-tab').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function toggleTournamentStatus(id, newStatus) {
+      const { error } = await supabaseClient.from('tournaments').update({ registration_status: newStatus }).eq('id', id);
+      if (error) { showToast('خطأ: ' + error.message, 'error'); return; }
+      showToast(newStatus === 'closed' ? 'تم إغلاق التسجيل' : 'تم فتح التسجيل', 'success');
+      loadTournaments();
+    }
+
+    async function loadTournaments() {
+      const { data: tours, error } = await supabaseClient
+        .from('tournaments').select('*').order('tournament_date', { ascending: true });
+
+      const container = document.getElementById('tournaments-list');
+      if (error || !tours || tours.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">لا توجد بطولات</p>';
+        return;
+      }
+
+      container.innerHTML = tours.map(function(t) {
+        let statusBadge = '';
+        if (t.registration_status === 'closed') statusBadge = '<span style="background: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">🔒 مغلقة</span>';
+        else if (t.status === 'upcoming') statusBadge = '<span style="background: var(--neon-blue-dim); color: var(--neon-blue); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">🔜 قادمة</span>';
+        else if (t.status === 'ongoing') statusBadge = '<span style="background: rgba(245, 158, 11, 0.1); color: var(--warning); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">▶️ جارية</span>';
+        else statusBadge = '<span style="background: var(--emerald-dim); color: var(--emerald); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">✅ منتهية</span>';
+
+        return '<div class="promo-card">' +
+          '<div style="flex: 1;">' +
+            '<h4 style="color: var(--neon-blue); margin-bottom: 0.3rem;">' + t.name + '</h4>' +
+            '<p style="color: var(--text-secondary); font-size: 0.85rem;">📅 ' + t.tournament_date + ' | ⏰ ' + t.start_time.substring(0, 5) + 
+            ' | 🎾 ' + (t.court_id === 0 ? 'كلاهما' : 'ملعب ' + t.court_id) + ' | 👥 ' + t.team_count + ' فرق</p>' +
+            '<p style="color: var(--text-secondary); font-size: 0.85rem;">💰 رسوم: ' + (t.entry_fee || 0).toLocaleString() + ' د.ع' + 
+            (t.prize ? ' | 🏆 ' + t.prize : '') + '</p>' +
+          '</div>' +
+          '<div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: center;">' +
+            statusBadge +
+            '<div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap;">' +
+              '<button class="btn btn-warning btn-small" onclick="toggleTournamentStatus(' + "'" + t.id + "'" + ', ' + (t.registration_status === 'closed' ? ''open'' : ''closed'') + ')">' +
+                '<i class="fas fa-lock"></i> ' + (t.registration_status === 'closed' ? 'فتح' : 'مكتمل') +
+              '</button>' +
+              '<button class="btn btn-primary btn-small" onclick="editTournament(' + "'" + t.id + "'" + ')">' +
+                '<i class="fas fa-edit"></i> تعديل' +
+              '</button>' +
+              '<button class="btn btn-danger btn-small" onclick="deleteTournament(' + "'" + t.id + "'" + ')">' +
+                '<i class="fas fa-trash"></i> حذف' +
+              '</button>' +
+              '<button class="btn btn-success btn-small" onclick="showTournamentDetail(' + "'" + t.id + "'" + ')">' +
+                '<i class="fas fa-cog"></i> إدارة' +
+              '</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    async function showTournamentDetail(tourId) {
+      currentTournamentId = tourId;
+      document.getElementById('tournament-detail').style.display = 'block';
+      document.getElementById('tournament-detail').scrollIntoView({ behavior: 'smooth' });
+
+      const { data: tour } = await supabaseClient.from('tournaments').select('*').eq('id', tourId).single();
+      if (tour) {
+        document.getElementById('detail-title').innerHTML = '🏆 ' + tour.name;
+      }
+
+      loadTeams(tourId);
+      loadBracket(tourId);
+    }
+
+    async function loadTeams(tourId) {
+      const { data: teams } = await supabaseClient
+        .from('tournament_teams').select('*').eq('tournament_id', tourId).order('created_at');
+
+      const container = document.getElementById('teams-list');
+      const { data: tour } = await supabaseClient.from('tournaments').select('team_count, registration_status').eq('id', tourId).single();
+
+      if (!teams || teams.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-muted); text-align: center;">لا توجد فرق مسجلة</p>';
+      } else {
+        container.innerHTML = teams.map(function(team, idx) {
+          let statusColor = 'var(--warning)';
+          let statusText = '⏳ قيد الانتظار';
+          let actionButtons = '<button class="btn btn-success btn-small" onclick="approveTeamFunc(' + "'" + team.id + "'" + ')">✅ قبول</button>' +
+            '<button class="btn btn-danger btn-small" onclick="rejectTeamFunc(' + "'" + team.id + "'" + ')">❌ رفض</button>';
+
+          if (team.team_status === 'approved') {
+            statusColor = 'var(--emerald)';
+            statusText = '✅ مقبول';
+            actionButtons = '<button class="btn btn-danger btn-small" onclick="rejectTeamFunc(' + "'" + team.id + "'" + ')">❌ رفض</button>';
+          } else if (team.team_status === 'rejected') {
+            statusColor = 'var(--danger)';
+            statusText = '❌ مرفوض';
+            actionButtons = '<button class="btn btn-success btn-small" onclick="approveTeamFunc(' + "'" + team.id + "'" + ')">✅ قبول</button>';
+          }
+
+          return '<div style="background: var(--bg-primary); border: 2px solid ' + statusColor + '; border-radius: 10px; padding: 0.8rem; margin-bottom: 0.5rem;">' +
+            '<div style="display: flex; justify-content: space-between; align-items: flex-start;">' +
+              '<div>' +
+                '<strong style="color: var(--neon-blue);">#' + (idx+1) + ' ' + team.team_name + '</strong>' +
+                '<p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.3rem;">' +
+                '👤 ' + team.player1_name + (team.player1_phone ? ' (' + team.player1_phone + ')' : '') +
+                ' &nbsp;|&nbsp; 👤 ' + team.player2_name + (team.player2_phone ? ' (' + team.player2_phone + ')' : '') +
+                '</p>' +
+              '</div>' +
+              '<div style="text-align: center;">' +
+                '<span style="color: ' + statusColor + '; font-size: 0.8rem; font-weight: 700;">' + statusText + '</span>' +
+                '<div style="display: flex; gap: 0.3rem; margin-top: 0.3rem;">' + actionButtons + '</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+      }
+
+      // Hide add team form if tournament is closed or full
+      const approvedCount = teams ? teams.filter(function(t) { return t.team_status === 'approved'; }).length : 0;
+      if (tour && (tour.registration_status === 'closed' || approvedCount >= tour.team_count)) {
+        document.getElementById('add-team-form').style.display = 'none';
+      } else {
+        document.getElementById('add-team-form').style.display = 'block';
+      }
+    }
+
+    async function approveTeamFunc(teamId) {
+      await supabaseClient.rpc('approve_team', { p_team_id: teamId });
+      showToast('تم قبول الفريق', 'success');
+      loadTeams(currentTournamentId);
+      loadBracket(currentTournamentId);
+    }
+
+    async function rejectTeamFunc(teamId) {
+      if (!confirm('هل أنت متأكد من رفض هذا الفريق؟')) return;
+      await supabaseClient.rpc('reject_team', { p_team_id: teamId });
+      showToast('تم رفض الفريق', 'success');
+      loadTeams(currentTournamentId);
+      loadBracket(currentTournamentId);
+    }
+
+    async function addTeam() {
+      const teamName = document.getElementById('team-name').value.trim();
+      const p1Name = document.getElementById('player1-name').value.trim();
+      const p2Name = document.getElementById('player2-name').value.trim();
+      const p1Phone = document.getElementById('player1-phone').value.trim();
+      const p2Phone = document.getElementById('player2-phone').value.trim();
+
+      if (!teamName || !p1Name || !p2Name) {
+        showToast('الرجاء ملء الحقول المطلوبة', 'error');
+        return;
+      }
+
+      const { error } = await supabaseClient.from('tournament_teams').insert([{
+        tournament_id: currentTournamentId,
+        team_name: teamName, player1_name: p1Name, player1_phone: p1Phone,
+        player2_name: p2Name, player2_phone: p2Phone, team_status: 'pending'
+      }]);
+
+      if (error) { showToast('خطأ: ' + error.message, 'error'); return; }
+
+      showToast('تم إضافة الفريق', 'success');
+      document.getElementById('team-name').value = '';
+      document.getElementById('player1-name').value = '';
+      document.getElementById('player2-name').value = '';
+      document.getElementById('player1-phone').value = '';
+      document.getElementById('player2-phone').value = '';
+      loadTeams(currentTournamentId);
+    }
+
+    async function loadBracket(tourId) {
+      const { data: matches } = await supabaseClient
+        .from('tournament_matches').select('*, team1:tournament_teams!team1_id(*), team2:tournament_teams!team2_id(*), winner:tournament_teams!winner_id(*)')
+        .eq('tournament_id', tourId).order('round', { ascending: true }).order('match_number');
+
+      const container = document.getElementById('bracket-display');
+      if (!matches || matches.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">لم يتم إنشاء المباريات</p>';
+        return;
+      }
+
+      const rounds = { round_16: 'دور الـ 16', quarter: 'ربع النهائي', semi: 'نصف النهائي', final: 'النهائي' };
+      let html = '';
+
+      for (const round of ['round_16', 'quarter', 'semi', 'final']) {
+        const roundMatches = matches.filter(function(m) { return m.round === round; });
+        if (roundMatches.length === 0) continue;
+
+        html += '<div style="margin-bottom: 1.5rem;">';
+        html += '<h4 style="color: var(--warning); margin-bottom: 0.8rem; text-align: center;">' + rounds[round] + '</h4>';
+
+        html += '<div style="display: grid; gap: 0.8rem;">';
+        roundMatches.forEach(function(match) {
+          const t1 = match.team1 ? match.team1.team_name : '---';
+          const t2 = match.team2 ? match.team2.team_name : '---';
+          const s1 = match.team1_score || 0;
+          const s2 = match.team2_score || 0;
+          const isDone = match.is_completed;
+          const winner = match.winner ? match.winner.team_name : null;
+
+          html += '<div style="background: var(--bg-primary); border: 2px solid ' + (isDone ? 'var(--emerald)' : 'var(--border)') + '; border-radius: 12px; padding: 1rem;">';
+          html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">';
+          html += '<span style="' + (winner === t1 ? 'color: var(--emerald); font-weight: 700;' : '') + '">' + t1 + '</span>';
+          html += '<span style="font-size: 1.2rem; font-weight: 900; color: var(--neon-blue);">' + s1 + ' - ' + s2 + '</span>';
+          html += '<span style="' + (winner === t2 ? 'color: var(--emerald); font-weight: 700;' : '') + '">' + t2 + '</span>';
+          html += '</div>';
+
+          if (!isDone && match.team1_id && match.team2_id) {
+            html += '<div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">';
+            html += '<input type="number" id="score1-' + match.id + '" class="form-input" placeholder="فريق 1" style="width: 80px; text-align: center;">';
+            html += '<input type="number" id="score2-' + match.id + '" class="form-input" placeholder="فريق 2" style="width: 80px; text-align: center;">';
+            html += '<select id="winner-' + match.id + '" class="form-select" style="flex: 1;">';
+            html += '<option value="">اختر الفائز</option>';
+            html += '<option value="' + match.team1_id + '">' + t1 + '</option>';
+            html += '<option value="' + match.team2_id + '">' + t2 + '</option>';
+            html += '</select>';
+            html += '<button class="btn btn-success btn-small" onclick="submitMatchResult(' + "'" + match.id + "'" + ')">✓</button>';
+            html += '</div>';
+          }
+
+          if (isDone && winner) {
+            html += '<div style="text-align: center; color: var(--emerald); font-weight: 700; margin-top: 0.5rem;">🏆 الفائز: ' + winner + '</div>';
+          }
+
+          html += '</div>';
+        });
+        html += '</div></div>';
+      }
+
+      container.innerHTML = html;
+    }
+
+    async function submitMatchResult(matchId) {
+      const score1 = parseInt(document.getElementById('score1-' + matchId).value) || 0;
+      const score2 = parseInt(document.getElementById('score2-' + matchId).value) || 0;
+      const winnerId = document.getElementById('winner-' + matchId).value;
+
+      if (!winnerId) {
+        showToast('الرجاء اختيار الفائز', 'error');
+        return;
+      }
+
+      await supabaseClient.from('tournament_matches').update({
+        team1_score: score1, team2_score: score2
+      }).eq('id', matchId);
+
+      await supabaseClient.rpc('update_match_winner', {
+        p_match_id: matchId,
+        p_winner_id: winnerId
+      });
+
+      showToast('تم تحديث النتيجة', 'success');
+      loadBracket(currentTournamentId);
+    }
+
+    // Update showTab to include tournaments
+    const originalShowTab = showTab;
+    showTab = function(tabId) {
+      document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+      document.getElementById(tabId + '-tab').classList.add('active');
+      event.target.classList.add('active');
+      if (tabId === 'dashboard') loadDashboard();
+      if (tabId === 'bookings') loadBookings();
+      if (tabId === 'promotions') loadPromotions();
+      if (tabId === 'users') loadUsers();
+      if (tabId === 'tournaments') loadTournaments();
+    };
   </script>
 </body>
 </html>
