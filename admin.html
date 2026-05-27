@@ -1072,7 +1072,6 @@
   '</div>' +
 '</div>' +
      
-      }
 
       const { data: tour } = await supabaseClient.from('tournaments').select('team_count').eq('id', tourId).single();
       if (teams && tour && teams.length >= tour.team_count) {
