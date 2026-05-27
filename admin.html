@@ -1010,7 +1010,9 @@
           '<div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: center;">' +
             statusBadge +
             '<div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">' +
-              '<button class="btn btn-primary btn-small" onclick="editTournament(' + "'" + t.id + "'" + ')">' +
+              '<button class="btn btn-primary btn-small" onclick='<button class="btn btn-warning btn-small" onclick="toggleTournamentStatus(' + "'" + t.id + "'" + ', ' + (t.registration_status === 'closed' ? "'open'" : "'closed'") + ')">' +
+  '<i class="fas fa-lock"></i> ' + (t.registration_status === 'closed' ? 'فتح' : 'مكتمل') +
+'</button>' +"editTournament(' + "'" + t.id + "'" + ')">' +
                 '<i class="fas fa-edit"></i> تعديل' +
               '</button>' +
               '<button class="btn btn-danger btn-small" onclick="deleteTournament(' + "'" + t.id + "'" + ')">' +
@@ -1049,12 +1051,24 @@
       } else {
         container.innerHTML = teams.map(function(team, idx) {
           return '<div style="background: var(--bg-primary); border: 1px solid var(--border); border-radius: 10px; padding: 0.8rem; margin-bottom: 0.5rem;">' +
-            '<strong style="color: var(--neon-blue);">#' + (idx+1) + ' ' + team.team_name + '</strong>' +
-            '<p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.3rem;">' +
-            '👤 ' + team.player1_name + (team.player1_phone ? ' (' + team.player1_phone + ')' : '') +
-            ' &nbsp;|&nbsp; 👤 ' + team.player2_name + (team.player2_phone ? ' (' + team.player2_phone + ')' : '') +
-            '</p>' +
-          '</div>';
+           '<div style="display: flex; justify-content: space-between; align-items: flex-start;">' +
+  '<div>' +
+    '<strong style="color: var(--neon-blue);">#' + (idx+1) + ' ' + team.team_name + '</strong>' +
+    '<p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.3rem;">' +
+    '👤 ' + team.player1_name + (team.player1_phone ? ' (' + team.player1_phone + ')' : '') +
+    ' &nbsp;|&nbsp; 👤 ' + team.player2_name + (team.player2_phone ? ' (' + team.player2_phone + ')' : '') +
+    '</p>' +
+  '</div>' +
+  '<div style="text-align: center;">' +
+    '<span style="color: ' + (team.team_status === 'approved' ? 'var(--emerald)' : (team.team_status === 'rejected' ? 'var(--danger)' : 'var(--warning)')) + '; font-size: 0.8rem; font-weight: 700;">' +
+      (team.team_status === 'approved' ? '✅ مقبول' : (team.team_status === 'rejected' ? '❌ مرفوض' : '⏳ قيد الانتظار')) +
+    '</span>' +
+    '<div style="display: flex; gap: 0.3rem; margin-top: 0.3rem;">' +
+      (team.team_status !== 'approved' ? '<button class="btn btn-success btn-small" onclick="approveTeamFunc(' + "'" + team.id + "'" + ')">✅ قبول</button>' : '') +
+      (team.team_status !== 'rejected' ? '<button class="btn btn-danger btn-small" onclick="rejectTeamFunc(' + "'" + team.id + "'" + ')">❌ رفض</button>' : '') +
+    '</div>' +
+  '</div>' +
+'</div>' +
         }).join('');
       }
 
@@ -1193,6 +1207,28 @@
       if (tabId === 'users') loadUsers();
       if (tabId === 'tournaments') loadTournaments();
     };
+    
+    async function toggleTournamentStatus(id, newStatus) {
+  const { error } = await supabaseClient.from('tournaments').update({ registration_status: newStatus }).eq('id', id);
+  if (error) { showToast('خطأ: ' + error.message, 'error'); return; }
+  showToast(newStatus === 'closed' ? 'تم إغلاق التسجيل' : 'تم فتح التسجيل', 'success');
+  loadTournaments();
+}
+
+async function approveTeamFunc(teamId) {
+  await supabaseClient.rpc('approve_team', { p_team_id: teamId });
+  showToast('تم قبول الفريق', 'success');
+  loadTeams(currentTournamentId);
+  loadBracket(currentTournamentId);
+}
+
+async function rejectTeamFunc(teamId) {
+  if (!confirm('هل أنت متأكد من رفض هذا الفريق؟')) return;
+  await supabaseClient.rpc('reject_team', { p_team_id: teamId });
+  showToast('تم رفض الفريق', 'success');
+  loadTeams(currentTournamentId);
+  loadBracket(currentTournamentId);
+}
   </script>
 </body>
 </html>
